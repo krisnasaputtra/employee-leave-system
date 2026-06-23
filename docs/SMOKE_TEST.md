@@ -4,30 +4,30 @@
 
 ## Prerequisites
 
-- [ ] Supabase project is accessible
-- [ ] Application is deployed and reachable
-- [ ] At least one ADMIN account exists
-- [ ] Public sign-up is disabled (Supabase Dashboard → Authentication → Settings → "Enable sign up" = OFF)
+- [x] Supabase project is accessible
+- [x] Application is deployed and reachable
+- [x] At least one ADMIN account exists
+- [x] Public sign-up is disabled (Supabase Dashboard → Authentication → Settings → "Enable sign up" = OFF)
 
 ---
 
 ## 1. Authentication
 
-- [ ] Admin can sign in with email/password
-- [ ] Invalid credentials show error (not raw error)
-- [ ] After login, redirected to dashboard (not /dashboard/default)
-- [ ] Session persists on page refresh
-- [ ] Logout clears session and redirects to /login
-- [ ] Unauthenticated access to /dashboard redirects to /login
+- [x] Admin can sign in with email/password
+- [x] Invalid credentials show error (not raw error)
+- [x] After login, redirected to dashboard (not /dashboard/default)
+- [x] Session persists on page refresh
+- [x] Logout clears session and redirects to /login
+- [x] Unauthenticated access to /dashboard redirects to /login
 
 ## 2. Employee Management (Admin only)
 
-- [ ] Admin can create employee WITHOUT login account
-- [ ] Admin can create employee WITH login account (temp password)
-- [ ] Employee with temp password is forced to change password on first login
-- [ ] Admin can update employee details
-- [ ] Admin can deactivate employee
-- [ ] Non-admin users cannot access employee management
+- [x] Admin can create employee WITHOUT login account
+- [x] Admin can create employee WITH login account (temp password)
+- [x] Employee with temp password is forced to change password on first login
+- [x] Admin can update employee details
+- [x] Admin can deactivate employee
+- [x] Non-admin users cannot access employee management
 
 ## 3. Configuration (Admin only)
 

@@ -1,8 +1,8 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 
-import { Command } from "lucide-react";
 import { useShallow } from "zustand/react/shallow";
 
 import {
@@ -48,7 +48,7 @@ export function AppSidebar({ user, ...props }: React.ComponentProps<typeof Sideb
           <SidebarMenuItem>
             <SidebarMenuButton asChild>
               <Link prefetch={false} href="/dashboard">
-                <Command />
+                <Image src="/lrm-icon.png" alt="LRM" width={28} height={28} />
                 <span className="font-semibold text-base">{APP_CONFIG.name}</span>
               </Link>
             </SidebarMenuButton>

@@ -1,0 +1,109 @@
+Read these files completely:
+
+- leave-request-management-prd-supabase.md
+- leave-request-management-project-rules-supabase.md
+- implementation-plan-supabase.md
+- task.md
+
+Review the current repository state.
+
+Implement only:
+
+Phase 13 — BNI Brutalist Theme Rebrand
+
+Use this phase to update branding and visual theme only.
+This is a UI/theme phase, not a feature phase.
+Use task.md as the source of truth and update it honestly.
+
+Visual reference rule:
+- Use the uploaded screenshot as a color-theme reference only.
+- Do not recreate the page layout 1:1.
+- Do not copy the screen as a product design.
+- Extract only the brand direction, especially the BNI color feeling.
+- Apply a brutalist-BNI interpretation suitable for the existing admin dashboard.
+
+Main goals:
+- Replace generic template branding with BNI branding.
+- Remove any “Studio Admin” wording.
+- Replace it with “BNI” branding where appropriate.
+- Apply BNI logo usage in the app shell and login page.
+- Update the visual theme so it feels like a brutalist BNI admin system.
+- Keep all existing business logic, routes, permissions, data flows, and Supabase integrations unchanged.
+
+Before coding:
+1. Inspect the existing theme, layout, sidebar, header, login page, logo assets, design tokens, Tailwind theme/config, and shared UI components.
+2. Find all occurrences of “Studio Admin” and any other template branding.
+3. List the exact files to create, modify, or delete.
+4. Explain theme-token, branding, asset, UI, and testing impact.
+5. Report blockers or conflicts.
+
+Scope:
+- Update global brand identity to BNI.
+- Remove “Studio Admin” text from all pages/components.
+- Replace brand text, metadata, and visible labels with BNI naming where appropriate.
+- Add or replace logo assets so the app uses BNI logo branding.
+- Update the login page branding to BNI as well.
+- Keep the uploaded screenshot only as color reference.
+- Apply a brutalist style direction:
+  - bold, clear, high-contrast blocks
+  - stronger borders/dividers where appropriate
+  - simple, rigid, intentional shapes
+  - clean hierarchy
+  - restrained but strong use of BNI colors
+- Re-theme key shared surfaces:
+  - sidebar
+  - header/topbar
+  - login card/page
+  - buttons
+  - inputs/selects
+  - badges/status colors where safe
+  - cards
+  - tables and filters
+  - dialogs
+  - empty/loading states where needed
+- Preserve responsive behavior and dark/light-mode behavior unless there is a strong reason to limit one mode.
+- Reuse the existing design system and template components.
+- Prefer shared theme tokens or shared component variants over scattered one-off styling.
+
+Rules:
+- Do not change business logic.
+- Do not change routes.
+- Do not change database, RLS, RPC, auth, or feature behavior.
+- Do not implement new product features.
+- Do not refactor unrelated files.
+- Do not hardcode inconsistent colors across random components.
+- Centralize branding and theming where possible.
+- Do not invent command results.
+
+Branding requirements:
+- “Studio Admin” must be removed from:
+  - app shell
+  - page headers where relevant
+  - login page
+  - metadata/title if still using template defaults
+  - footer/help text if present
+- Replace placeholder brand identity with BNI identity.
+- Use BNI logo in the main shell and login page.
+- If multiple logo usages exist, make them consistent.
+- If the repository lacks a clean BNI logo asset, create a safe local asset strategy and document it.
+
+Testing focus:
+- No “Studio Admin” text remains in visible UI.
+- Login page uses BNI branding.
+- Sidebar/header branding uses BNI branding.
+- Existing pages still render correctly.
+- No feature behavior is broken.
+- Theme remains responsive.
+- Theme remains visually consistent.
+- Existing lint, typecheck, and build continue to pass.
+
+After implementation:
+1. Update task.md honestly.
+2. Add a new section or phase entry for Phase 13 if needed.
+3. Mark only tasks that are actually complete.
+4. List files created, modified, and deleted.
+5. List branding assets added or replaced.
+6. List global theme-token or styling changes.
+7. Report exact lint, typecheck, test, and build results.
+8. Report unresolved risks or follow-up branding gaps.
+9. Stop after Phase 13.

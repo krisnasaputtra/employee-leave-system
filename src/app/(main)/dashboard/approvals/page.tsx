@@ -5,7 +5,7 @@ import { Eye } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { getAuthenticatedUser } from "@/lib/auth/get-authenticated-user";
 import { createClient } from "@/lib/supabase/server";
@@ -53,8 +53,7 @@ export default async function ApprovalsPage() {
           </CardHeader>
         </Card>
       ) : (
-        <Card>
-          <CardContent className="p-0">
+        <div className="rounded-lg border bg-card">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -126,8 +125,7 @@ export default async function ApprovalsPage() {
                 })}
               </TableBody>
             </Table>
-          </CardContent>
-        </Card>
+        </div>
       )}
     </div>
   );

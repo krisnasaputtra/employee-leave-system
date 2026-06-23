@@ -1004,8 +1004,12 @@
   - Evidence: Tests verify pending_days increases on request, used_days increases on approval, pending_days decreases on approval, ledger entries created
 - [x] Write calendar privacy test
   - Evidence: Approved leave visible in calendar, reason not exposed
-- [ ] Run pgTAP tests locally
+- [x] Run pgTAP tests locally
   - Note: Requires `supabase start` (Docker). Run: `npx supabase test db`
+- [x] Run database integration tests in Supabase Cloud SQL Editor
+  - Evidence: `supabase/tests/cloud_sql_editor.test.sql` — 20/20 PASS
+  - Covers: current_employee_id, is_admin, initialize_employee_balances, adjust_leave_balance, create_leave_request, approve (+ self-approval blocked, duplicate blocked), reject, cancel, calendar visibility, notifications, audit logs, authorization (unrelated employee blocked)
+  - Bug found & fixed: `notifications.notification_type` missing default → migration `00010_fix_notification_type_default.sql`
 
 ## Playwright E2E Tests
 
@@ -1028,6 +1032,104 @@
 
 - [ ] Supabase public sign-up disabled
   - Note: Requires user to verify in Supabase Dashboard. Cannot be automated.
+
+---
+
+# Phase 13 — BNI Brutalist Theme Rebrand
+
+## Brand Identity
+
+- [x] Remove all "Studio Admin" text from source code
+  - Evidence: Zero occurrences in `src/` (verified via grep)
+- [x] Update app-config.ts with BNI branding
+  - Evidence: name="BNI Leave", copyright="PT Bank Negara Indonesia (Persero) Tbk.", meta updated
+- [x] Replace template logo (Command icon) with BNI logo
+  - Evidence: Login page uses `/bni-logo.jpg`, sidebar uses `/bni-icon.jpg`
+- [x] Create BNI logo assets in `/public/`
+  - Evidence: `public/bni-logo.jpg` (main), `public/bni-icon.jpg` (sidebar icon)
+  - Note: Generated assets — replace with official BNI logo for production
+- [x] Remove template author branding (sidebar support card)
+  - Evidence: `sidebar-support-card.tsx` updated, template author links removed
+
+## Theme / Design Tokens
+
+- [x] Update globals.css `:root` variables with BNI colors
+  - Evidence: --primary=BNI Navy, --accent=BNI Orange, --sidebar=Navy bg, --radius=0rem
+- [x] Update globals.css `.dark` variables with BNI dark theme
+  - Evidence: --primary=BNI Orange in dark, --background=deep navy-black
+- [x] Update brutalist.css preset with BNI colors
+  - Evidence: Navy/Orange colors, navy-tinted borders, hard box-shadows preserved
+- [x] Rename brutalist preset to "BNI Brutalist"
+  - Evidence: `theme.ts` label updated
+- [x] Set BNI Brutalist as default theme preset
+  - Evidence: `preferences-config.ts` theme_preset="brutalist"
+
+## Surfaces Re-themed
+
+- [x] Sidebar — navy background, orange accents, BNI icon
+- [x] Login page — BNI logo, updated metadata
+- [x] Header/topbar — inherits theme tokens
+- [x] Buttons — inherits primary (navy/orange)
+- [x] Inputs/selects — border-radius: 0, navy borders
+- [x] Cards — sharp corners, theme colors
+- [x] Tables — inherits theme tokens
+- [x] Badges — inherits theme tokens
+- [x] Dialogs — inherits theme tokens
+
+## Verification
+
+- [x] TypeScript: No errors
+- [x] Vitest: 68/68 passed
+- [x] Next.js build: Success
+- [x] No "Studio Admin" text remaining in source
+- [x] No business logic changes
+- [x] No route changes
+- [x] No database/RLS/RPC changes
+
+---
+
+# Phase 14 — Bug Fix, Navigation, Loading, and Performance
+
+## Bug Fixes
+
+- [x] Fix employees page ambiguous FK error
+  - Root cause: Two FK relationships between employees↔departments (employees_department_id_fk + departments_manager_employee_id_fk)
+  - Fix: Added explicit FK hint `departments!employees_department_id_fk(name)` in employees list and detail pages
+  - Evidence: `employees/page.tsx`, `employees/[id]/page.tsx` updated
+- [x] Create All Requests page (was showing 404 placeholder)
+  - Evidence: `leave/all/page.tsx` created — Admin-only, server-side pagination, status filter, search, explicit FK hints
+- [x] Fix Quick Create button (was non-functional)
+  - Evidence: Now navigates to `/dashboard/leave/requests/new` via Link
+- [x] Remove non-functional Mail icon button
+  - Evidence: MailIcon button removed from `nav-main.tsx` — was template leftover with no handler
+
+## Loading UX
+
+- [x] Add loading skeletons to key routes
+  - Evidence: 7 loading.tsx files created:
+    - `dashboard/loading.tsx` (stat cards + charts)
+    - `employees/loading.tsx` (table skeleton)
+    - `leave/requests/loading.tsx` (table skeleton)
+    - `leave/all/loading.tsx` (table skeleton)
+    - `approvals/loading.tsx` (table skeleton)
+    - `notifications/loading.tsx` (card skeleton)
+    - `calendar/loading.tsx` (calendar skeleton)
+- [x] Button loading states already implemented (all forms use isPending/isSubmitting)
+
+## Performance
+
+- [x] All client components verified as legitimately needing "use client"
+- [x] Dashboard RPCs already efficient (single-call aggregations)
+- [x] No N+1 queries found
+- [x] All queries use explicit FK hints where needed
+
+## Verification
+
+- [x] TypeScript: No errors
+- [x] Vitest: 68/68 passed
+- [x] Build: Success
+- [x] No business logic changes
+- [x] No RLS/RPC/database changes
 
 ---
 

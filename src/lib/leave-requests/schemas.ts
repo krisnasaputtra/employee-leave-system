@@ -1,12 +1,14 @@
 import { z } from "zod";
 
+const UUID_RE = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
+
 // =============================================================
 // Leave Request schemas
 // =============================================================
 
 export const leaveRequestCreateSchema = z
   .object({
-    leave_type_id: z.string().uuid("Please select a leave type."),
+    leave_type_id: z.string().min(1, "Please select a leave type.").regex(UUID_RE, "Invalid leave type selected."),
     start_date: z.string().min(1, "Start date is required."),
     end_date: z.string().min(1, "End date is required."),
     partial_day: z.enum(["NONE", "FIRST_HALF", "SECOND_HALF"]),

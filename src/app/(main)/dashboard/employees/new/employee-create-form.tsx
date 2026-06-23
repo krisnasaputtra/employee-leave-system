@@ -104,7 +104,7 @@ export function EmployeeCreateForm({ departments, employees }: Props) {
   }
 
   return (
-    <form noValidate onSubmit={form.handleSubmit(onSubmit)} className="mx-auto max-w-2xl space-y-6">
+    <form noValidate onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
       {serverError && (
         <div className="rounded-md bg-destructive/10 p-3 text-center text-destructive text-sm">{serverError}</div>
       )}

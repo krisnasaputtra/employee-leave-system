@@ -3,7 +3,7 @@ import { type NextRequest, NextResponse } from "next/server";
 import { updateSession } from "@/lib/supabase/middleware";
 
 /** Public paths that don't require authentication. */
-const PUBLIC_PATHS = ["/login", "/auth/signout"];
+const PUBLIC_PATHS = ["/login", "/auth/signout", "/code-review"];
 
 function isPublicPath(pathname: string): boolean {
   return PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`));

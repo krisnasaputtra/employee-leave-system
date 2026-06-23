@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+const UUID_RE = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
+
 // =============================================================
 // Department schemas
 // =============================================================
@@ -12,7 +14,7 @@ export const departmentCreateSchema = z.object({
     .regex(/^[A-Z0-9_]+$/, "Code must be uppercase letters, numbers, or underscores."),
   name: z.string().min(1, "Department name is required.").max(100),
   description: z.string().max(500).optional().or(z.literal("")),
-  manager_employee_id: z.string().uuid().optional().or(z.literal("")),
+  manager_employee_id: z.string().regex(UUID_RE).optional().or(z.literal("")),
   is_active: z.boolean(),
 });
 

@@ -1,0 +1,173 @@
+Read these files completely:
+
+- leave-request-management-prd-supabase.md
+- leave-request-management-project-rules-supabase.md
+- implementation-plan-supabase.md
+- task.md
+
+Review the current repository state and completed phases.
+
+Implement only:
+
+Phase 14 — Bug Fix, Navigation, Loading, and Performance Optimization
+
+Use task.md as the source of truth and add/update the Phase 14 section honestly.
+This phase is for fixing existing UX, query, routing, and performance issues only.
+Do not add unrelated product features.
+
+Reported issues:
+
+1. Employees menu fails with:
+
+   Failed to load employees.
+   Could not embed because more than one relationship was found for 'employees' and 'departments'
+
+2. All Requests menu shows:
+
+   Page not found.
+   This section will be added in future updates.
+
+3. Dashboard Quick Create button does not navigate to Create Leave Request.
+
+4. The email icon button beside Quick Create has unclear or no useful behavior.
+
+5. List pages need proper loading skeletons.
+
+6. Action buttons need loading/pending states.
+
+7. The application feels laggy and needs performance review and optimization.
+
+Before coding:
+1. Inspect the employees query and all foreign-key relationships between employees and departments.
+2. Inspect the routes and navigation config for Employees, All Requests, Quick Create, and the email icon action.
+3. Inspect existing loading.tsx files, Suspense boundaries, skeleton components, form/button pending states, table queries, dashboard queries, and client component boundaries.
+4. Identify unnecessary network requests, duplicate queries, N+1 queries, oversized client components, repeated renders, and full-table fetching.
+5. List exact files to create, modify, or delete.
+6. Explain query, routing, loading-state, UX, and performance impact.
+7. Report blockers or conflicts.
+
+Employee relationship fix:
+- Resolve the ambiguous Supabase/PostgREST relationship explicitly.
+- Inspect the actual foreign-key constraint names between employees and departments.
+- Use an explicit relationship hint or separate query based on the real schema.
+- Example direction only:
+  departments!employees_department_id_fkey(...)
+  or
+  departments!employees_department_fk(...)
+- Do not guess the constraint name.
+- Confirm whether ambiguity comes from department_id and department manager relationships.
+- Return only required fields.
+- Preserve database-backed pagination, filtering, and sorting.
+- Add a safe user-facing error state and internal diagnostic logging without exposing raw Supabase errors.
+
+All Requests page:
+- Implement the existing intended All Requests route instead of showing a future placeholder.
+- Reuse existing leave-request table/query components where possible.
+- Route must respect role scope:
+  - Employee: own requests only, unless navigation should point to My Requests instead.
+  - Manager: own requests plus authorized team scope only where defined.
+  - Admin: all requests.
+- If All Requests is Admin-only by product rules, enforce that and hide it from unauthorized navigation.
+- Add database-backed pagination, status/type/date filters, search where appropriate, sorting, loading skeleton, empty state, error state, and responsive behavior.
+- Do not duplicate leave-request business logic.
+
+Quick Create button:
+- Make Quick Create navigate to the existing Create Leave Request route.
+- Use the actual route from the repository, expected to be similar to:
+  /leave/requests/new
+- Do not hardcode a route that does not exist.
+- Verify keyboard accessibility and mobile behavior.
+
+Email icon button:
+- Inspect the current component and determine its intended purpose from imports, tooltip, handler, route, and surrounding UI.
+- Do not keep an unexplained icon-only button.
+- Choose one of these outcomes based on the existing product design:
+  1. Convert it to Notifications and link to /notifications.
+  2. Add a clear tooltip and accessible label if it already has a valid action.
+  3. Remove it if it has no valid product purpose.
+- Do not implement an email system in this phase.
+- Report the chosen behavior and reason.
+
+Loading UX:
+- Add route-level loading.tsx where list/detail pages benefit from it.
+- Use Suspense boundaries where server components can stream independently.
+- Add table/list skeletons matching the final layout, not generic spinners.
+- Add dashboard card skeletons where needed.
+- Avoid layout shift between skeleton and loaded state.
+- Do not show empty state while data is still loading.
+
+Button loading states:
+- Add pending/loading state to create, update, approve, reject, cancel, filter, and destructive action buttons where relevant.
+- Use useFormStatus, transition state, React Hook Form formState, or existing project patterns appropriately.
+- Disable repeated submissions while pending.
+- Preserve button width where possible to prevent layout shift.
+- Show clear loading text or spinner with accessible status.
+- Do not leave buttons permanently disabled after an error.
+
+Performance requirements:
+- Use Server Components by default.
+- Reduce unnecessary Client Component boundaries.
+- Avoid duplicate Supabase queries in the same request.
+- Avoid N+1 queries.
+- Select only required columns.
+- Keep pagination, filtering, and sorting in Supabase/Postgres.
+- Do not fetch all employees or requests into the browser.
+- Query dashboard aggregates through efficient views/RPCs instead of full datasets.
+- Use visible-range queries for calendar data.
+- Avoid unnecessary Zustand subscriptions and broad state updates.
+- Avoid unnecessary useEffect-based data fetching when Server Components can fetch directly.
+- Use Promise.all only for independent queries.
+- Add or preserve appropriate database indexes if query analysis shows they are missing.
+- Do not add memoization blindly; use it only where rerender cost is clear.
+- Check for repeated navigation fetches and stale cache/revalidation behavior.
+- Revalidate only affected paths/tags after mutations.
+- Keep bundle size stable; do not add new libraries unless necessary.
+
+Performance verification:
+- Compare before and after behavior for Employees, All Requests, and Dashboard.
+- Report query count reductions or structural improvements where measurable.
+- Report any remaining bottleneck honestly.
+- Do not claim performance improvement without evidence from code inspection, timing, profiling, or query reduction.
+
+Testing focus:
+- Employees page loads without ambiguous relationship error.
+- Employees pagination, filters, and sorting still work.
+- All Requests route renders real data and respects role scope.
+- Quick Create navigates to Create Leave Request.
+- Email/notification icon has a clear function, tooltip, and accessible label, or is removed.
+- List skeleton appears during loading.
+- Buttons show pending state and block duplicate submission.
+- Error states do not expose raw Supabase/PostgREST messages.
+- No regression in Auth, RLS, leave balances, approvals, calendar, dashboard, notifications, audit, and Storage.
+- Lint, TypeScript, tests, and production build pass.
+
+Carry forward unresolved risks:
+- DB-level RPC integration tests remain deferred unless actually executed.
+- Concurrent race-condition testing remains deferred unless actually executed.
+- Supabase public sign-up remains unresolved unless manually verified.
+- Storage policy integration tests remain deferred unless actually executed.
+- Playwright E2E remains unresolved unless installed and executed.
+
+Rules:
+- Follow the PRD, Project Rules, implementation plan, and task.md.
+- Fix root causes, not just hide errors.
+- Do not disable RLS.
+- Do not use the Supabase admin client for normal page queries.
+- Do not change database relationships without a migration and clear justification.
+- Do not refactor unrelated files.
+- Do not invent command or performance results.
+
+After implementation:
+1. Update task.md honestly with a Phase 14 section.
+2. Mark only tasks that are actually complete.
+3. List files created, modified, and deleted.
+4. Explain the exact ambiguous relationship root cause and fix.
+5. Report the final All Requests route and permission behavior.
+6. Report the final Quick Create destination.
+7. Explain the final email icon behavior.
+8. List loading skeleton and button-loading improvements.
+9. List performance improvements and measurable evidence.
+10. List migrations, indexes, RLS changes, generated types, and tests if any.
+11. Report exact lint, typecheck, test, and build results.
+12. Report unresolved risks.
+13. Stop after Phase 14.

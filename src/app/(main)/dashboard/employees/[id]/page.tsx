@@ -16,7 +16,7 @@ export default async function EmployeeDetailPage({ params }: { params: Promise<{
 
   const { data: employee, error } = await supabase
     .from("employees")
-    .select("*, departments(name)")
+    .select("*, departments!employees_department_id_fk(name)")
     .eq("id", id)
     .single();
 

@@ -12,14 +12,6 @@ export type ResolvedThemeMode = "light" | "dark";
 
 export const THEME_PRESET_OPTIONS = [
   {
-    label: "Default",
-    value: "default",
-    primary: {
-      light: "oklch(0.205 0 0)",
-      dark: "oklch(0.922 0 0)",
-    },
-  },
-  {
     label: "Brutalist",
     value: "brutalist",
     primary: {
