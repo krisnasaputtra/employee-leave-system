@@ -1,24 +1,17 @@
 import {
-  Banknote,
+  Bell,
   Calendar,
-  ChartBar,
-  Fingerprint,
-  Forklift,
+  CalendarDays,
+  CheckSquare,
+  ClipboardList,
   Gauge,
-  GraduationCap,
-  Kanban,
-  LayoutDashboard,
-  ListTodo,
-  Lock,
   type LucideIcon,
-  Mail,
-  MessageSquare,
-  ReceiptText,
-  Server,
-  ShoppingBag,
-  SquareArrowUpRight,
+  ScrollText,
+  Settings,
   Users,
 } from "lucide-react";
+
+import type { ApplicationRole } from "@/lib/permissions/roles";
 
 export type NavBadge = "new" | "soon";
 
@@ -30,6 +23,8 @@ export interface NavSubItem {
   badge?: NavBadge;
   disabled?: boolean;
   newTab?: boolean;
+  /** Roles allowed to see this item. If undefined, all roles can see it. */
+  roles?: ApplicationRole[];
 }
 
 interface NavItemBase {
@@ -39,6 +34,8 @@ interface NavItemBase {
   badge?: NavBadge;
   disabled?: boolean;
   newTab?: boolean;
+  /** Roles allowed to see this item. If undefined, all roles can see it. */
+  roles?: ApplicationRole[];
 }
 
 export interface NavMainLinkItem extends NavItemBase {
@@ -56,156 +53,160 @@ export interface NavGroup {
   id: number;
   label?: string;
   items: NavMainItem[];
+  /** Roles allowed to see this group. If undefined, all roles can see it. */
+  roles?: ApplicationRole[];
+}
+
+/**
+ * Filter navigation items by role.
+ * Items without a `roles` property are visible to all roles.
+ */
+export function filterNavByRole(groups: NavGroup[], role: ApplicationRole): NavGroup[] {
+  return groups
+    .filter((group) => !group.roles || group.roles.includes(role))
+    .map((group) => ({
+      ...group,
+      items: group.items
+        .filter((item) => !item.roles || item.roles.includes(role))
+        .map((item) => {
+          if ("subItems" in item && item.subItems) {
+            return {
+              ...item,
+              subItems: item.subItems.filter((sub) => !sub.roles || sub.roles.includes(role)),
+            };
+          }
+          return item;
+        }),
+    }))
+    .filter((group) => group.items.length > 0);
 }
 
 export const sidebarItems: NavGroup[] = [
   {
     id: 1,
-    label: "Dashboards",
     items: [
       {
-        id: "default",
-        title: "Default",
-        url: "/dashboard/default",
-        icon: LayoutDashboard,
-      },
-      {
-        id: "crm",
-        title: "CRM",
-        url: "/dashboard/crm",
-        icon: ChartBar,
-      },
-      {
-        id: "finance",
-        title: "Finance",
-        url: "/dashboard/finance",
-        icon: Banknote,
-      },
-      {
-        id: "analytics",
-        title: "Analytics",
-        url: "/dashboard/analytics",
+        id: "dashboard",
+        title: "Dashboard",
+        url: "/dashboard",
         icon: Gauge,
-      },
-      {
-        id: "productivity",
-        title: "Productivity",
-        url: "/dashboard/productivity",
-        icon: ListTodo,
-      },
-      {
-        id: "ecommerce",
-        title: "E-commerce",
-        url: "/dashboard/ecommerce",
-        icon: ShoppingBag,
-      },
-      {
-        id: "academy",
-        title: "Academy",
-        url: "/dashboard/academy",
-        icon: GraduationCap,
-      },
-      {
-        id: "logistics",
-        title: "Logistics",
-        url: "/dashboard/logistics",
-        icon: Forklift,
-      },
-      {
-        id: "infrastructure",
-        title: "Infrastructure",
-        url: "/dashboard/infrastructure",
-        icon: Server,
-        badge: "new",
       },
     ],
   },
   {
     id: 2,
-    label: "Pages",
+    label: "Employees",
+    roles: ["ADMIN"],
     items: [
       {
-        id: "email",
-        title: "Email",
-        url: "/dashboard/mail",
-        icon: Mail,
+        id: "employees",
+        title: "Employees",
+        url: "/dashboard/employees",
+        icon: Users,
+        roles: ["ADMIN"],
+      },
+    ],
+  },
+  {
+    id: 3,
+    label: "Leave",
+    items: [
+      {
+        id: "my-leave",
+        title: "My Leave",
+        icon: CalendarDays,
+        subItems: [
+          {
+            id: "my-requests",
+            title: "Requests",
+            url: "/dashboard/leave/requests",
+          },
+          {
+            id: "my-balances",
+            title: "Balances",
+            url: "/dashboard/leave/balances",
+          },
+        ],
       },
       {
-        id: "chat",
-        title: "Chat",
-        url: "/dashboard/chat",
-        icon: MessageSquare,
+        id: "approvals",
+        title: "Approvals",
+        url: "/dashboard/approvals",
+        icon: CheckSquare,
+        roles: ["ADMIN", "MANAGER"],
       },
+      {
+        id: "team",
+        title: "Team",
+        url: "/dashboard/team",
+        icon: Users,
+        roles: ["MANAGER"],
+      },
+      {
+        id: "all-requests",
+        title: "All Requests",
+        url: "/dashboard/leave/all",
+        icon: ClipboardList,
+        roles: ["ADMIN"],
+      },
+    ],
+  },
+  {
+    id: 4,
+    items: [
       {
         id: "calendar",
         title: "Calendar",
         url: "/dashboard/calendar",
         icon: Calendar,
       },
+    ],
+  },
+  {
+    id: 5,
+    label: "Settings",
+    roles: ["ADMIN"],
+    items: [
       {
-        id: "kanban",
-        title: "Kanban",
-        url: "/dashboard/kanban",
-        icon: Kanban,
-      },
-      {
-        id: "invoice",
-        title: "Invoice",
-        url: "/dashboard/invoice",
-        icon: ReceiptText,
-      },
-      {
-        id: "users",
-        title: "Users",
-        url: "/dashboard/users",
-        icon: Users,
-      },
-      {
-        id: "roles",
-        title: "Roles",
-        url: "/dashboard/roles",
-        icon: Lock,
-      },
-      {
-        id: "authentication",
-        title: "Authentication",
-        icon: Fingerprint,
+        id: "settings",
+        title: "Settings",
+        icon: Settings,
+        roles: ["ADMIN"],
         subItems: [
-          { id: "auth-login-v1", title: "Login v1", url: "/auth/v1/login", newTab: true },
-          { id: "auth-login-v2", title: "Login v2", url: "/auth/v2/login", newTab: true },
-          { id: "auth-register-v1", title: "Register v1", url: "/auth/v1/register", newTab: true },
-          { id: "auth-register-v2", title: "Register v2", url: "/auth/v2/register", newTab: true },
+          {
+            id: "departments",
+            title: "Departments",
+            url: "/dashboard/settings/departments",
+          },
+          {
+            id: "leave-types",
+            title: "Leave Types",
+            url: "/dashboard/settings/leave-types",
+          },
+          {
+            id: "holidays",
+            title: "Holidays",
+            url: "/dashboard/settings/holidays",
+          },
         ],
       },
     ],
   },
   {
-    id: 3,
-    label: "Legacy",
+    id: 6,
     items: [
       {
-        id: "legacy-dashboards",
-        title: "Dashboards",
-        subItems: [
-          { id: "legacy-default", title: "Default V1", url: "/dashboard/default-v1" },
-          { id: "legacy-crm", title: "CRM V1", url: "/dashboard/crm-v1" },
-          { id: "legacy-finance", title: "Finance V1", url: "/dashboard/finance-v1" },
-          { id: "legacy-analytics", title: "Analytics V1", url: "/dashboard/analytics-v1" },
-        ],
+        id: "audit-logs",
+        title: "Audit Logs",
+        url: "/dashboard/audit-logs",
+        icon: ScrollText,
+        roles: ["ADMIN"],
       },
-    ],
-  },
-  {
-    id: 4,
-    label: "Misc",
-    items: [
       {
-        id: "others",
-        title: "Others",
-        url: "/dashboard/coming-soon",
-        icon: SquareArrowUpRight,
-        badge: "soon",
-        disabled: true,
+        id: "notifications",
+        title: "Notifications",
+        url: "/dashboard/notifications",
+        icon: Bell,
       },
     ],
   },
