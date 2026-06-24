@@ -1,5 +1,6 @@
 "use server";
 
+import { isNextInternalError } from "@/lib/utils/server-action-utils";
 import { getSafeRedirectUrl } from "@/lib/auth/safe-redirect";
 import { createClient } from "@/lib/supabase/server";
 
@@ -9,7 +10,8 @@ interface LoginResult {
 }
 
 export async function loginAction(data: { email: string; password: string }): Promise<LoginResult> {
-  const supabase = await createClient();
+  try {
+    const supabase = await createClient();
 
   const { error: authError } = await supabase.auth.signInWithPassword({
     email: data.email,
@@ -48,5 +50,10 @@ export async function loginAction(data: { email: string; password: string }): Pr
     return { redirectTo: "/change-password" };
   }
 
-  return { redirectTo: getSafeRedirectUrl("/dashboard") };
+    return { redirectTo: getSafeRedirectUrl("/dashboard") };
+  } catch (error) {
+    if (isNextInternalError(error)) throw error;
+    console.error("loginAction failed:", error);
+    return { error: "An unexpected error occurred. Please try again." };
+  }
 }

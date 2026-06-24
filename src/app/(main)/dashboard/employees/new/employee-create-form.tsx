@@ -6,12 +6,13 @@ import { useRouter } from "next/navigation";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Copy, Eye, EyeOff, Loader2, RefreshCw } from "lucide-react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Field, FieldContent, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { type EmployeeCreateInput, employeeCreateSchema, generateTemporaryPassword } from "@/lib/employees/schemas";
 
 import { createEmployeeAction } from "../actions";
@@ -161,17 +162,24 @@ export function EmployeeCreateForm({ departments, employees }: Props) {
             <Field>
               <FieldLabel>Department</FieldLabel>
               <FieldContent>
-                <select
-                  className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs"
-                  {...form.register("department_id")}
-                >
-                  <option value="">Select department...</option>
-                  {departments.map((d) => (
-                    <option key={d.id} value={d.id}>
-                      {d.name}
-                    </option>
-                  ))}
-                </select>
+                <Controller
+                  control={form.control}
+                  name="department_id"
+                  render={({ field }) => (
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select department..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {departments.map((d) => (
+                          <SelectItem key={d.id} value={d.id}>
+                            {d.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
               </FieldContent>
               <FieldError>{form.formState.errors.department_id?.message}</FieldError>
             </Field>
@@ -187,30 +195,46 @@ export function EmployeeCreateForm({ departments, employees }: Props) {
             <Field>
               <FieldLabel>Manager</FieldLabel>
               <FieldContent>
-                <select
-                  className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs"
-                  {...form.register("manager_id")}
-                >
-                  <option value="">No manager</option>
-                  {employees.map((e) => (
-                    <option key={e.id} value={e.id}>
-                      {e.full_name}
-                    </option>
-                  ))}
-                </select>
+                <Controller
+                  control={form.control}
+                  name="manager_id"
+                  render={({ field }) => (
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="No manager" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="">No manager</SelectItem>
+                        {employees.map((e) => (
+                          <SelectItem key={e.id} value={e.id}>
+                            {e.full_name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
               </FieldContent>
             </Field>
             <Field>
               <FieldLabel>Role</FieldLabel>
               <FieldContent>
-                <select
-                  className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs"
-                  {...form.register("role")}
-                >
-                  <option value="EMPLOYEE">Employee</option>
-                  <option value="MANAGER">Manager</option>
-                  <option value="ADMIN">Admin</option>
-                </select>
+                <Controller
+                  control={form.control}
+                  name="role"
+                  render={({ field }) => (
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select role" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="EMPLOYEE">Employee</SelectItem>
+                        <SelectItem value="MANAGER">Manager</SelectItem>
+                        <SelectItem value="ADMIN">Admin</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
               </FieldContent>
             </Field>
           </div>

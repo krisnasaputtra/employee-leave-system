@@ -8,25 +8,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { getAuthenticatedUser } from "@/lib/auth/get-authenticated-user";
 import { createClient } from "@/lib/supabase/server";
+import { STATUS_BADGE_STYLES } from "@/lib/ui/badge-variants";
+import { formatDate } from "@/lib/utils/format-date";
 
+import { LeaveBalanceChart } from "./_components/leave-balance-chart";
 import { MonthlyTrendChart } from "./_components/monthly-trend-chart";
-
-type StatusVariant = "secondary" | "default" | "destructive" | "outline";
-
-const STATUS_BADGE_MAP: Record<string, StatusVariant> = {
-  PENDING: "secondary",
-  APPROVED: "default",
-  REJECTED: "destructive",
-  CANCELLED: "outline",
-};
-
-function formatDate(dateStr: string): string {
-  return new Date(`${dateStr}T00:00:00`).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
-}
+import { StatusDistributionChart } from "./_components/status-distribution-chart";
 
 /* ---------- Employee Dashboard Types ---------- */
 interface EmployeeDashboardData {
@@ -69,6 +56,16 @@ interface ManagerDashboardData {
 }
 
 /* ---------- Admin Dashboard Types ---------- */
+interface AdminRecentRequest {
+  id: string;
+  status: string;
+  start_date: string;
+  end_date: string;
+  created_at: string;
+  employees: { full_name: string } | null;
+  leave_types: { name: string } | null;
+}
+
 interface AdminDashboardData {
   active_employees: number;
   pending_requests: number;
@@ -85,6 +82,7 @@ interface AdminDashboardData {
     actor_name: string;
     created_at: string;
   }[];
+  recent_requests: AdminRecentRequest[];
   year: number;
 }
 
@@ -134,6 +132,21 @@ function EmployeeDashboard({ data }: { data: EmployeeDashboardData }) {
         <MetricCard title="Used Days" value={data.used_days} icon={CheckCircle} />
         <MetricCard title="Notifications" value={data.unread_notifications} icon={Bell} description="Unread" />
       </div>
+
+      {/* Leave Balance Overview */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Leave Balance Overview</CardTitle>
+          <CardDescription>Used vs Remaining vs Pending</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <LeaveBalanceChart
+            used={data.used_days}
+            pending={data.pending_days}
+            remaining={data.remaining_leave}
+          />
+        </CardContent>
+      </Card>
 
       {/* Next Leave */}
       {data.next_leave && (
@@ -186,7 +199,7 @@ function EmployeeDashboard({ data }: { data: EmployeeDashboardData }) {
                   </TableCell>
                   <TableCell className="text-right">{r.requested_days}</TableCell>
                   <TableCell>
-                    <Badge variant={STATUS_BADGE_MAP[r.status] ?? "secondary"}>{r.status}</Badge>
+                    <Badge variant="outline" className={STATUS_BADGE_STYLES[r.status]?.className}>{STATUS_BADGE_STYLES[r.status]?.label ?? r.status}</Badge>
                   </TableCell>
                 </TableRow>
               ))}
@@ -286,7 +299,7 @@ function ManagerDashboard({ empData, mgrData }: { empData: EmployeeDashboardData
                     <TableCell>{r.employee_name}</TableCell>
                     <TableCell>{r.leave_type}</TableCell>
                     <TableCell>
-                      <Badge variant={STATUS_BADGE_MAP[r.status] ?? "secondary"}>{r.status}</Badge>
+                      <Badge variant="outline" className={STATUS_BADGE_STYLES[r.status]?.className}>{STATUS_BADGE_STYLES[r.status]?.label ?? r.status}</Badge>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -328,14 +341,10 @@ function AdminDashboard({ data }: { data: AdminDashboardData }) {
             <CardDescription>Year {data.year}</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="flex flex-wrap gap-4">
-              {data.status_distribution.map((item) => (
-                <div key={item.status} className="flex items-center gap-2">
-                  <Badge variant={STATUS_BADGE_MAP[item.status] ?? "secondary"}>{item.status}</Badge>
-                  <span className="font-semibold text-sm">{item.count}</span>
-                </div>
-              ))}
-            </div>
+            <StatusDistributionChart
+              data={data.status_distribution}
+              totalRequests={data.status_distribution.reduce((sum, item) => sum + item.count, 0)}
+            />
           </CardContent>
         </Card>
       )}
@@ -353,47 +362,55 @@ function AdminDashboard({ data }: { data: AdminDashboardData }) {
         </Card>
       )}
 
-      {/* Recent Audit */}
+      {/* Recent Approval Requests */}
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
-            <CardTitle>Recent Audit Log</CardTitle>
+            <CardTitle>Recent Approval Requests</CardTitle>
             <Button size="sm" variant="outline" asChild>
-              <Link href="/dashboard/audit-logs">View All</Link>
+              <Link href="/dashboard/approvals">View All</Link>
             </Button>
           </div>
         </CardHeader>
         <CardContent>
-          {data.recent_audit.length > 0 ? (
+          {data.recent_requests.length > 0 ? (
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Time</TableHead>
-                  <TableHead>Actor</TableHead>
-                  <TableHead>Action</TableHead>
-                  <TableHead>Entity</TableHead>
+                  <TableHead>Employee</TableHead>
+                  <TableHead>Leave Type</TableHead>
+                  <TableHead>Dates</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Submitted</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {data.recent_audit.map((entry) => (
-                  <TableRow key={entry.id}>
+                {data.recent_requests.map((req) => (
+                  <TableRow key={req.id}>
+                    <TableCell className="font-medium">
+                      {req.employees?.full_name ?? "—"}
+                    </TableCell>
+                    <TableCell>{req.leave_types?.name ?? "—"}</TableCell>
+                    <TableCell>
+                      {formatDate(req.start_date)} — {formatDate(req.end_date)}
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="outline" className={STATUS_BADGE_STYLES[req.status]?.className}>{STATUS_BADGE_STYLES[req.status]?.label ?? req.status}</Badge>
+                    </TableCell>
                     <TableCell className="text-muted-foreground">
-                      {new Date(entry.created_at).toLocaleString("en-US", {
+                      {new Date(req.created_at).toLocaleString("en-US", {
                         month: "short",
                         day: "numeric",
                         hour: "2-digit",
                         minute: "2-digit",
                       })}
                     </TableCell>
-                    <TableCell className="font-medium">{entry.actor_name}</TableCell>
-                    <TableCell>{entry.action}</TableCell>
-                    <TableCell>{entry.entity_type}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
             </Table>
           ) : (
-            <p className="py-6 text-center text-muted-foreground text-sm">No audit entries found.</p>
+            <p className="py-6 text-center text-muted-foreground text-sm">No recent approval requests.</p>
           )}
         </CardContent>
       </Card>
@@ -453,8 +470,54 @@ async function ManagerDashboardSection({ supabase }: { supabase: any }) {
 
 // biome-ignore lint/suspicious/noExplicitAny: Supabase client type
 async function AdminDashboardSection({ supabase }: { supabase: any }) {
-  const { data } = await supabase.rpc("get_admin_dashboard");
-  const adminData = data as AdminDashboardData;
+  const MONTH_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+  interface AdminDashboardRpcResult {
+    active_employees: number;
+    pending_requests: number;
+    on_leave_today: number;
+    utilization_pct: number;
+    total_entitled: number;
+    total_used: number;
+    status_distribution: { status: string; count: number }[];
+    monthly_trend: { month: number; total_days: number }[];
+    recent_audit: {
+      id: string;
+      action: string;
+      entity_type: string;
+      actor_name: string;
+      created_at: string;
+    }[];
+    year: number;
+  }
+
+  const [{ data }, { data: recentRequests }] = await Promise.all([
+    supabase.rpc("get_admin_dashboard"),
+    supabase
+      .from("leave_requests")
+      .select(`
+        id, status, start_date, end_date, created_at,
+        employees!leave_requests_employee_id_fk(full_name),
+        leave_types!leave_requests_leave_type_id_fk(name)
+      `)
+      .order("created_at", { ascending: false })
+      .limit(10),
+  ]);
+
+  const rawData = data as AdminDashboardRpcResult;
+
+  // Transform monthly_trend: RPC returns {month: 1, total_days: 5} → chart needs {month: "Jan", count: 5}
+  const transformedTrend = (rawData.monthly_trend ?? []).map((item) => ({
+    month: MONTH_NAMES[(item.month - 1)] ?? String(item.month),
+    count: Number(item.total_days) || 0,
+  }));
+
+  const adminData = {
+    ...rawData,
+    monthly_trend: transformedTrend,
+    recent_requests: (recentRequests ?? []) as AdminRecentRequest[],
+  };
 
   return <AdminDashboard data={adminData} />;
 }
+

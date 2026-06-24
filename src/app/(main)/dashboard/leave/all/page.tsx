@@ -2,16 +2,22 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
-import { Eye, Search } from "lucide-react";
+import { Eye, FileText, Search } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
+import { EmptyState } from "@/components/ui/empty-state";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { getAuthenticatedUser } from "@/lib/auth/get-authenticated-user";
 import { createClient } from "@/lib/supabase/server";
+import { sanitizeSearch } from "@/lib/utils/sanitize-search";
+import { STATUS_BADGE_STYLES } from "@/lib/ui/badge-variants";
+import { formatDate } from "@/lib/utils/format-date";
 import type { Database } from "@/types/database.types";
+import { ExportButton } from "@/components/ui/export-button";
+import { generateCsv } from "@/lib/utils/export-csv";
 
 type LeaveRequestStatus = Database["public"]["Enums"]["leave_request_status"];
 
@@ -19,24 +25,7 @@ export const metadata: Metadata = {
   title: "All Leave Requests",
 };
 
-type StatusVariant = "secondary" | "default" | "destructive" | "outline";
-
-const STATUS_BADGE_MAP: Record<string, StatusVariant> = {
-  PENDING: "secondary",
-  APPROVED: "default",
-  REJECTED: "destructive",
-  CANCELLED: "outline",
-};
-
 const STATUS_OPTIONS = ["ALL", "PENDING", "APPROVED", "REJECTED", "CANCELLED"] as const;
-
-function formatDate(dateStr: string): string {
-  return new Date(`${dateStr}T00:00:00`).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
-}
 
 export default async function AllLeaveRequestsPage({
   searchParams,
@@ -59,7 +48,7 @@ export default async function AllLeaveRequestsPage({
   const params = await searchParams;
 
   const page = Math.max(1, Number(params.page ?? "1"));
-  const pageSize = Math.min(100, Math.max(1, Number(params.pageSize ?? "20")));
+  const pageSize = Math.min(100, Math.max(1, Number(params.pageSize ?? "10")));
   const offset = (page - 1) * pageSize;
   const statusFilter = params.status && params.status !== "ALL" ? params.status : null;
   const searchTerm = params.search?.trim() ?? "";
@@ -78,9 +67,12 @@ export default async function AllLeaveRequestsPage({
 
   if (searchTerm) {
     // Search by request_number or employee name via the joined table
-    query = query.or(
-      `request_number.ilike.%${searchTerm}%,employees.full_name.ilike.%${searchTerm}%`,
-    );
+    const safeSearch = sanitizeSearch(searchTerm);
+    if (safeSearch) {
+      query = query.or(
+        `request_number.ilike.%${safeSearch}%,employees.full_name.ilike.%${safeSearch}%`,
+      );
+    }
   }
 
   query = query.order("created_at", { ascending: false }).range(offset, offset + pageSize - 1);
@@ -89,6 +81,34 @@ export default async function AllLeaveRequestsPage({
 
   const totalCount = count ?? 0;
   const totalPages = Math.ceil(totalCount / pageSize);
+
+  // Generate CSV for export
+  const csvContent = generateCsv(
+    [
+      { key: "request_number", label: "Request Number" },
+      { key: "employee_name", label: "Employee Name" },
+      { key: "leave_type", label: "Leave Type" },
+      { key: "start_date", label: "Start Date" },
+      { key: "end_date", label: "End Date" },
+      { key: "days", label: "Days" },
+      { key: "status", label: "Status" },
+      { key: "created_at", label: "Created At" },
+    ],
+    (requests ?? []).map((r) => {
+      const employee = r.employees as { full_name: string; employee_code: string } | null;
+      const leaveType = r.leave_types as { name: string; color: string } | null;
+      return {
+        request_number: r.request_number ?? "",
+        employee_name: employee?.full_name ?? "Unknown",
+        leave_type: leaveType?.name ?? "Unknown",
+        start_date: r.start_date,
+        end_date: r.end_date,
+        days: r.requested_days,
+        status: r.status,
+        created_at: new Date(r.created_at).toLocaleDateString("en-US"),
+      };
+    }),
+  );
 
   // Build URL helper for pagination & filters
   function buildUrl(overrides: Record<string, string | undefined>) {
@@ -116,6 +136,7 @@ export default async function AllLeaveRequestsPage({
             {totalCount} request{totalCount !== 1 ? "s" : ""} total
           </p>
         </div>
+        <ExportButton csvContent={csvContent} filename="leave-requests.csv" />
       </div>
 
       {/* Filters */}
@@ -160,16 +181,15 @@ export default async function AllLeaveRequestsPage({
         </div>
       ) : !requests || requests.length === 0 ? (
         /* Empty state */
-        <Card>
-          <CardHeader>
-            <CardTitle>No Requests Found</CardTitle>
-            <CardDescription>
-              {searchTerm || statusFilter
-                ? "No leave requests match your current filters. Try adjusting your search or status filter."
-                : "There are no leave requests in the system yet."}
-            </CardDescription>
-          </CardHeader>
-        </Card>
+        <EmptyState
+          icon={FileText}
+          title="No Requests Found"
+          description={
+            searchTerm || statusFilter
+              ? "No leave requests match your current filters. Try adjusting your search or status filter."
+              : "There are no leave requests in the system yet."
+          }
+        />
       ) : (
         /* Data table */
         <Card>
@@ -222,8 +242,8 @@ export default async function AllLeaveRequestsPage({
                       </TableCell>
                       <TableCell className="text-right">{r.requested_days}</TableCell>
                       <TableCell>
-                        <Badge variant={STATUS_BADGE_MAP[r.status] ?? "secondary"}>
-                          {r.status}
+                        <Badge variant="outline" className={STATUS_BADGE_STYLES[r.status]?.className}>
+                          {STATUS_BADGE_STYLES[r.status]?.label ?? r.status}
                         </Badge>
                       </TableCell>
                       <TableCell className="text-muted-foreground">

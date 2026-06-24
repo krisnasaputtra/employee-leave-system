@@ -4,6 +4,15 @@ import { Pencil, Plus } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { getAuthenticatedUser } from "@/lib/auth/get-authenticated-user";
 import { canManageConfiguration } from "@/lib/permissions";
 import { createClient } from "@/lib/supabase/server";
@@ -42,27 +51,27 @@ export default async function LeaveTypesPage() {
           <p className="text-muted-foreground text-sm">No leave types found.</p>
         </div>
       ) : (
-        <div className="rounded-lg border bg-card">
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b bg-muted/50">
-                  <th className="px-4 py-3 text-left font-medium">Code</th>
-                  <th className="px-4 py-3 text-left font-medium">Name</th>
-                  <th className="hidden px-4 py-3 text-left font-medium md:table-cell">Entitlement</th>
-                  <th className="hidden px-4 py-3 text-left font-medium md:table-cell">Color</th>
-                  <th className="hidden px-4 py-3 text-left font-medium lg:table-cell">Deducts Balance</th>
-                  <th className="px-4 py-3 text-left font-medium">Status</th>
-                  <th className="px-4 py-3 text-left font-medium">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
+        <Card>
+          <CardContent className="p-0">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Code</TableHead>
+                  <TableHead>Name</TableHead>
+                  <TableHead className="hidden md:table-cell">Entitlement</TableHead>
+                  <TableHead className="hidden md:table-cell">Color</TableHead>
+                  <TableHead className="hidden lg:table-cell">Deducts Balance</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
                 {leaveTypes.map((lt) => (
-                  <tr key={lt.id} className="border-b last:border-0 hover:bg-muted/30">
-                    <td className="px-4 py-3 font-mono text-xs">{lt.code}</td>
-                    <td className="px-4 py-3 font-medium">{lt.name}</td>
-                    <td className="hidden px-4 py-3 md:table-cell">{lt.default_entitlement} days</td>
-                    <td className="hidden px-4 py-3 md:table-cell">
+                  <TableRow key={lt.id}>
+                    <TableCell className="font-mono text-xs">{lt.code}</TableCell>
+                    <TableCell className="font-medium">{lt.name}</TableCell>
+                    <TableCell className="hidden md:table-cell">{lt.default_entitlement} days</TableCell>
+                    <TableCell className="hidden md:table-cell">
                       <div className="flex items-center gap-2">
                         <div
                           style={{
@@ -72,18 +81,18 @@ export default async function LeaveTypesPage() {
                         />
                         <span className="font-mono text-xs">{lt.color}</span>
                       </div>
-                    </td>
-                    <td className="hidden px-4 py-3 lg:table-cell">
+                    </TableCell>
+                    <TableCell className="hidden lg:table-cell">
                       <Badge variant={lt.deducts_balance ? "default" : "outline"}>
                         {lt.deducts_balance ? "Yes" : "No"}
                       </Badge>
-                    </td>
-                    <td className="px-4 py-3">
+                    </TableCell>
+                    <TableCell>
                       <Badge variant={lt.is_active ? "default" : "secondary"}>
                         {lt.is_active ? "Active" : "Inactive"}
                       </Badge>
-                    </td>
-                    <td className="px-4 py-3">
+                    </TableCell>
+                    <TableCell>
                       <div className="flex gap-1">
                         <LeaveTypeFormDialog
                           mode="edit"
@@ -97,14 +106,15 @@ export default async function LeaveTypesPage() {
                         />
                         <LeaveTypeToggleButton leaveTypeId={lt.id} isActive={lt.is_active} name={lt.name} />
                       </div>
-                    </td>
-                  </tr>
+                    </TableCell>
+                  </TableRow>
                 ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
       )}
     </div>
   );
 }
+

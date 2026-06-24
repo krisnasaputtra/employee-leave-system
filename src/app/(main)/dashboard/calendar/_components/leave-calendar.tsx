@@ -36,9 +36,17 @@ interface CalendarEvent {
   partial_day: string;
 }
 
+interface Holiday {
+  id: string;
+  name: string;
+  holiday_date: string;
+  is_recurring: boolean;
+}
+
 interface LeaveCalendarProps {
   departments: { id: string; name: string }[];
   leaveTypes: { id: string; name: string; color: string; code: string }[];
+  holidays: Holiday[];
 }
 
 const views = [
@@ -49,7 +57,7 @@ const views = [
 
 const plugins = [dayGridPlugin, timeGridPlugin, listPlugin, interactionPlugin, multiMonthPlugin];
 
-export function LeaveCalendar({ departments, leaveTypes }: LeaveCalendarProps) {
+export function LeaveCalendar({ departments, leaveTypes, holidays }: LeaveCalendarProps) {
   const controller = useCalendarController();
   const [events, setEvents] = React.useState<EventInput[]>([]);
   const [eventCount, setEventCount] = React.useState(0);
@@ -127,6 +135,8 @@ export function LeaveCalendar({ departments, leaveTypes }: LeaveCalendarProps) {
   }, [fetchEvents]);
 
   const handleEventClick = React.useCallback((info: EventClickInfo) => {
+    // Skip click for holiday events
+    if (info.event.extendedProps?.isHoliday) return;
     const props = info.event.extendedProps as CalendarEvent;
     setSelectedEvent(props);
     setDialogOpen(true);
@@ -140,6 +150,26 @@ export function LeaveCalendar({ departments, leaveTypes }: LeaveCalendarProps) {
       year: "numeric",
     });
   };
+
+  // Convert holidays to FullCalendar events
+  const holidayEvents = React.useMemo<EventInput[]>(() => {
+    return holidays.map((holiday) => ({
+      id: `holiday-${holiday.id}`,
+      title: holiday.name,
+      start: holiday.holiday_date,
+      allDay: true,
+      display: "background" as const,
+      backgroundColor: "#dc2626",
+      borderColor: "#dc2626",
+      classNames: ["holiday-event"],
+      extendedProps: { isHoliday: true, holidayName: holiday.name },
+    }));
+  }, [holidays]);
+
+  // Merge leave events with holiday events
+  const allEvents = React.useMemo<EventInput[]>(() => {
+    return [...events, ...holidayEvents];
+  }, [events, holidayEvents]);
 
   return (
     <>
@@ -231,12 +261,29 @@ export function LeaveCalendar({ departments, leaveTypes }: LeaveCalendarProps) {
           </div>
         </div>
 
+        {/* Legend */}
+        <div className="flex flex-wrap items-center gap-4 border-b px-4 py-2 text-xs text-muted-foreground">
+          {leaveTypes.map((lt) => (
+            <div key={lt.id} className="flex items-center gap-1.5">
+              <span
+                className="inline-block size-2.5 rounded-full"
+                style={{ backgroundColor: lt.color }}
+              />
+              {lt.name}
+            </div>
+          ))}
+          <div className="flex items-center gap-1.5">
+            <span className="inline-block size-2.5 rounded-full bg-red-600" />
+            Holiday
+          </div>
+        </div>
+
         <EventCalendarViews
           controller={controller}
           initialView={views[0].key}
           plugins={[...plugins]}
           popoverCloseContent={() => <XIcon className="size-5 text-muted-foreground group-hover:text-foreground" />}
-          events={events}
+          events={allEvents}
           eventClick={handleEventClick}
           nowIndicator
           datesSet={(info) => {

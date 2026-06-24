@@ -4,6 +4,15 @@ import { Pencil, Plus } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { getAuthenticatedUser } from "@/lib/auth/get-authenticated-user";
 import { canManageConfiguration } from "@/lib/permissions";
 import { createClient } from "@/lib/supabase/server";
@@ -57,36 +66,36 @@ export default async function DepartmentsPage() {
           <p className="text-muted-foreground text-sm">No departments found.</p>
         </div>
       ) : (
-        <div className="rounded-lg border bg-card">
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b bg-muted/50">
-                  <th className="px-4 py-3 text-left font-medium">Code</th>
-                  <th className="px-4 py-3 text-left font-medium">Name</th>
-                  <th className="hidden px-4 py-3 text-left font-medium md:table-cell">Description</th>
-                  <th className="hidden px-4 py-3 text-left font-medium lg:table-cell">Manager</th>
-                  <th className="px-4 py-3 text-left font-medium">Status</th>
-                  <th className="px-4 py-3 text-left font-medium">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
+        <Card>
+          <CardContent className="p-0">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Code</TableHead>
+                  <TableHead>Name</TableHead>
+                  <TableHead className="hidden md:table-cell">Description</TableHead>
+                  <TableHead className="hidden lg:table-cell">Manager</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
                 {departments.map((dept) => {
                   const manager = dept.employees as { full_name: string } | null;
                   return (
-                    <tr key={dept.id} className="border-b last:border-0 hover:bg-muted/30">
-                      <td className="px-4 py-3 font-mono text-xs">{dept.code}</td>
-                      <td className="px-4 py-3 font-medium">{dept.name}</td>
-                      <td className="hidden max-w-[200px] truncate px-4 py-3 text-muted-foreground md:table-cell">
+                    <TableRow key={dept.id}>
+                      <TableCell className="font-mono text-xs">{dept.code}</TableCell>
+                      <TableCell className="font-medium">{dept.name}</TableCell>
+                      <TableCell className="hidden max-w-[200px] truncate text-muted-foreground md:table-cell">
                         {dept.description ?? "—"}
-                      </td>
-                      <td className="hidden px-4 py-3 lg:table-cell">{manager?.full_name ?? "—"}</td>
-                      <td className="px-4 py-3">
+                      </TableCell>
+                      <TableCell className="hidden lg:table-cell">{manager?.full_name ?? "—"}</TableCell>
+                      <TableCell>
                         <Badge variant={dept.is_active ? "default" : "secondary"}>
                           {dept.is_active ? "Active" : "Inactive"}
                         </Badge>
-                      </td>
-                      <td className="px-4 py-3">
+                      </TableCell>
+                      <TableCell>
                         <div className="flex gap-1">
                           <DepartmentFormDialog
                             mode="edit"
@@ -101,15 +110,16 @@ export default async function DepartmentsPage() {
                           />
                           <DepartmentToggleButton departmentId={dept.id} isActive={dept.is_active} name={dept.name} />
                         </div>
-                      </td>
-                    </tr>
+                      </TableCell>
+                    </TableRow>
                   );
                 })}
-              </tbody>
-            </table>
-          </div>
-        </div>
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
       )}
     </div>
   );
 }
+

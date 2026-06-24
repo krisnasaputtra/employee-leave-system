@@ -11,27 +11,13 @@ import { Separator } from "@/components/ui/separator";
 import { getAuthenticatedUser } from "@/lib/auth/get-authenticated-user";
 import { canApproveLeaveRequest } from "@/lib/permissions";
 import { createClient } from "@/lib/supabase/server";
+import { STATUS_BADGE_STYLES } from "@/lib/ui/badge-variants";
+import { formatDate } from "@/lib/utils/format-date";
 
 import { AttachmentSection } from "./_components/attachment-section";
 import { CancelRequestButton } from "./_components/cancel-request-button";
 import { DownloadButton } from "./_components/download-button";
-
-type StatusVariant = "secondary" | "default" | "destructive" | "outline";
-
-const STATUS_BADGE_MAP: Record<string, StatusVariant> = {
-  PENDING: "secondary",
-  APPROVED: "default",
-  REJECTED: "destructive",
-  CANCELLED: "outline",
-};
-
-function formatDate(dateStr: string): string {
-  return new Date(`${dateStr}T00:00:00`).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
-}
+import { CommentSection } from "./_components/comment-section";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -85,6 +71,14 @@ export default async function LeaveRequestDetailPage({ params }: PageProps) {
     .eq("leave_request_id", id)
     .order("created_at", { ascending: true });
 
+  // Fetch audit events / comments for this request
+  const { data: auditEvents } = await supabase
+    .from("audit_logs")
+    .select("id, action, created_at, metadata, actor_employee_id")
+    .eq("entity_type", "leave_request")
+    .eq("entity_id", id)
+    .order("created_at", { ascending: true });
+
   const canUpload = isOwner && isPending;
   const canRemove = (isOwner && isPending) || actor.role === "ADMIN";
 
@@ -103,7 +97,7 @@ export default async function LeaveRequestDetailPage({ params }: PageProps) {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <h1 className="font-semibold text-2xl tracking-tight">{request.request_number ?? "Leave Request"}</h1>
-          <Badge variant={STATUS_BADGE_MAP[request.status] ?? "secondary"}>{request.status}</Badge>
+          <Badge variant="outline" className={STATUS_BADGE_STYLES[request.status]?.className}>{STATUS_BADGE_STYLES[request.status]?.label ?? request.status}</Badge>
         </div>
 
         {isOwner && isPending && (
@@ -265,6 +259,18 @@ export default async function LeaveRequestDetailPage({ params }: PageProps) {
           </CardContent>
         </Card>
       )}
+
+      {/* Comments & Activity */}
+      <CommentSection
+        requestId={id}
+        events={(auditEvents ?? []).map((e) => ({
+          id: e.id,
+          action: e.action,
+          created_at: e.created_at,
+          metadata: e.metadata as Record<string, unknown> | null,
+          actor_employee_id: e.actor_employee_id,
+        }))}
+      />
     </div>
   );
 }

@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 
+import { isNextInternalError } from "@/lib/utils/server-action-utils";
 import { getAuthenticatedUser } from "@/lib/auth/get-authenticated-user";
 import { createClient } from "@/lib/supabase/server";
 
@@ -19,7 +20,8 @@ interface AttachmentActionResult {
  * Validates ownership, request status, MIME type, and file size.
  */
 export async function uploadAttachmentAction(requestId: string, formData: FormData): Promise<AttachmentActionResult> {
-  const { employee } = await getAuthenticatedUser();
+  try {
+    const { employee } = await getAuthenticatedUser();
   const supabase = await createClient();
 
   // 1. Verify request ownership and PENDING status
@@ -120,7 +122,12 @@ export async function uploadAttachmentAction(requestId: string, formData: FormDa
 
   revalidatePath(`/dashboard/leave/requests/${requestId}`);
 
-  return { success: true, attachment_id: attachment?.id ?? "" };
+    return { success: true, attachment_id: attachment?.id ?? "" };
+  } catch (error) {
+    if (isNextInternalError(error)) throw error;
+    console.error("uploadAttachmentAction failed:", error);
+    return { success: false, error: "An unexpected error occurred. Please try again." };
+  }
 }
 
 /**
@@ -128,7 +135,8 @@ export async function uploadAttachmentAction(requestId: string, formData: FormDa
  * Only the owner (while PENDING) or Admin can remove.
  */
 export async function removeAttachmentAction(attachmentId: string, requestId: string): Promise<AttachmentActionResult> {
-  const { employee } = await getAuthenticatedUser();
+  try {
+    const { employee } = await getAuthenticatedUser();
   const supabase = await createClient();
 
   // 1. Get attachment and verify
@@ -199,7 +207,12 @@ export async function removeAttachmentAction(attachmentId: string, requestId: st
 
   revalidatePath(`/dashboard/leave/requests/${requestId}`);
 
-  return { success: true };
+    return { success: true };
+  } catch (error) {
+    if (isNextInternalError(error)) throw error;
+    console.error("removeAttachmentAction failed:", error);
+    return { success: false, error: "An unexpected error occurred. Please try again." };
+  }
 }
 
 /**
@@ -209,7 +222,8 @@ export async function removeAttachmentAction(attachmentId: string, requestId: st
 export async function getAttachmentDownloadUrlAction(
   attachmentId: string,
 ): Promise<{ success: boolean; url?: string; error?: string }> {
-  const { employee } = await getAuthenticatedUser();
+  try {
+    const { employee } = await getAuthenticatedUser();
   const supabase = await createClient();
 
   // 1. Get attachment
@@ -278,5 +292,10 @@ export async function getAttachmentDownloadUrlAction(
     });
   }
 
-  return { success: true, url: signedData.signedUrl };
+    return { success: true, url: signedData.signedUrl };
+  } catch (error) {
+    if (isNextInternalError(error)) throw error;
+    console.error("getAttachmentDownloadUrlAction failed:", error);
+    return { success: false, error: "An unexpected error occurred. Please try again." };
+  }
 }

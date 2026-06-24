@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 
+import { isNextInternalError } from "@/lib/utils/server-action-utils";
 import { getAuthenticatedUser } from "@/lib/auth/get-authenticated-user";
 import { employeeCreateSchema, employeeUpdateSchema } from "@/lib/employees/schemas";
 import { createEmployeeWithAccount, deactivateEmployee } from "@/lib/employees/service";
@@ -20,8 +21,9 @@ interface ActionResult {
 }
 
 export async function createEmployeeAction(input: Record<string, unknown>): Promise<ActionResult> {
-  // 1. Authenticate
-  const { employee: actor } = await getAuthenticatedUser();
+  try {
+    // 1. Authenticate
+    const { employee: actor } = await getAuthenticatedUser();
 
   // 2. Authorize
   if (!canManageEmployees(actor.role)) {
@@ -48,11 +50,17 @@ export async function createEmployeeAction(input: Record<string, unknown>): Prom
     revalidatePath("/dashboard/employees");
   }
 
-  return result;
+    return result;
+  } catch (error) {
+    if (isNextInternalError(error)) throw error;
+    console.error("createEmployeeAction failed:", error);
+    return { success: false, error: "An unexpected error occurred. Please try again." };
+  }
 }
 
 export async function updateEmployeeAction(employeeId: string, input: Record<string, unknown>): Promise<ActionResult> {
-  const { employee: actor } = await getAuthenticatedUser();
+  try {
+    const { employee: actor } = await getAuthenticatedUser();
 
   if (!canManageEmployees(actor.role)) {
     return {
@@ -101,11 +109,17 @@ export async function updateEmployeeAction(employeeId: string, input: Record<str
   revalidatePath("/dashboard/employees");
   revalidatePath(`/dashboard/employees/${employeeId}`);
 
-  return { success: true };
+    return { success: true };
+  } catch (error) {
+    if (isNextInternalError(error)) throw error;
+    console.error("updateEmployeeAction failed:", error);
+    return { success: false, error: "An unexpected error occurred. Please try again." };
+  }
 }
 
 export async function deactivateEmployeeAction(employeeId: string): Promise<ActionResult> {
-  const { employee: actor } = await getAuthenticatedUser();
+  try {
+    const { employee: actor } = await getAuthenticatedUser();
 
   if (!canManageEmployees(actor.role)) {
     return {
@@ -127,5 +141,10 @@ export async function deactivateEmployeeAction(employeeId: string): Promise<Acti
     revalidatePath("/dashboard/employees");
   }
 
-  return result;
+    return result;
+  } catch (error) {
+    if (isNextInternalError(error)) throw error;
+    console.error("deactivateEmployeeAction failed:", error);
+    return { success: false, error: "An unexpected error occurred. Please try again." };
+  }
 }

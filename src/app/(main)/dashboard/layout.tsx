@@ -31,11 +31,34 @@ export default async function Layout({ children }: Readonly<{ children: ReactNod
   }
 
   const supabase = await createClient();
-  const { count: unreadCount } = await supabase
-    .from("notifications")
-    .select("id", { count: "exact", head: true })
-    .eq("employee_id", employee.id)
-    .eq("is_read", false);
+
+  // Build the approval count query based on role
+  const approvalQuery =
+    employee.role === "ADMIN"
+      ? supabase
+          .from("leave_requests")
+          .select("*", { count: "exact", head: true })
+          .eq("status", "PENDING")
+      : employee.role === "MANAGER"
+        ? supabase
+            .from("leave_requests")
+            .select("*, employees!inner(manager_id)", { count: "exact", head: true })
+            .eq("status", "PENDING")
+            .eq("employees.manager_id", employee.id)
+        : null;
+
+  // Run independent queries in parallel
+  const [notifResult, approvalResult] = await Promise.all([
+    supabase
+      .from("notifications")
+      .select("id", { count: "exact", head: true })
+      .eq("employee_id", employee.id)
+      .eq("is_read", false),
+    approvalQuery ?? Promise.resolve({ count: 0 }),
+  ]);
+
+  const unreadCount = notifResult.count;
+  const pendingApprovalCount = approvalResult.count ?? 0;
 
   const cookieStore = await cookies();
   const defaultOpen = cookieStore.get("sidebar_state")?.value !== "false";
@@ -59,7 +82,7 @@ export default async function Layout({ children }: Readonly<{ children: ReactNod
         } as React.CSSProperties
       }
     >
-      <AppSidebar variant={variant} collapsible={collapsible} user={sidebarUser} />
+      <AppSidebar variant={variant} collapsible={collapsible} user={sidebarUser} pendingApprovalCount={pendingApprovalCount} />
       <SidebarInset
         className={cn(
           "[html[data-content-layout=centered]_&>*]:mx-auto",

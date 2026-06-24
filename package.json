@@ -1,5 +1,5 @@
 {
-  "name": "studio-admin",
+  "name": "bni-leave-system",
   "version": "2.2.0",
   "private": true,
   "scripts": {
@@ -18,7 +18,9 @@
     "generate:presets": "ts-node -P tsconfig.scripts.json src/scripts/generate-theme-presets.ts"
   },
   "lint-staged": {
-    "*.{js,ts,jsx,tsx}": ["biome check --write --no-errors-on-unmatched"]
+    "*.{js,ts,jsx,tsx}": [
+      "biome check --write --no-errors-on-unmatched"
+    ]
   },
   "dependencies": {
     "@base-ui/react": "^1.6.0",
@@ -48,6 +50,7 @@
     "react-hook-form": "^7.80.0",
     "react-resizable-panels": "^4.11.2",
     "recharts": "^3.8.0",
+    "resend": "^6.14.0",
     "server-only": "^0.0.1",
     "shadcn": "^4.11.0",
     "simple-icons": "^16.24.0",

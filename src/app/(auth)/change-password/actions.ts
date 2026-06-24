@@ -1,5 +1,6 @@
 "use server";
 
+import { isNextInternalError } from "@/lib/utils/server-action-utils";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 
@@ -8,7 +9,8 @@ interface ChangePasswordResult {
 }
 
 export async function changePasswordAction(data: { password: string }): Promise<ChangePasswordResult> {
-  const supabase = await createClient();
+  try {
+    const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -33,5 +35,10 @@ export async function changePasswordAction(data: { password: string }): Promise<
     console.error("Failed to clear must_change_password flag:", flagError.message);
   }
 
-  return {};
+    return {};
+  } catch (error) {
+    if (isNextInternalError(error)) throw error;
+    console.error("changePasswordAction failed:", error);
+    return { error: "An unexpected error occurred. Please try again." };
+  }
 }

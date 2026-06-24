@@ -1,15 +1,19 @@
+import React from "react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
-import { Search, ShieldAlert } from "lucide-react";
+import { ScrollText, Search, ShieldAlert } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { EmptyState } from "@/components/ui/empty-state";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { getAuthenticatedUser } from "@/lib/auth/get-authenticated-user";
 import { createClient } from "@/lib/supabase/server";
+import { sanitizeSearch } from "@/lib/utils/sanitize-search";
+import { ExportButton } from "@/components/ui/export-button";
+import { generateCsv } from "@/lib/utils/export-csv";
 
 const ACTION_OPTIONS = [
   "ALL",
@@ -30,13 +34,23 @@ const ACTION_OPTIONS = [
   "ATTACHMENT_ACCESSED",
 ] as const;
 
-function formatMetadata(value: unknown): string {
-  if (value === null || value === undefined) return "—";
-  try {
-    return JSON.stringify(value, null, 2);
-  } catch {
-    return String(value);
+function renderMetadata(value: unknown): React.ReactNode {
+  if (value === null || value === undefined) return <span className="text-muted-foreground">—</span>;
+  if (typeof value === "object" && !Array.isArray(value)) {
+    const entries = Object.entries(value as Record<string, unknown>);
+    if (entries.length === 0) return <span className="text-muted-foreground">—</span>;
+    return (
+      <div className="text-xs text-muted-foreground space-y-0.5">
+        {entries.map(([key, val]) => (
+          <div key={key}>
+            <span className="font-medium">{key.replace(/_/g, " ")}:</span>{" "}
+            <span>{String(val)}</span>
+          </div>
+        ))}
+      </div>
+    );
   }
+  return <span className="text-xs text-muted-foreground">{String(value)}</span>;
 }
 
 export default async function AuditLogsPage({
@@ -59,7 +73,7 @@ export default async function AuditLogsPage({
   const params = await searchParams;
 
   const page = Math.max(1, Number(params.page ?? "1"));
-  const pageSize = Math.min(100, Math.max(1, Number(params.pageSize ?? "20")));
+  const pageSize = Math.min(100, Math.max(1, Number(params.pageSize ?? "10")));
   const offset = (page - 1) * pageSize;
   const actionFilter = params.action && params.action !== "ALL" ? params.action : null;
   const searchTerm = params.search?.trim() ?? "";
@@ -78,7 +92,10 @@ export default async function AuditLogsPage({
 
   if (searchTerm) {
     // Search by actor name via the joined table
-    query = query.ilike("employees.full_name", `%${searchTerm}%`);
+    const safeSearch = sanitizeSearch(searchTerm);
+    if (safeSearch) {
+      query = query.ilike("employees.full_name", `%${safeSearch}%`);
+    }
   }
 
   query = query.order("created_at", { ascending: false }).range(offset, offset + pageSize - 1);
@@ -88,6 +105,27 @@ export default async function AuditLogsPage({
   const items = logs ?? [];
   const totalCount = count ?? 0;
   const totalPages = Math.ceil(totalCount / pageSize);
+
+  // Generate CSV for export
+  const csvContent = generateCsv(
+    [
+      { key: "timestamp", label: "Timestamp" },
+      { key: "actor", label: "Actor" },
+      { key: "action", label: "Action" },
+      { key: "entity_type", label: "Entity Type" },
+      { key: "metadata", label: "Metadata" },
+    ],
+    items.map((log) => {
+      const actor = log.employees as { full_name: string } | null;
+      return {
+        timestamp: new Date(log.created_at).toLocaleString("en-US"),
+        actor: actor?.full_name ?? "System",
+        action: log.action,
+        entity_type: log.entity_type,
+        metadata: log.metadata ? JSON.stringify(log.metadata) : "",
+      };
+    }),
+  );
 
   // Build URL helper for pagination & filters
   function buildUrl(overrides: Record<string, string | undefined>) {
@@ -113,6 +151,7 @@ export default async function AuditLogsPage({
           <h1 className="font-semibold text-2xl tracking-tight">Audit Logs</h1>
           <Badge variant="secondary">{totalCount}</Badge>
         </div>
+        <ExportButton csvContent={csvContent} filename="audit-logs.csv" />
       </div>
 
       {/* Filters */}
@@ -151,20 +190,19 @@ export default async function AuditLogsPage({
       {error ? (
         <div className="flex flex-col items-center justify-center gap-2 py-20">
           <p className="text-destructive text-sm">Failed to load audit logs.</p>
-          <p className="text-muted-foreground text-xs">{error.message}</p>
+          <p className="text-muted-foreground text-xs">Something went wrong while loading data. Please try again later.</p>
         </div>
       ) : items.length === 0 ? (
         /* Empty state */
-        <Card>
-          <CardHeader>
-            <CardTitle>No Audit Logs Found</CardTitle>
-            <CardDescription>
-              {searchTerm || actionFilter
-                ? "No audit log entries match your current filters. Try adjusting your search or action filter."
-                : "There are no audit log entries recorded yet."}
-            </CardDescription>
-          </CardHeader>
-        </Card>
+        <EmptyState
+          icon={ScrollText}
+          title="No Audit Logs Found"
+          description={
+            searchTerm || actionFilter
+              ? "No audit log entries match your current filters. Try adjusting your search or action filter."
+              : "There are no audit log entries recorded yet."
+          }
+        />
       ) : (
         /* Data table */
         <div className="rounded-lg border bg-card">
@@ -198,9 +236,7 @@ export default async function AuditLogsPage({
                     </TableCell>
                     <TableCell>{log.entity_type}</TableCell>
                     <TableCell className="max-w-xs">
-                      <pre className="whitespace-pre-wrap break-all font-mono text-xs">
-                        {formatMetadata(log.metadata)}
-                      </pre>
+                      {renderMetadata(log.metadata)}
                     </TableCell>
                   </TableRow>
                 );

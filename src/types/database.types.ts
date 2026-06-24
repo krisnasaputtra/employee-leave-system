@@ -1,4 +1,4 @@
-﻿export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
+export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
 
 export type Database = {
   // Allows to automatically instantiate createClient with right options
@@ -68,6 +68,57 @@ export type Database = {
           {
             foreignKeyName: "audit_logs_actor_employee_id_fk";
             columns: ["actor_employee_id"];
+            isOneToOne: false;
+            referencedRelation: "employees";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      approval_delegations: {
+        Row: {
+          id: string;
+          delegator_id: string;
+          delegate_id: string;
+          start_date: string;
+          end_date: string;
+          reason: string;
+          is_active: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          delegator_id: string;
+          delegate_id: string;
+          start_date: string;
+          end_date: string;
+          reason?: string;
+          is_active?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          delegator_id?: string;
+          delegate_id?: string;
+          start_date?: string;
+          end_date?: string;
+          reason?: string;
+          is_active?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "approval_delegations_delegator_id_fkey";
+            columns: ["delegator_id"];
+            isOneToOne: false;
+            referencedRelation: "employees";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "approval_delegations_delegate_id_fkey";
+            columns: ["delegate_id"];
             isOneToOne: false;
             referencedRelation: "employees";
             referencedColumns: ["id"];

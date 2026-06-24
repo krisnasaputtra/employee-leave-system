@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 
+import { isNextInternalError } from "@/lib/utils/server-action-utils";
 import { getAuthenticatedUser } from "@/lib/auth/get-authenticated-user";
 import { canManageConfiguration } from "@/lib/permissions";
 import {
@@ -35,6 +36,7 @@ interface ActionResult {
 // =============================================================
 
 export async function createDepartmentAction(input: Record<string, unknown>): Promise<ActionResult> {
+  try {
   // 1. Authenticate
   const { employee: actor } = await getAuthenticatedUser();
 
@@ -96,9 +98,15 @@ export async function createDepartmentAction(input: Record<string, unknown>): Pr
 
   // 7. Return
   return { success: true };
+  } catch (error) {
+    if (isNextInternalError(error)) throw error;
+    console.error("createDepartmentAction failed:", error);
+    return { success: false, error: "An unexpected error occurred. Please try again." };
+  }
 }
 
 export async function updateDepartmentAction(id: string, input: Record<string, unknown>): Promise<ActionResult> {
+  try {
   // 1. Authenticate
   const { employee: actor } = await getAuthenticatedUser();
 
@@ -154,9 +162,15 @@ export async function updateDepartmentAction(id: string, input: Record<string, u
 
   // 7. Return
   return { success: true };
+  } catch (error) {
+    if (isNextInternalError(error)) throw error;
+    console.error("updateDepartmentAction failed:", error);
+    return { success: false, error: "An unexpected error occurred. Please try again." };
+  }
 }
 
 export async function toggleDepartmentAction(id: string): Promise<ActionResult> {
+  try {
   // 1. Authenticate
   const { employee: actor } = await getAuthenticatedUser();
 
@@ -221,6 +235,11 @@ export async function toggleDepartmentAction(id: string): Promise<ActionResult> 
   revalidatePath("/dashboard/settings/departments");
 
   return { success: true };
+  } catch (error) {
+    if (isNextInternalError(error)) throw error;
+    console.error("toggleDepartmentAction failed:", error);
+    return { success: false, error: "An unexpected error occurred. Please try again." };
+  }
 }
 
 // =============================================================
@@ -228,6 +247,7 @@ export async function toggleDepartmentAction(id: string): Promise<ActionResult> 
 // =============================================================
 
 export async function createLeaveTypeAction(input: Record<string, unknown>): Promise<ActionResult> {
+  try {
   // 1. Authenticate
   const { employee: actor } = await getAuthenticatedUser();
 
@@ -294,9 +314,15 @@ export async function createLeaveTypeAction(input: Record<string, unknown>): Pro
 
   // 7. Return
   return { success: true };
+  } catch (error) {
+    if (isNextInternalError(error)) throw error;
+    console.error("createLeaveTypeAction failed:", error);
+    return { success: false, error: "An unexpected error occurred. Please try again." };
+  }
 }
 
 export async function updateLeaveTypeAction(id: string, input: Record<string, unknown>): Promise<ActionResult> {
+  try {
   // 1. Authenticate
   const { employee: actor } = await getAuthenticatedUser();
 
@@ -352,9 +378,15 @@ export async function updateLeaveTypeAction(id: string, input: Record<string, un
 
   // 7. Return
   return { success: true };
+  } catch (error) {
+    if (isNextInternalError(error)) throw error;
+    console.error("updateLeaveTypeAction failed:", error);
+    return { success: false, error: "An unexpected error occurred. Please try again." };
+  }
 }
 
 export async function toggleLeaveTypeAction(id: string): Promise<ActionResult> {
+  try {
   // 1. Authenticate
   const { employee: actor } = await getAuthenticatedUser();
 
@@ -419,6 +451,11 @@ export async function toggleLeaveTypeAction(id: string): Promise<ActionResult> {
   revalidatePath("/dashboard/settings/leave-types");
 
   return { success: true };
+  } catch (error) {
+    if (isNextInternalError(error)) throw error;
+    console.error("toggleLeaveTypeAction failed:", error);
+    return { success: false, error: "An unexpected error occurred. Please try again." };
+  }
 }
 
 // =============================================================
@@ -426,6 +463,7 @@ export async function toggleLeaveTypeAction(id: string): Promise<ActionResult> {
 // =============================================================
 
 export async function createHolidayAction(input: Record<string, unknown>): Promise<ActionResult> {
+  try {
   // 1. Authenticate
   const { employee: actor } = await getAuthenticatedUser();
 
@@ -492,9 +530,15 @@ export async function createHolidayAction(input: Record<string, unknown>): Promi
 
   // 7. Return
   return { success: true, warning };
+  } catch (error) {
+    if (isNextInternalError(error)) throw error;
+    console.error("createHolidayAction failed:", error);
+    return { success: false, error: "An unexpected error occurred. Please try again." };
+  }
 }
 
 export async function updateHolidayAction(id: string, input: Record<string, unknown>): Promise<ActionResult> {
+  try {
   // 1. Authenticate
   const { employee: actor } = await getAuthenticatedUser();
 
@@ -549,9 +593,15 @@ export async function updateHolidayAction(id: string, input: Record<string, unkn
 
   // 7. Return
   return { success: true };
+  } catch (error) {
+    if (isNextInternalError(error)) throw error;
+    console.error("updateHolidayAction failed:", error);
+    return { success: false, error: "An unexpected error occurred. Please try again." };
+  }
 }
 
 export async function toggleHolidayAction(id: string): Promise<ActionResult> {
+  try {
   // 1. Authenticate
   const { employee: actor } = await getAuthenticatedUser();
 
@@ -600,4 +650,9 @@ export async function toggleHolidayAction(id: string): Promise<ActionResult> {
   revalidatePath("/dashboard/settings/holidays");
 
   return { success: true };
+  } catch (error) {
+    if (isNextInternalError(error)) throw error;
+    console.error("toggleHolidayAction failed:", error);
+    return { success: false, error: "An unexpected error occurred. Please try again." };
+  }
 }

@@ -1,10 +1,11 @@
 import Link from "next/link";
 
-import { Settings } from "lucide-react";
+import { Settings, Wallet } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { EmptyState } from "@/components/ui/empty-state";
 import { Separator } from "@/components/ui/separator";
 import { getAuthenticatedUser } from "@/lib/auth/get-authenticated-user";
 import { canManageLeaveBalance } from "@/lib/permissions";
@@ -44,13 +45,14 @@ export default async function MyLeaveBalancesPage() {
       {error ? (
         <div className="flex flex-col items-center justify-center gap-2 py-20">
           <p className="text-destructive text-sm">Failed to load balances.</p>
-          <p className="text-muted-foreground text-xs">{error.message}</p>
+          <p className="text-muted-foreground text-xs">Something went wrong while loading data. Please try again later.</p>
         </div>
       ) : !balances || balances.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-lg border bg-card py-20">
-          <p className="text-muted-foreground text-sm">No leave balances found for {currentYear}.</p>
-          <p className="text-muted-foreground mt-1 text-xs">Contact your administrator to initialize your balances.</p>
-        </div>
+        <EmptyState
+          icon={Wallet}
+          title={`No leave balances found for ${currentYear}`}
+          description="Contact your administrator to initialize your balances."
+        />
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {balances.map((balance) => {

@@ -4,6 +4,15 @@ import { Pencil, Plus } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { getAuthenticatedUser } from "@/lib/auth/get-authenticated-user";
 import { canManageConfiguration } from "@/lib/permissions";
 import { createClient } from "@/lib/supabase/server";
@@ -42,38 +51,38 @@ export default async function HolidaysPage() {
           <p className="text-muted-foreground text-sm">No holidays found.</p>
         </div>
       ) : (
-        <div className="rounded-lg border bg-card">
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b bg-muted/50">
-                  <th className="px-4 py-3 text-left font-medium">Name</th>
-                  <th className="px-4 py-3 text-left font-medium">Date</th>
-                  <th className="hidden px-4 py-3 text-left font-medium md:table-cell">Recurring</th>
-                  <th className="px-4 py-3 text-left font-medium">Status</th>
-                  <th className="px-4 py-3 text-left font-medium">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
+        <Card>
+          <CardContent className="p-0">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Date</TableHead>
+                  <TableHead className="hidden md:table-cell">Recurring</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
                 {holidays.map((h) => (
-                  <tr key={h.id} className="border-b last:border-0 hover:bg-muted/30">
-                    <td className="px-4 py-3 font-medium">{h.name}</td>
-                    <td className="px-4 py-3">
+                  <TableRow key={h.id}>
+                    <TableCell className="font-medium">{h.name}</TableCell>
+                    <TableCell>
                       {new Date(`${h.holiday_date}T00:00:00`).toLocaleDateString("en-US", {
                         year: "numeric",
                         month: "long",
                         day: "numeric",
                       })}
-                    </td>
-                    <td className="hidden px-4 py-3 md:table-cell">
+                    </TableCell>
+                    <TableCell className="hidden md:table-cell">
                       <Badge variant={h.is_recurring ? "default" : "outline"}>{h.is_recurring ? "Yes" : "No"}</Badge>
-                    </td>
-                    <td className="px-4 py-3">
+                    </TableCell>
+                    <TableCell>
                       <Badge variant={h.is_active ? "default" : "secondary"}>
                         {h.is_active ? "Active" : "Inactive"}
                       </Badge>
-                    </td>
-                    <td className="px-4 py-3">
+                    </TableCell>
+                    <TableCell>
                       <div className="flex gap-1">
                         <HolidayFormDialog
                           mode="edit"
@@ -87,14 +96,15 @@ export default async function HolidaysPage() {
                         />
                         <HolidayToggleButton holidayId={h.id} isActive={h.is_active} name={h.name} />
                       </div>
-                    </td>
-                  </tr>
+                    </TableCell>
+                  </TableRow>
                 ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
       )}
     </div>
   );
 }
+

@@ -17,6 +17,8 @@ const serverEnvSchema = z.object({
   NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().min(1, "NEXT_PUBLIC_SUPABASE_ANON_KEY is required"),
   SUPABASE_SERVICE_ROLE_KEY: z.string().min(1, "SUPABASE_SERVICE_ROLE_KEY is required"),
   NEXT_PUBLIC_APP_URL: z.string().min(1, "NEXT_PUBLIC_APP_URL is required").default("http://localhost:3000"),
+  RESEND_API_KEY: z.string().optional(),
+  EMAIL_FROM: z.string().optional().default("BNI Leave System <noreply@bni.co.id>"),
 });
 
 const clientEnvSchema = z.object({

@@ -1,4 +1,6 @@
 import {
+  ArrowLeftRight,
+  BarChart3,
   Bell,
   Calendar,
   CalendarDays,
@@ -7,13 +9,15 @@ import {
   Gauge,
   type LucideIcon,
   ScrollText,
+  User,
   Settings,
   Users,
+  Wallet,
 } from "lucide-react";
 
 import type { ApplicationRole } from "@/lib/permissions/roles";
 
-export type NavBadge = "new" | "soon";
+export type NavBadge = "new" | "soon" | number;
 
 export interface NavSubItem {
   id: string;
@@ -136,6 +140,13 @@ export const sidebarItems: NavGroup[] = [
         roles: ["ADMIN", "MANAGER"],
       },
       {
+        id: "delegations",
+        title: "Delegations",
+        url: "/dashboard/delegations",
+        icon: ArrowLeftRight,
+        roles: ["ADMIN", "MANAGER"],
+      },
+      {
         id: "team",
         title: "Team",
         url: "/dashboard/team",
@@ -149,6 +160,20 @@ export const sidebarItems: NavGroup[] = [
         icon: ClipboardList,
         roles: ["ADMIN"],
       },
+      {
+        id: "manage-balances",
+        title: "Manage Balances",
+        url: "/dashboard/leave/balances/manage",
+        icon: Wallet,
+        roles: ["ADMIN"],
+      },
+      {
+        id: "analytics-reports",
+        title: "Analytics",
+        url: "/dashboard/analytics-reports",
+        icon: BarChart3,
+        roles: ["ADMIN", "MANAGER"],
+      },
     ],
   },
   {
@@ -159,6 +184,17 @@ export const sidebarItems: NavGroup[] = [
         title: "Calendar",
         url: "/dashboard/calendar",
         icon: Calendar,
+      },
+    ],
+  },
+  {
+    id: 7,
+    items: [
+      {
+        id: "my-profile",
+        title: "My Profile",
+        url: "/dashboard/profile",
+        icon: User,
       },
     ],
   },

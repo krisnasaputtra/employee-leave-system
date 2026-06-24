@@ -5,12 +5,24 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 
 import { Loader2 } from "lucide-react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Field, FieldContent, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { Database } from "@/types/database.types";
 
 import { deactivateEmployeeAction, updateEmployeeAction } from "../../actions";
@@ -56,7 +68,6 @@ export function EmployeeEditForm({ employee, departments, employees }: Props) {
   };
 
   const handleDeactivate = () => {
-    if (!confirm("Are you sure you want to deactivate this employee? Their login will be banned.")) return;
     startTransition(async () => {
       const result = await deactivateEmployeeAction(employee.id);
       if (!result.success) {
@@ -116,16 +127,24 @@ export function EmployeeEditForm({ employee, departments, employees }: Props) {
             <Field>
               <FieldLabel>Department</FieldLabel>
               <FieldContent>
-                <select
-                  className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs"
-                  {...form.register("department_id")}
-                >
-                  {departments.map((d) => (
-                    <option key={d.id} value={d.id}>
-                      {d.name}
-                    </option>
-                  ))}
-                </select>
+                <Controller
+                  control={form.control}
+                  name="department_id"
+                  render={({ field }) => (
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select department" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {departments.map((d) => (
+                          <SelectItem key={d.id} value={d.id}>
+                            {d.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
               </FieldContent>
             </Field>
             <Field>
@@ -139,30 +158,46 @@ export function EmployeeEditForm({ employee, departments, employees }: Props) {
             <Field>
               <FieldLabel>Manager</FieldLabel>
               <FieldContent>
-                <select
-                  className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs"
-                  {...form.register("manager_id")}
-                >
-                  <option value="">No manager</option>
-                  {employees.map((e) => (
-                    <option key={e.id} value={e.id}>
-                      {e.full_name}
-                    </option>
-                  ))}
-                </select>
+                <Controller
+                  control={form.control}
+                  name="manager_id"
+                  render={({ field }) => (
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="No manager" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="">No manager</SelectItem>
+                        {employees.map((e) => (
+                          <SelectItem key={e.id} value={e.id}>
+                            {e.full_name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
               </FieldContent>
             </Field>
             <Field>
               <FieldLabel>Role</FieldLabel>
               <FieldContent>
-                <select
-                  className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs"
-                  {...form.register("role")}
-                >
-                  <option value="EMPLOYEE">Employee</option>
-                  <option value="MANAGER">Manager</option>
-                  <option value="ADMIN">Admin</option>
-                </select>
+                <Controller
+                  control={form.control}
+                  name="role"
+                  render={({ field }) => (
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select role" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="EMPLOYEE">Employee</SelectItem>
+                        <SelectItem value="MANAGER">Manager</SelectItem>
+                        <SelectItem value="ADMIN">Admin</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
               </FieldContent>
             </Field>
           </div>
@@ -175,9 +210,27 @@ export function EmployeeEditForm({ employee, departments, employees }: Props) {
           Save Changes
         </Button>
         {employee.status === "ACTIVE" && (
-          <Button type="button" variant="destructive" disabled={isPending} onClick={handleDeactivate}>
-            Deactivate
-          </Button>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button type="button" variant="destructive" disabled={isPending}>
+                Deactivate
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Deactivate Employee</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Are you sure you want to deactivate this employee? Their login will be banned and they will no longer be able to access the system.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction onClick={handleDeactivate}>
+                  Deactivate
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         )}
       </div>
     </form>

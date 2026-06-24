@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { Plus } from "lucide-react";
+import { Plus, Users } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -8,34 +8,28 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { getAuthenticatedUser } from "@/lib/auth/get-authenticated-user";
 import { canManageEmployees } from "@/lib/permissions";
 import { createClient } from "@/lib/supabase/server";
+import { sanitizeSearch } from "@/lib/utils/sanitize-search";
+import { ROLE_BADGE_STYLES, EMPLOYMENT_STATUS_STYLES } from "@/lib/ui/badge-variants";
+import { EmptyState } from "@/components/ui/empty-state";
 import type { Database } from "@/types/database.types";
+import { ExportButton } from "@/components/ui/export-button";
+import { generateCsv } from "@/lib/utils/export-csv";
 
 type ApplicationRole = Database["public"]["Enums"]["application_role"];
 type EmploymentStatus = Database["public"]["Enums"]["employment_status"];
 
-const statusVariant = (status: string) => {
-  switch (status) {
-    case "ACTIVE":
-      return "default" as const;
-    case "INACTIVE":
-      return "secondary" as const;
-    case "TERMINATED":
-      return "destructive" as const;
-    default:
-      return "outline" as const;
-  }
-};
-
-const roleVariant = (role: string) => {
-  switch (role) {
-    case "ADMIN":
-      return "destructive" as const;
-    case "MANAGER":
-      return "default" as const;
-    default:
-      return "secondary" as const;
-  }
-};
+function buildPaginationUrl(
+  targetPage: number,
+  currentParams: Record<string, string | undefined>,
+) {
+  const params = new URLSearchParams();
+  if (currentParams.search) params.set("search", currentParams.search);
+  if (currentParams.department) params.set("department", currentParams.department);
+  if (currentParams.role) params.set("role", currentParams.role);
+  if (currentParams.status) params.set("status", currentParams.status);
+  params.set("page", String(targetPage));
+  return `/dashboard/employees?${params.toString()}`;
+}
 
 export default async function EmployeesPage({
   searchParams,
@@ -54,7 +48,7 @@ export default async function EmployeesPage({
   const params = await searchParams;
 
   const page = Number(params.page ?? "1");
-  const pageSize = 20;
+  const pageSize = 10;
   const offset = (page - 1) * pageSize;
 
   let query = supabase
@@ -65,9 +59,12 @@ export default async function EmployeesPage({
     );
 
   if (params.search) {
-    query = query.or(
-      `full_name.ilike.%${params.search}%,employee_code.ilike.%${params.search}%,work_email.ilike.%${params.search}%`,
-    );
+    const safeSearch = sanitizeSearch(params.search);
+    if (safeSearch) {
+      query = query.or(
+        `full_name.ilike.%${safeSearch}%,employee_code.ilike.%${safeSearch}%,work_email.ilike.%${safeSearch}%`,
+      );
+    }
   }
   if (params.department) {
     query = query.eq("department_id", params.department);
@@ -87,12 +84,34 @@ export default async function EmployeesPage({
     return (
       <div className="flex flex-col items-center justify-center gap-2 py-20">
         <p className="text-destructive text-sm">Failed to load employees.</p>
-        <p className="text-muted-foreground text-xs">{error.message}</p>
+        <p className="text-muted-foreground text-xs">Something went wrong while loading data. Please try again later.</p>
       </div>
     );
   }
 
   const totalPages = Math.ceil((count ?? 0) / pageSize);
+
+  // Generate CSV for export
+  const csvContent = generateCsv(
+    [
+      { key: "employee_code", label: "Employee Code" },
+      { key: "full_name", label: "Full Name" },
+      { key: "work_email", label: "Email" },
+      { key: "department_name", label: "Department" },
+      { key: "position", label: "Position" },
+      { key: "role", label: "Role" },
+      { key: "status", label: "Status" },
+    ],
+    (employees ?? []).map((emp) => ({
+      employee_code: emp.employee_code,
+      full_name: emp.full_name,
+      work_email: emp.work_email,
+      department_name: (emp.departments as { name: string } | null)?.name ?? "",
+      position: emp.position,
+      role: emp.role,
+      status: emp.status,
+    })),
+  );
 
   return (
     <div className="@container/main flex flex-col gap-4 md:gap-6">
@@ -103,20 +122,25 @@ export default async function EmployeesPage({
             {count ?? 0} employee{count !== 1 ? "s" : ""} total
           </p>
         </div>
-        {isAdmin && (
-          <Button asChild>
-            <Link href="/dashboard/employees/new">
-              <Plus className="mr-2 h-4 w-4" />
-              Add Employee
-            </Link>
-          </Button>
-        )}
+        <div className="flex items-center gap-2">
+          <ExportButton csvContent={csvContent} filename="employees.csv" />
+          {isAdmin && (
+            <Button asChild>
+              <Link href="/dashboard/employees/new">
+                <Plus className="mr-2 h-4 w-4" />
+                Add Employee
+              </Link>
+            </Button>
+          )}
+        </div>
       </div>
 
       {!employees || employees.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-lg border bg-card py-20">
-          <p className="text-muted-foreground text-sm">No employees found.</p>
-        </div>
+        <EmptyState
+          icon={Users}
+          title="No employees found"
+          description="Try adjusting your filters or add a new employee."
+        />
       ) : (
         <div className="rounded-lg border bg-card">
           <div className="overflow-x-auto">
@@ -148,10 +172,10 @@ export default async function EmployeesPage({
                     </TableCell>
                     <TableCell className="hidden lg:table-cell">{emp.position}</TableCell>
                     <TableCell>
-                      <Badge variant={roleVariant(emp.role)}>{emp.role}</Badge>
+                      <Badge variant="outline" className={ROLE_BADGE_STYLES[emp.role]?.className}>{emp.role}</Badge>
                     </TableCell>
                     <TableCell>
-                      <Badge variant={statusVariant(emp.status)}>{emp.status}</Badge>
+                      <Badge variant="outline" className={EMPLOYMENT_STATUS_STYLES[emp.status]?.className}>{emp.status}</Badge>
                     </TableCell>
                     <TableCell className="hidden sm:table-cell">
                       <Badge variant={emp.auth_user_id ? "default" : "outline"}>
@@ -180,12 +204,12 @@ export default async function EmployeesPage({
               <div className="flex gap-1">
                 {page > 1 && (
                   <Button variant="outline" size="sm" asChild>
-                    <Link href={`/dashboard/employees?page=${page - 1}`}>Previous</Link>
+                    <Link href={buildPaginationUrl(page - 1, params)}>Previous</Link>
                   </Button>
                 )}
                 {page < totalPages && (
                   <Button variant="outline" size="sm" asChild>
-                    <Link href={`/dashboard/employees?page=${page + 1}`}>Next</Link>
+                    <Link href={buildPaginationUrl(page + 1, params)}>Next</Link>
                   </Button>
                 )}
               </div>

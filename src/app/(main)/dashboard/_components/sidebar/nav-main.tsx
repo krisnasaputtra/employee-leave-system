@@ -274,8 +274,17 @@ function NavCollapsibleItem({ item, isActive, defaultOpen, isSubItemActive }: Na
 }
 
 function NavItemBadge({ badge }: { badge?: NavBadge }) {
-  if (!badge) {
+  if (!badge && badge !== 0) {
     return null;
+  }
+
+  if (typeof badge === "number") {
+    if (badge <= 0) return null;
+    return (
+      <SidebarMenuBadge className="bg-red-500 text-white text-xs font-bold min-w-[20px] h-5 flex items-center justify-center">
+        {badge > 99 ? "99+" : badge}
+      </SidebarMenuBadge>
+    );
   }
 
   return (

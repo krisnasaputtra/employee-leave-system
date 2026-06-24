@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/sidebar";
 import { APP_CONFIG } from "@/config/app-config";
 import type { ApplicationRole } from "@/lib/permissions/roles";
-import { filterNavByRole, sidebarItems } from "@/navigation/sidebar/sidebar-items";
+import { filterNavByRole, type NavBadge, type NavGroup, sidebarItems } from "@/navigation/sidebar/sidebar-items";
 import { usePreferencesStore } from "@/stores/preferences/preferences-provider";
 
 import { NavMain } from "./nav-main";
@@ -28,7 +28,7 @@ interface SidebarUser {
   role: ApplicationRole;
 }
 
-export function AppSidebar({ user, ...props }: React.ComponentProps<typeof Sidebar> & { user: SidebarUser }) {
+export function AppSidebar({ user, pendingApprovalCount, ...props }: React.ComponentProps<typeof Sidebar> & { user: SidebarUser; pendingApprovalCount?: number }) {
   const { sidebarVariant, sidebarCollapsible, isSynced } = usePreferencesStore(
     useShallow((s) => ({
       sidebarVariant: s.sidebarVariant,
@@ -40,6 +40,17 @@ export function AppSidebar({ user, ...props }: React.ComponentProps<typeof Sideb
   const variant = isSynced ? sidebarVariant : props.variant;
   const collapsible = isSynced ? sidebarCollapsible : props.collapsible;
   const filteredItems = filterNavByRole(sidebarItems, user.role);
+
+  // Inject pending approval count badge on the Approvals nav item
+  const itemsWithBadges: NavGroup[] = filteredItems.map(group => ({
+    ...group,
+    items: group.items.map(item => {
+      if ('url' in item && item.url === '/dashboard/approvals' && pendingApprovalCount) {
+        return { ...item, badge: pendingApprovalCount as NavBadge };
+      }
+      return item;
+    }),
+  }));
 
   return (
     <Sidebar {...props} variant={variant} collapsible={collapsible}>
@@ -56,7 +67,7 @@ export function AppSidebar({ user, ...props }: React.ComponentProps<typeof Sideb
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={filteredItems} />
+        <NavMain items={itemsWithBadges} />
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={{ name: user.name, email: user.email, avatar: "" }} />
