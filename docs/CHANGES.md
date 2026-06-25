@@ -274,6 +274,30 @@ page.tsx (Server Component) → fetchXxx() SSR
 **After:** 1x `getUser()` + 1x `createClient()` per navigasi
 **Estimated improvement:** ~400-800ms lebih cepat per page navigation
 
+### `d65b5b4` perf: Move blocking queries out of layout — instant navigation
+**Problem:** Dashboard `layout.tsx` menjalankan 2 Supabase query (notification count + approval count) pada **setiap** navigasi halaman. Ini terlihat jelas di Network tab sebagai `_rsc` fetch yang memakan 1-2s per request.
+
+**Root cause dari screenshot Network tab:**
+| Request | Time |
+|---------|------|
+| `employees?_rsc=` | 2.14s |
+| `delegations?_rsc=` | 1.77s |
+| `manage?_rsc=` | 1.92s |
+| `departments?_rsc=` | 1.96s |
+
+**Fix:**
+- Buat `src/app/(main)/dashboard/fetch-header-counts.ts` — server action untuk async badge loading
+- Buat `src/app/(main)/dashboard/_components/notification-bell.tsx` — client component dengan TanStack Query (`staleTime: 30s`, `refetchInterval: 60s`)
+- Hapus semua Supabase query dari `layout.tsx` — layout sekarang hanya auth check + read cookies
+- Hapus prop `pendingApprovalCount` dari `AppSidebar`
+
+**Before:** Layout blocks pada 2 DB queries → 1-2s per navigasi
+**After:** Layout render instant → badges load async di background
+
+**Layout sekarang hanya:**
+1. `getAuthenticatedUser()` — cached via `React.cache()`
+2. Read cookies — zero latency
+3. Read preferences — cookies
 
 ---
 
