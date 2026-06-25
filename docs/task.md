@@ -1449,7 +1449,9 @@
 - [x] Leave Request Comments (Item 17) — Comment section on request detail page
 - [x] Legacy Template Cleanup (Item 18) — Removed in Phase 17
 
-## Remaining (Deferred — Needs Infrastructure/High Effort)
+## Previously Deferred (Now Complete)
 - [x] Leave Analytics Dashboard (Item 13) — VERIFIED: `/dashboard/analytics-reports` with 3 charts + export
 - [x] Email Notifications (Item 15) — VERIFIED: Resend wired to submit, approve, reject, balance adjust
-- [ ] TanStack Query Integration — Client-side caching optimization (future sprint)
+- [x] TanStack Query Integration — QueryProvider, mutation hooks, refactored notifications + approvals (0dbe9e7)
+
+## 🎉 ALL 18/18 PLANNED FEATURES COMPLETE
