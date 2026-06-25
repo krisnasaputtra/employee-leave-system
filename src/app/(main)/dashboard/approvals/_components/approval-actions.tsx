@@ -7,7 +7,6 @@ import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CheckCircle, Loader2, XCircle } from "lucide-react";
 import { useForm } from "react-hook-form";
-import { toast } from "sonner";
 
 import {
   AlertDialog,
@@ -31,9 +30,8 @@ import {
 } from "@/components/ui/dialog";
 import { Field, FieldContent, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Textarea } from "@/components/ui/textarea";
+import { useApproveLeaveRequest, useRejectLeaveRequest } from "@/hooks/use-approval-mutations";
 import { type LeaveRejectionInput, leaveRejectionSchema } from "@/lib/approvals/schemas";
-
-import { approveLeaveRequestAction, rejectLeaveRequestAction } from "../actions";
 
 interface ApprovalActionsProps {
   requestId: string;
@@ -43,40 +41,35 @@ interface ApprovalActionsProps {
 
 export function ApprovalActions({ requestId, requestNumber, employeeName }: ApprovalActionsProps) {
   const router = useRouter();
-  const [isApproving, setIsApproving] = useState(false);
   const [rejectOpen, setRejectOpen] = useState(false);
+
+  const approveMutation = useApproveLeaveRequest();
+  const rejectMutation = useRejectLeaveRequest();
 
   const form = useForm<LeaveRejectionInput>({
     resolver: zodResolver(leaveRejectionSchema),
     defaultValues: { rejection_reason: "" },
   });
 
-  async function handleApprove() {
-    setIsApproving(true);
-    const result = await approveLeaveRequestAction(requestId);
-    setIsApproving(false);
-
-    if (!result.success) {
-      toast.error(result.error ?? "Failed to approve leave request.");
-      return;
-    }
-
-    toast.success(`Leave request ${result.request_number ?? requestNumber} has been approved.`);
-    router.refresh();
+  function handleApprove() {
+    approveMutation.mutate(requestId, {
+      onSuccess: (result) => {
+        router.refresh();
+      },
+    });
   }
 
-  async function handleReject(data: LeaveRejectionInput) {
-    const result = await rejectLeaveRequestAction(requestId, data);
-
-    if (!result.success) {
-      toast.error(result.error ?? "Failed to reject leave request.");
-      return;
-    }
-
-    toast.success(`Leave request ${result.request_number ?? requestNumber} has been rejected.`);
-    setRejectOpen(false);
-    form.reset();
-    router.refresh();
+  function handleReject(data: LeaveRejectionInput) {
+    rejectMutation.mutate(
+      { requestId, reason: data.rejection_reason },
+      {
+        onSuccess: () => {
+          setRejectOpen(false);
+          form.reset();
+          router.refresh();
+        },
+      },
+    );
   }
 
   return (
@@ -99,8 +92,8 @@ export function ApprovalActions({ requestId, requestNumber, employeeName }: Appr
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleApprove} disabled={isApproving}>
-              {isApproving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            <AlertDialogAction onClick={handleApprove} disabled={approveMutation.isPending}>
+              {approveMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Yes, approve
             </AlertDialogAction>
           </AlertDialogFooter>
@@ -140,8 +133,8 @@ export function ApprovalActions({ requestId, requestNumber, employeeName }: Appr
               <Button type="button" variant="outline" onClick={() => setRejectOpen(false)}>
                 Cancel
               </Button>
-              <Button type="submit" variant="destructive" disabled={form.formState.isSubmitting}>
-                {form.formState.isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              <Button type="submit" variant="destructive" disabled={rejectMutation.isPending}>
+                {rejectMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Reject Request
               </Button>
             </div>

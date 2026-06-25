@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState, useTransition } from "react";
+import { useCallback, useState } from "react";
 
 import { useRouter } from "next/navigation";
 
@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty";
-import { createClient } from "@/lib/supabase/client";
+import { useMarkAllNotificationsRead, useMarkNotificationRead } from "@/hooks/use-notifications";
 
 interface Notification {
   id: string;
@@ -45,28 +45,46 @@ function formatRelativeTime(dateStr: string): string {
 
 export function NotificationList({ notifications: initialNotifications }: NotificationListProps) {
   const [notifications, setNotifications] = useState(initialNotifications);
-  const [isPending, startTransition] = useTransition();
   const router = useRouter();
 
+  const markReadMutation = useMarkNotificationRead();
+  const markAllReadMutation = useMarkAllNotificationsRead();
+
   const markAsRead = useCallback(
-    async (notificationId: string) => {
-      const supabase = createClient();
-      await supabase.rpc("mark_notification_read", {
-        p_notification_id: notificationId,
-      });
+    (notificationId: string) => {
+      // Optimistic update
       setNotifications((prev) => prev.map((n) => (n.id === notificationId ? { ...n, is_read: true } : n)));
-      startTransition(() => router.refresh());
+
+      markReadMutation.mutate(notificationId, {
+        onSuccess: () => {
+          router.refresh();
+        },
+        onError: () => {
+          // Rollback optimistic update
+          setNotifications((prev) => prev.map((n) => (n.id === notificationId ? { ...n, is_read: false } : n)));
+        },
+      });
     },
-    [router],
+    [markReadMutation, router],
   );
 
-  const markAllRead = useCallback(async () => {
-    const supabase = createClient();
-    await supabase.rpc("mark_all_notifications_read");
+  const markAllRead = useCallback(() => {
+    // Optimistic update – save previous state for rollback
+    const previousNotifications = notifications;
     setNotifications((prev) => prev.map((n) => ({ ...n, is_read: true })));
-    startTransition(() => router.refresh());
-  }, [router]);
 
+    markAllReadMutation.mutate(undefined, {
+      onSuccess: () => {
+        router.refresh();
+      },
+      onError: () => {
+        // Rollback optimistic update
+        setNotifications(previousNotifications);
+      },
+    });
+  }, [markAllReadMutation, notifications, router]);
+
+  const isPending = markReadMutation.isPending || markAllReadMutation.isPending;
   const unreadCount = notifications.filter((n) => !n.is_read).length;
 
   if (notifications.length === 0) {
@@ -106,7 +124,7 @@ export function NotificationList({ notifications: initialNotifications }: Notifi
             }`}
             onClick={() => {
               if (!notification.is_read) {
-                void markAsRead(notification.id);
+                markAsRead(notification.id);
               }
             }}
           >
