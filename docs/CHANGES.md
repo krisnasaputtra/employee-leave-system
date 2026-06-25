@@ -255,6 +255,26 @@ page.tsx (Server Component) → fetchXxx() SSR
 | Security headers | 6 |
 | Loading skeletons | 18 |
 
+### `3f5e920` docs: Add comprehensive CHANGES.md
+- Changelog lengkap seluruh 22 commits
+
+### `6a66b3f` perf: Critical performance fix — React cache() deduplication
+**Problem:** Setiap page navigation memicu 3 sequential Supabase round-trip:
+1. Middleware: `supabase.auth.getUser()` (~200-500ms)
+2. Layout: `getAuthenticatedUser()` → `getUser()` + employees query (~200-500ms)
+3. Page: `getAuthenticatedUser()` LAGI (~200-500ms)
+
+**Total delay: 800-2000ms per navigasi!**
+
+**Fix:**
+- `src/lib/auth/get-authenticated-user.ts` — wrap dengan `React.cache()` → deduplicate calls dalam 1 request
+- `src/lib/supabase/server.ts` — wrap `createClient()` dengan `React.cache()` → reuse client instance
+
+**Before:** 3x `getUser()` + 3x `createClient()` per navigasi
+**After:** 1x `getUser()` + 1x `createClient()` per navigasi
+**Estimated improvement:** ~400-800ms lebih cepat per page navigation
+
+
 ---
 
 ## Tech Stack Final
