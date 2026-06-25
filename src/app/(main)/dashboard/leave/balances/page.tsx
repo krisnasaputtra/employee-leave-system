@@ -18,7 +18,7 @@ export default async function MyLeaveBalancesPage() {
 
   const { data: balances, error } = await supabase
     .from("leave_balances")
-    .select("*, leave_types(code, name, color, allow_negative_balance)")
+    .select("id, entitled_days, adjustment_days, used_days, pending_days, leave_type_id, leave_types(code, name, color, allow_negative_balance)")
     .eq("employee_id", actor.id)
     .eq("balance_year", currentYear)
     .order("leave_type_id");

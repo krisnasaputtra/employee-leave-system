@@ -189,14 +189,16 @@ export async function bulkApproveAction(requestIds: string[]) {
   try {
     const { employee: _actor } = await getAuthenticatedUser();
     const supabase = await createClient();
-    const results: { id: string; success: boolean; error?: string }[] = [];
-
-    for (const id of requestIds) {
-      const { error } = await supabase.rpc("approve_leave_request", {
-        p_request_id: id,
-      });
-      results.push({ id, success: !error, error: error?.message });
-    }
+    const settled = await Promise.allSettled(
+      requestIds.map((id) =>
+        supabase.rpc("approve_leave_request", { p_request_id: id })
+      )
+    );
+    const results = settled.map((s, i) => ({
+      id: requestIds[i],
+      success: s.status === "fulfilled" && !s.value.error,
+      error: s.status === "fulfilled" ? s.value.error?.message : (s.reason as Error)?.message,
+    }));
 
     revalidatePath("/dashboard/approvals");
     revalidatePath("/dashboard/leave/requests");
@@ -212,15 +214,16 @@ export async function bulkRejectAction(requestIds: string[], reason: string) {
   try {
     const { employee: _actor } = await getAuthenticatedUser();
     const supabase = await createClient();
-    const results: { id: string; success: boolean; error?: string }[] = [];
-
-    for (const id of requestIds) {
-      const { error } = await supabase.rpc("reject_leave_request", {
-        p_request_id: id,
-        p_rejection_reason: reason,
-      });
-      results.push({ id, success: !error, error: error?.message });
-    }
+    const settled = await Promise.allSettled(
+      requestIds.map((id) =>
+        supabase.rpc("reject_leave_request", { p_request_id: id, p_rejection_reason: reason })
+      )
+    );
+    const results = settled.map((s, i) => ({
+      id: requestIds[i],
+      success: s.status === "fulfilled" && !s.value.error,
+      error: s.status === "fulfilled" ? s.value.error?.message : (s.reason as Error)?.message,
+    }));
 
     revalidatePath("/dashboard/approvals");
     revalidatePath("/dashboard/leave/requests");

@@ -32,7 +32,7 @@ export default async function DelegationsPage() {
   // Active delegations FROM me
   const { data: myDelegations } = await supabase
     .from("approval_delegations")
-    .select("*, delegate:employees!approval_delegations_delegate_id_fkey(id, full_name, employee_code)")
+    .select("id, start_date, end_date, reason, created_at, delegate:employees!approval_delegations_delegate_id_fkey(id, full_name, employee_code)")
     .eq("delegator_id", actor.id)
     .eq("is_active", true)
     .order("created_at", { ascending: false });
@@ -40,7 +40,7 @@ export default async function DelegationsPage() {
   // Active delegations TO me
   const { data: delegationsToMe } = await supabase
     .from("approval_delegations")
-    .select("*, delegator:employees!approval_delegations_delegator_id_fkey(id, full_name, employee_code)")
+    .select("id, start_date, end_date, reason, created_at, delegator:employees!approval_delegations_delegator_id_fkey(id, full_name, employee_code)")
     .eq("delegate_id", actor.id)
     .eq("is_active", true)
     .order("created_at", { ascending: false });

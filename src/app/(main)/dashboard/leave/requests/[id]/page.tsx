@@ -30,7 +30,7 @@ export default async function LeaveRequestDetailPage({ params }: PageProps) {
 
   const { data: request, error } = await supabase
     .from("leave_requests")
-    .select("*, leave_types(name, color, code), employees!leave_requests_employee_id_fk(full_name, employee_code)")
+    .select("id, request_number, employee_id, status, start_date, end_date, requested_days, partial_day, reason, created_at, decided_at, rejection_reason, leave_types(name, color, code), employees!leave_requests_employee_id_fk(full_name, employee_code)")
     .eq("id", id)
     .single();
 

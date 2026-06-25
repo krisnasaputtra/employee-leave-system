@@ -59,7 +59,7 @@ export default async function EmployeeBalancesPage({ params }: { params: Promise
   // Get balances
   const { data: balances } = await supabase
     .from("leave_balances")
-    .select("*, leave_types(code, name, color, allow_negative_balance)")
+    .select("id, entitled_days, adjustment_days, used_days, pending_days, leave_type_id, leave_types(code, name, color, allow_negative_balance)")
     .eq("employee_id", employeeId)
     .eq("balance_year", currentYear)
     .order("leave_type_id");
@@ -67,7 +67,7 @@ export default async function EmployeeBalancesPage({ params }: { params: Promise
   // Get transactions
   const { data: transactions } = await supabase
     .from("leave_balance_transactions")
-    .select("*, leave_balances!inner(employee_id, leave_type_id, balance_year, leave_types(name))")
+    .select("id, created_at, transaction_type, days, reason, leave_balances!inner(employee_id, leave_type_id, balance_year, leave_types(name))")
     .eq("leave_balances.employee_id", employeeId)
     .order("created_at", { ascending: false })
     .limit(50);

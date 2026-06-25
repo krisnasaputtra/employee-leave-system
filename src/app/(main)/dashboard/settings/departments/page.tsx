@@ -28,7 +28,7 @@ export default async function DepartmentsPage() {
 
   const { data: departments } = await supabase
     .from("departments")
-    .select("*, employees!departments_manager_employee_id_fk(full_name)")
+    .select("id, code, name, description, is_active, manager_employee_id, created_at, updated_at, employees!departments_manager_employee_id_fk(full_name)")
     .order("name");
 
   const { data: employees } = await supabase

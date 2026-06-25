@@ -54,7 +54,7 @@ export async function fetchMyRequests(
 
   const { data, count, error } = await supabase
     .from("leave_requests")
-    .select("*, leave_types(name, color, code)", { count: "exact" })
+    .select("id, request_number, employee_id, leave_type_id, start_date, end_date, requested_days, status, reason, created_at, leave_types(name, color, code)", { count: "exact" })
     .eq("employee_id", actor.id)
     .order("created_at", { ascending: false })
     .range(offset, offset + pageSize - 1);

@@ -27,7 +27,7 @@ export default async function CapacityPage() {
 
   const { data: departments } = await supabase
     .from("departments")
-    .select("*, workforce_capacity_rules(*)")
+    .select("id, name, is_active, workforce_capacity_rules(id, department_id, max_absent_percentage, min_staff_count)")
     .eq("is_active", true)
     .order("name");
 

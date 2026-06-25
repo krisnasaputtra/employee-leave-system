@@ -1,12 +1,20 @@
 import { type NextRequest, NextResponse } from "next/server";
 
 import { updateSession } from "@/lib/supabase/middleware";
+import { checkRateLimit } from "@/lib/security/rate-limit";
 
 /** Public paths that don't require authentication. */
 const PUBLIC_PATHS = ["/login", "/auth/signout", "/code-review"];
 
+// Rate-limited paths (auth endpoints)
+const RATE_LIMITED_PATHS = ["/login", "/change-password", "/auth/signout"];
+
 function isPublicPath(pathname: string): boolean {
   return PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`));
+}
+
+function isRateLimitedPath(pathname: string): boolean {
+  return RATE_LIMITED_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`));
 }
 
 /**
@@ -20,10 +28,32 @@ function isPublicPath(pathname: string): boolean {
  * query, and Server Action must still authorize independently.
  */
 export async function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+
+  // Rate limit auth routes
+  if (isRateLimitedPath(pathname)) {
+    const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim()
+      ?? request.headers.get("x-real-ip")
+      ?? "unknown";
+    const { allowed, remaining, resetAt } = checkRateLimit(
+      `auth:${ip}`,
+      10, // 10 requests per minute
+      60 * 1000,
+    );
+
+    if (!allowed) {
+      return new NextResponse("Too Many Requests", {
+        status: 429,
+        headers: {
+          "Retry-After": String(Math.ceil((resetAt - Date.now()) / 1000)),
+          "X-RateLimit-Remaining": String(remaining),
+        },
+      });
+    }
+  }
+
   // Always refresh session first
   const response = await updateSession(request);
-
-  const { pathname } = request.nextUrl;
 
   // Skip auth checks for public paths
   if (isPublicPath(pathname)) {
@@ -65,3 +95,4 @@ export const config = {
     "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };
+

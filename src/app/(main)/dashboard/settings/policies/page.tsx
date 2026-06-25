@@ -27,7 +27,7 @@ export default async function PoliciesPage() {
 
   const { data: leaveTypes } = await supabase
     .from("leave_types")
-    .select("*, leave_policies(*)")
+    .select("id, name, is_active, leave_policies(id, leave_type_id, notice_period_days, max_consecutive_days, requires_attachment)")
     .eq("is_active", true)
     .order("name");
 
