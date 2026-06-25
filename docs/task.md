@@ -1450,6 +1450,6 @@
 - [x] Legacy Template Cleanup (Item 18) — Removed in Phase 17
 
 ## Remaining (Deferred — Needs Infrastructure/High Effort)
-- [ ] Leave Analytics Dashboard (Item 13) — Charts, trends, utilization
-- [ ] Email Notifications (Item 15) — Needs email service (Resend/SES)
-- [ ] TanStack Query Integration — Client-side caching optimization
+- [x] Leave Analytics Dashboard (Item 13) — VERIFIED: `/dashboard/analytics-reports` with 3 charts + export
+- [x] Email Notifications (Item 15) — VERIFIED: Resend wired to submit, approve, reject, balance adjust
+- [ ] TanStack Query Integration — Client-side caching optimization (future sprint)
