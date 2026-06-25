@@ -1747,12 +1747,10 @@ export default function CodeReviewPage() {
 
   // -- localStorage load/save -----------------------------------------------
   useEffect(() => {
-    // Build initial checked state from review notes (pass/fixed = auto-checked)
+    // Build initial checked state from review notes (any note = reviewed)
     const reviewChecked: Record<string, boolean> = {};
-    for (const [id, note] of Object.entries(REVIEW_NOTES)) {
-      if (note.status === "pass" || note.status === "fixed") {
-        reviewChecked[id] = true;
-      }
+    for (const [id] of Object.entries(REVIEW_NOTES)) {
+      reviewChecked[id] = true;
     }
 
     try {
@@ -2421,10 +2419,10 @@ export default function CodeReviewPage() {
                     </thead>
                     <tbody>
                       {[
-                        { sev: "Pass", count: 329, color: "text-emerald-600 font-bold", note: "Verified ✓" },
-                        { sev: "Fixed", count: 30, color: "text-blue-600 font-bold", note: "Issues resolved this cycle" },
+                        { sev: "Pass", count: 330, color: "text-emerald-600 font-bold", note: "Verified ✓" },
+                        { sev: "Fixed", count: 31, color: "text-blue-600 font-bold", note: "Issues resolved this cycle" },
                         { sev: "Warning", count: 5, color: "text-amber-600 font-bold", note: "Known, non-blocking" },
-                        { sev: "Info", count: 61, color: "text-gray-500", note: "Not in scope / deferred" },
+                        { sev: "Info", count: 59, color: "text-gray-500", note: "Not in scope / deferred" },
                       ].map((row) => (
                         <tr key={row.sev} className="border-b border-border">
                           <td className={`px-3 py-1.5 ${row.color}`}>{row.sev}</td>
