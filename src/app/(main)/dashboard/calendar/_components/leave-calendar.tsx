@@ -2,7 +2,7 @@
 
 import * as React from "react";
 
-import type { EventClickInfo, EventInput } from "@fullcalendar/react";
+import type { EventClickInfo, EventDisplayInfo, EventInput } from "@fullcalendar/react";
 import { useCalendarController } from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/react/daygrid";
 import interactionPlugin from "@fullcalendar/react/interaction";
@@ -140,6 +140,25 @@ export function LeaveCalendar({ departments, leaveTypes, holidays }: LeaveCalend
     const props = info.event.extendedProps as CalendarEvent;
     setSelectedEvent(props);
     setDialogOpen(true);
+  }, []);
+
+  // Custom compact event renderer — shows color dot + employee name + leave type
+  const renderEventContent = React.useCallback((arg: EventDisplayInfo) => {
+    const props = arg.event.extendedProps as CalendarEvent & { isHoliday?: boolean };
+    if (props.isHoliday) return undefined; // Use default for holidays
+
+    return (
+      <div className="flex w-full items-center gap-1 overflow-hidden px-1 py-0.5 text-xs">
+        <span
+          className="inline-block size-2 shrink-0 rounded-full"
+          style={{ backgroundColor: props.color }}
+        />
+        <span className="truncate font-medium">{props.employee_name}</span>
+        <span className="hidden truncate text-[0.65rem] opacity-75 sm:inline">
+          {props.public_label}
+        </span>
+      </div>
+    );
   }, []);
 
   const formatDate = (dateStr: string) => {
@@ -285,6 +304,9 @@ export function LeaveCalendar({ departments, leaveTypes, holidays }: LeaveCalend
           popoverCloseContent={() => <XIcon className="size-5 text-muted-foreground group-hover:text-foreground" />}
           events={allEvents}
           eventClick={handleEventClick}
+          eventContent={renderEventContent}
+          dayMaxEvents={3}
+          moreLinkClick="popover"
           nowIndicator
           datesSet={(info) => {
             currentRangeRef.current = { start: info.start, end: info.end };
