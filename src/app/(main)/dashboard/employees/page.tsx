@@ -14,6 +14,8 @@ import { EmptyState } from "@/components/ui/empty-state";
 import type { Database } from "@/types/database.types";
 import { ExportButton } from "@/components/ui/export-button";
 import { generateCsv } from "@/lib/utils/export-csv";
+import { ExportCSVButton } from "@/components/export-csv-button";
+import { exportEmployeesCSV } from "./export-action";
 
 type ApplicationRole = Database["public"]["Enums"]["application_role"];
 type EmploymentStatus = Database["public"]["Enums"]["employment_status"];
@@ -124,6 +126,7 @@ export default async function EmployeesPage({
         </div>
         <div className="flex items-center gap-2">
           <ExportButton csvContent={csvContent} filename="employees.csv" />
+          {isAdmin && <ExportCSVButton exportFn={exportEmployeesCSV} filename="employees" label="Export All" />}
           {isAdmin && (
             <Button asChild>
               <Link href="/dashboard/employees/new">

@@ -18,6 +18,8 @@ import { formatDate } from "@/lib/utils/format-date";
 import type { Database } from "@/types/database.types";
 import { ExportButton } from "@/components/ui/export-button";
 import { generateCsv } from "@/lib/utils/export-csv";
+import { ExportCSVButton } from "@/components/export-csv-button";
+import { exportLeaveRequestsCSV } from "../../employees/export-action";
 
 type LeaveRequestStatus = Database["public"]["Enums"]["leave_request_status"];
 
@@ -136,7 +138,10 @@ export default async function AllLeaveRequestsPage({
             {totalCount} request{totalCount !== 1 ? "s" : ""} total
           </p>
         </div>
-        <ExportButton csvContent={csvContent} filename="leave-requests.csv" />
+        <div className="flex items-center gap-2">
+          <ExportButton csvContent={csvContent} filename="leave-requests.csv" />
+          <ExportCSVButton exportFn={exportLeaveRequestsCSV} filename="leave-requests" label="Export All" />
+        </div>
       </div>
 
       {/* Filters */}

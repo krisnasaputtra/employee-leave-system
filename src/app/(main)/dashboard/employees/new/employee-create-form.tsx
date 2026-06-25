@@ -10,6 +10,7 @@ import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
+import { Combobox, ComboboxContent, ComboboxEmpty, ComboboxInput, ComboboxItem, ComboboxList } from "@/components/ui/combobox";
 import { Field, FieldContent, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -166,18 +167,22 @@ export function EmployeeCreateForm({ departments, employees }: Props) {
                   control={form.control}
                   name="department_id"
                   render={({ field }) => (
-                    <Select value={field.value} onValueChange={field.onChange}>
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Select department..." />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {departments.map((d) => (
-                          <SelectItem key={d.id} value={d.id}>
-                            {d.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <Combobox
+                      value={field.value}
+                      onValueChange={(val) => field.onChange(val as string)}
+                    >
+                      <ComboboxInput showClear placeholder="Search department..." />
+                      <ComboboxContent>
+                        <ComboboxList>
+                          <ComboboxEmpty>No department found.</ComboboxEmpty>
+                          {departments.map((d) => (
+                            <ComboboxItem key={d.id} value={d.id}>
+                              {d.name}
+                            </ComboboxItem>
+                          ))}
+                        </ComboboxList>
+                      </ComboboxContent>
+                    </Combobox>
                   )}
                 />
               </FieldContent>
@@ -199,19 +204,22 @@ export function EmployeeCreateForm({ departments, employees }: Props) {
                   control={form.control}
                   name="manager_id"
                   render={({ field }) => (
-                    <Select value={field.value} onValueChange={field.onChange}>
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="No manager" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="">No manager</SelectItem>
-                        {employees.map((e) => (
-                          <SelectItem key={e.id} value={e.id}>
-                            {e.full_name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <Combobox
+                      value={field.value}
+                      onValueChange={(val) => field.onChange((val as string) ?? "")}
+                    >
+                      <ComboboxInput showClear placeholder="Search manager..." />
+                      <ComboboxContent>
+                        <ComboboxList>
+                          <ComboboxEmpty>No employee found.</ComboboxEmpty>
+                          {employees.map((e) => (
+                            <ComboboxItem key={e.id} value={e.id}>
+                              {e.full_name}
+                            </ComboboxItem>
+                          ))}
+                        </ComboboxList>
+                      </ComboboxContent>
+                    </Combobox>
                   )}
                 />
               </FieldContent>
