@@ -47,27 +47,30 @@ export function LoginForm() {
   return (
     <form noValidate onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4">
       {serverError && (
-        <div className="rounded-md bg-destructive/10 p-3 text-center text-destructive text-sm">{serverError}</div>
+        <div role="alert" className="rounded-md bg-destructive/10 p-3 text-center text-destructive text-sm">{serverError}</div>
       )}
       <FieldGroup>
         <Field>
-          <FieldLabel>Email</FieldLabel>
+          <FieldLabel htmlFor="email">Email</FieldLabel>
           <FieldContent>
-            <Input type="email" placeholder="name@company.com" autoComplete="email" {...form.register("email")} />
+            <Input id="email" type="email" placeholder="name@company.com" autoComplete="email" aria-required="true" aria-describedby="email-error" {...form.register("email")} />
           </FieldContent>
-          <FieldError>{form.formState.errors.email?.message}</FieldError>
+          <FieldError id="email-error">{form.formState.errors.email?.message}</FieldError>
         </Field>
         <Field>
-          <FieldLabel>Password</FieldLabel>
+          <FieldLabel htmlFor="password">Password</FieldLabel>
           <FieldContent>
             <Input
+              id="password"
               type="password"
               placeholder="••••••••"
               autoComplete="current-password"
+              aria-required="true"
+              aria-describedby="password-error"
               {...form.register("password")}
             />
           </FieldContent>
-          <FieldError>{form.formState.errors.password?.message}</FieldError>
+          <FieldError id="password-error">{form.formState.errors.password?.message}</FieldError>
         </Field>
       </FieldGroup>
       <Button className="w-full" type="submit" disabled={isPending}>

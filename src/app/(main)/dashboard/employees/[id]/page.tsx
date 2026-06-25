@@ -117,7 +117,7 @@ export default async function EmployeeDetailPage({ params }: { params: Promise<{
     <div className="@container/main flex flex-col gap-6">
       {/* Header */}
       <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" asChild>
+        <Button variant="ghost" size="icon" asChild aria-label="Go back">
           <Link href="/dashboard/employees">
             <ArrowLeft className="h-4 w-4" />
           </Link>

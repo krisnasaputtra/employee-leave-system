@@ -257,3 +257,37 @@ export const sidebarItems: NavGroup[] = [
     ],
   },
 ];
+
+/**
+ * Maps sidebar item IDs and group labels to i18n translation keys.
+ * Used by client-side components to display translated text.
+ */
+export const SIDEBAR_I18N_MAP: Record<string, string> = {
+  // Item IDs → translation keys
+  "dashboard": "nav.dashboard",
+  "employees": "nav.employees",
+  "my-leave": "nav.myLeave",
+  "my-requests": "nav.requests",
+  "my-balances": "nav.balances",
+  "approvals": "nav.approvals",
+  "delegations": "nav.delegations",
+  "team": "nav.team",
+  "all-requests": "nav.allRequests",
+  "manage-balances": "nav.manageBalances",
+  "analytics-reports": "nav.analytics",
+  "calendar": "nav.calendar",
+  "my-profile": "nav.myProfile",
+  "settings": "nav.settings",
+  "departments": "nav.departments",
+  "leave-types": "nav.leaveTypes",
+  "holidays": "nav.holidays",
+  "leave-policies": "nav.leavePolicies",
+  "capacity-rules": "nav.capacityRules",
+  "audit-logs": "nav.auditLogs",
+  "notifications": "nav.notifications",
+  // Group labels → translation keys
+  "Employees": "nav.employees",
+  "Leave": "nav.leave",
+  "Settings": "nav.settings",
+};
+

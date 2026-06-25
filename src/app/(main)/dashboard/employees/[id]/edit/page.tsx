@@ -33,7 +33,7 @@ export default async function EditEmployeePage({ params }: { params: Promise<{ i
   return (
     <div className="@container/main flex flex-col gap-4 md:gap-6">
       <div className="flex items-center gap-2">
-        <Button variant="ghost" size="icon" asChild>
+        <Button variant="ghost" size="icon" asChild aria-label="Go back">
           <Link href={`/dashboard/employees/${id}`}>
             <ArrowLeft className="h-4 w-4" />
           </Link>

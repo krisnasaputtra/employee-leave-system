@@ -59,7 +59,7 @@ export function DelegationForm({ employees }: DelegationFormProps) {
           <Select
             onValueChange={(value) => setValue("delegate_id", value, { shouldValidate: true })}
           >
-            <SelectTrigger id="delegate_id">
+            <SelectTrigger id="delegate_id" aria-required="true" aria-describedby={errors.delegate_id ? "delegate_id-error" : undefined}>
               <SelectValue placeholder="Select an employee" />
             </SelectTrigger>
             <SelectContent>
@@ -71,7 +71,7 @@ export function DelegationForm({ employees }: DelegationFormProps) {
             </SelectContent>
           </Select>
           {errors.delegate_id && (
-            <p className="text-sm text-destructive">{errors.delegate_id.message}</p>
+            <p id="delegate_id-error" role="alert" className="text-sm text-destructive">{errors.delegate_id.message}</p>
           )}
         </div>
 
@@ -81,26 +81,27 @@ export function DelegationForm({ employees }: DelegationFormProps) {
             id="reason"
             placeholder="Why are you delegating approval authority?"
             rows={1}
+            aria-describedby={errors.reason ? "reason-error" : undefined}
             {...register("reason")}
           />
           {errors.reason && (
-            <p className="text-sm text-destructive">{errors.reason.message}</p>
+            <p id="reason-error" role="alert" className="text-sm text-destructive">{errors.reason.message}</p>
           )}
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="start_date">Start Date</Label>
-          <Input type="date" id="start_date" {...register("start_date")} />
+          <Input type="date" id="start_date" aria-required="true" aria-describedby={errors.start_date ? "start_date-error" : undefined} {...register("start_date")} />
           {errors.start_date && (
-            <p className="text-sm text-destructive">{errors.start_date.message}</p>
+            <p id="start_date-error" role="alert" className="text-sm text-destructive">{errors.start_date.message}</p>
           )}
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="end_date">End Date</Label>
-          <Input type="date" id="end_date" {...register("end_date")} />
+          <Input type="date" id="end_date" aria-required="true" aria-describedby={errors.end_date ? "end_date-error" : undefined} {...register("end_date")} />
           {errors.end_date && (
-            <p className="text-sm text-destructive">{errors.end_date.message}</p>
+            <p id="end_date-error" role="alert" className="text-sm text-destructive">{errors.end_date.message}</p>
           )}
         </div>
       </div>

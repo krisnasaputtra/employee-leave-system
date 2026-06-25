@@ -52,27 +52,30 @@ export function ChangePasswordForm() {
   return (
     <form noValidate onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4">
       {serverError && (
-        <div className="rounded-md bg-destructive/10 p-3 text-center text-destructive text-sm">{serverError}</div>
+        <div role="alert" className="rounded-md bg-destructive/10 p-3 text-center text-destructive text-sm">{serverError}</div>
       )}
       <FieldGroup>
         <Field>
-          <FieldLabel>New Password</FieldLabel>
+          <FieldLabel htmlFor="password">New Password</FieldLabel>
           <FieldContent>
-            <Input type="password" placeholder="••••••••" autoComplete="new-password" {...form.register("password")} />
+            <Input id="password" type="password" placeholder="••••••••" autoComplete="new-password" aria-required="true" aria-describedby="password-error" {...form.register("password")} />
           </FieldContent>
-          <FieldError>{form.formState.errors.password?.message}</FieldError>
+          <FieldError id="password-error">{form.formState.errors.password?.message}</FieldError>
         </Field>
         <Field>
-          <FieldLabel>Confirm Password</FieldLabel>
+          <FieldLabel htmlFor="confirmPassword">Confirm Password</FieldLabel>
           <FieldContent>
             <Input
+              id="confirmPassword"
               type="password"
               placeholder="••••••••"
               autoComplete="new-password"
+              aria-required="true"
+              aria-describedby="confirmPassword-error"
               {...form.register("confirmPassword")}
             />
           </FieldContent>
-          <FieldError>{form.formState.errors.confirmPassword?.message}</FieldError>
+          <FieldError id="confirmPassword-error">{form.formState.errors.confirmPassword?.message}</FieldError>
         </Field>
       </FieldGroup>
       <Button className="w-full" type="submit" disabled={isPending}>

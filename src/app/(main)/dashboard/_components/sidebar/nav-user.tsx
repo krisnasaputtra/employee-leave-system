@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from "@/components/ui/sidebar";
 import { getInitials } from "@/lib/utils";
+import { useTranslation } from "@/providers/locale-provider";
 
 export function NavUser({
   user,
@@ -28,6 +29,7 @@ export function NavUser({
 }) {
   const { isMobile } = useSidebar();
   const router = useRouter();
+  const { t } = useTranslation();
 
   const handleLogout = async () => {
     // Use the signout route handler (POST)
@@ -77,17 +79,17 @@ export function NavUser({
             <DropdownMenuGroup>
               <DropdownMenuItem disabled>
                 <CircleUser />
-                Profile
+                {t("nav.profile")}
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => router.push("/change-password")}>
                 <KeyRound />
-                Change Password
+                {t("nav.changePassword")}
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleLogout}>
               <LogOut />
-              Log out
+              {t("nav.logOut")}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -95,3 +97,4 @@ export function NavUser({
     </SidebarMenu>
   );
 }
+

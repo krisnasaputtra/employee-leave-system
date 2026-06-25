@@ -18,6 +18,7 @@ export default function DashboardError({
 
   return (
     <div className="flex flex-1 items-center justify-center p-8">
+      <h1 className="sr-only">Error</h1>
       <Card className="max-w-md w-full">
         <CardHeader className="text-center">
           <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-destructive/10">

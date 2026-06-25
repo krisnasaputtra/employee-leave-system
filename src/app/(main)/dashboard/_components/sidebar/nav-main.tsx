@@ -35,6 +35,8 @@ import type {
   NavMainLinkItem,
   NavMainParentItem,
 } from "@/navigation/sidebar/sidebar-items";
+import { SIDEBAR_I18N_MAP } from "@/navigation/sidebar/sidebar-items";
+import { useTranslation } from "@/providers/locale-provider";
 
 interface NavMainProps {
   readonly items: readonly NavGroup[];
@@ -77,8 +79,19 @@ function hasSubItems(item: NavMainItem): item is NavMainParentItem {
   return Boolean(item.subItems?.length);
 }
 
+/**
+ * Resolves a translated title for a sidebar item or group label.
+ * Falls back to the original title if no mapping exists.
+ */
+function useItemTitle(idOrLabel: string, fallback: string): string {
+  const { t } = useTranslation();
+  const key = SIDEBAR_I18N_MAP[idOrLabel];
+  return key ? t(key) : fallback;
+}
+
 export function NavMain({ items }: NavMainProps) {
   const path = usePathname();
+  const { t } = useTranslation();
 
   const isItemActive = (item: NavMainItem) => {
     if (hasSubItems(item)) {
@@ -96,6 +109,8 @@ export function NavMain({ items }: NavMainProps) {
     return item.subItems.some((sub) => path.startsWith(sub.url));
   };
 
+  const quickCreateLabel = t("nav.quickCreate");
+
   return (
     <>
       <SidebarGroup>
@@ -104,12 +119,12 @@ export function NavMain({ items }: NavMainProps) {
             <SidebarMenuItem className="flex items-center gap-2">
               <SidebarMenuButton
                 asChild
-                tooltip="Quick Create"
+                tooltip={quickCreateLabel}
                 className="min-w-8 bg-primary text-primary-foreground duration-200 ease-linear hover:bg-primary/90 hover:text-primary-foreground active:bg-primary/90 active:text-primary-foreground"
               >
                 <Link href="/dashboard/leave/requests/new">
                   <PlusCircleIcon />
-                  <span>Quick Create</span>
+                  <span>{quickCreateLabel}</span>
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
@@ -117,28 +132,36 @@ export function NavMain({ items }: NavMainProps) {
         </SidebarGroupContent>
       </SidebarGroup>
       {items.map((group) => (
-        <SidebarGroup key={group.id}>
-          {group.label && (
-            <SidebarGroupLabel className="group-data-[collapsible=icon]:pointer-events-none">
-              {group.label}
-            </SidebarGroupLabel>
-          )}
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {group.items.map((item) => (
-                <NavItem
-                  key={item.id}
-                  item={item}
-                  isItemActive={isItemActive}
-                  isSubItemActive={isSubItemActive}
-                  isSubmenuOpen={isSubmenuOpen}
-                />
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        <NavGroupSection key={group.id} group={group} isItemActive={isItemActive} isSubItemActive={isSubItemActive} isSubmenuOpen={isSubmenuOpen} />
       ))}
     </>
+  );
+}
+
+function NavGroupSection({ group, isItemActive, isSubItemActive, isSubmenuOpen }: { group: NavGroup; isItemActive: (item: NavMainItem) => boolean; isSubItemActive: (url: string) => boolean; isSubmenuOpen: (item: NavMainParentItem) => boolean }) {
+  const translatedLabel = useItemTitle(group.label ?? "", group.label ?? "");
+
+  return (
+    <SidebarGroup>
+      {group.label && (
+        <SidebarGroupLabel className="group-data-[collapsible=icon]:pointer-events-none">
+          {translatedLabel}
+        </SidebarGroupLabel>
+      )}
+      <SidebarGroupContent>
+        <SidebarMenu>
+          {group.items.map((item) => (
+            <NavItem
+              key={item.id}
+              item={item}
+              isItemActive={isItemActive}
+              isSubItemActive={isSubItemActive}
+              isSubmenuOpen={isSubmenuOpen}
+            />
+          ))}
+        </SidebarMenu>
+      </SidebarGroupContent>
+    </SidebarGroup>
   );
 }
 
@@ -166,18 +189,19 @@ function NavItem({ item, isItemActive, isSubItemActive, isSubmenuOpen }: NavItem
 
 function NavLinkItem({ item, isActive, showIconFallback }: NavLinkItemProps) {
   const Icon = item.icon;
+  const translatedTitle = useItemTitle(item.id, item.title);
 
   return (
     <SidebarMenuItem>
-      <SidebarMenuButton asChild aria-disabled={item.disabled} tooltip={item.title} isActive={isActive}>
+      <SidebarMenuButton asChild aria-disabled={item.disabled} tooltip={translatedTitle} isActive={isActive}>
         <Link
           prefetch={false}
           href={item.url}
           target={item.newTab ? "_blank" : undefined}
           rel={item.newTab ? "noreferrer" : undefined}
         >
-          {Icon ? <Icon /> : showIconFallback ? <CollapsedIconFallback title={item.title} /> : null}
-          <span>{item.title}</span>
+          {Icon ? <Icon /> : showIconFallback ? <CollapsedIconFallback title={translatedTitle} /> : null}
+          <span>{translatedTitle}</span>
         </Link>
       </SidebarMenuButton>
       <NavItemBadge badge={item.badge} />
@@ -187,37 +211,22 @@ function NavLinkItem({ item, isActive, showIconFallback }: NavLinkItemProps) {
 
 function NavDropdownItem({ item, isActive, isSubItemActive }: NavDropdownItemProps) {
   const Icon = item.icon;
+  const translatedTitle = useItemTitle(item.id, item.title);
 
   return (
     <SidebarMenuItem>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <SidebarMenuButton tooltip={item.title} isActive={isActive} disabled={item.disabled}>
-            {Icon ? <Icon /> : <CollapsedIconFallback title={item.title} />}
-            <span>{item.title}</span>
+          <SidebarMenuButton tooltip={translatedTitle} isActive={isActive} disabled={item.disabled}>
+            {Icon ? <Icon /> : <CollapsedIconFallback title={translatedTitle} />}
+            <span>{translatedTitle}</span>
           </SidebarMenuButton>
         </DropdownMenuTrigger>
 
         <DropdownMenuContent side="right" align="start" sideOffset={12} className="w-48">
           <DropdownMenuGroup>
             {item.subItems.map((subItem) => {
-              const SubIcon = subItem.icon;
-
-              return (
-                <DropdownMenuItem key={subItem.id} asChild disabled={subItem.disabled}>
-                  <Link
-                    prefetch={false}
-                    href={subItem.url}
-                    target={subItem.newTab ? "_blank" : undefined}
-                    rel={subItem.newTab ? "noreferrer" : undefined}
-                    aria-current={isSubItemActive(subItem.url) ? "page" : undefined}
-                    className="flex items-center gap-2"
-                  >
-                    {SubIcon && <SubIcon />}
-                    <span>{subItem.title}</span>
-                  </Link>
-                </DropdownMenuItem>
-              );
+              return <NavDropdownSubItem key={subItem.id} subItem={subItem} isSubItemActive={isSubItemActive} />;
             })}
           </DropdownMenuGroup>
         </DropdownMenuContent>
@@ -226,16 +235,38 @@ function NavDropdownItem({ item, isActive, isSubItemActive }: NavDropdownItemPro
   );
 }
 
+function NavDropdownSubItem({ subItem, isSubItemActive }: { subItem: NavMainParentItem["subItems"][number]; isSubItemActive: (url: string) => boolean }) {
+  const SubIcon = subItem.icon;
+  const translatedTitle = useItemTitle(subItem.id, subItem.title);
+
+  return (
+    <DropdownMenuItem asChild disabled={subItem.disabled}>
+      <Link
+        prefetch={false}
+        href={subItem.url}
+        target={subItem.newTab ? "_blank" : undefined}
+        rel={subItem.newTab ? "noreferrer" : undefined}
+        aria-current={isSubItemActive(subItem.url) ? "page" : undefined}
+        className="flex items-center gap-2"
+      >
+        {SubIcon && <SubIcon />}
+        <span>{translatedTitle}</span>
+      </Link>
+    </DropdownMenuItem>
+  );
+}
+
 function NavCollapsibleItem({ item, isActive, defaultOpen, isSubItemActive }: NavCollapsibleItemProps) {
   const Icon = item.icon;
+  const translatedTitle = useItemTitle(item.id, item.title);
 
   return (
     <Collapsible asChild defaultOpen={defaultOpen} className="group/collapsible">
       <SidebarMenuItem>
         <CollapsibleTrigger asChild>
-          <SidebarMenuButton tooltip={item.title} isActive={isActive} disabled={item.disabled}>
+          <SidebarMenuButton tooltip={translatedTitle} isActive={isActive} disabled={item.disabled}>
             {Icon && <Icon />}
-            <span>{item.title}</span>
+            <span>{translatedTitle}</span>
             <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
           </SidebarMenuButton>
         </CollapsibleTrigger>
@@ -244,32 +275,37 @@ function NavCollapsibleItem({ item, isActive, defaultOpen, isSubItemActive }: Na
         <CollapsibleContent>
           <SidebarMenuSub>
             {item.subItems.map((subItem) => {
-              const SubIcon = subItem.icon;
-
-              return (
-                <SidebarMenuSubItem key={subItem.id}>
-                  <SidebarMenuSubButton
-                    asChild
-                    aria-disabled={subItem.disabled}
-                    isActive={isSubItemActive(subItem.url)}
-                  >
-                    <Link
-                      prefetch={false}
-                      href={subItem.url}
-                      target={subItem.newTab ? "_blank" : undefined}
-                      rel={subItem.newTab ? "noreferrer" : undefined}
-                    >
-                      {SubIcon && <SubIcon />}
-                      <span>{subItem.title}</span>
-                    </Link>
-                  </SidebarMenuSubButton>
-                </SidebarMenuSubItem>
-              );
+              return <NavCollapsibleSubItem key={subItem.id} subItem={subItem} isSubItemActive={isSubItemActive} />;
             })}
           </SidebarMenuSub>
         </CollapsibleContent>
       </SidebarMenuItem>
     </Collapsible>
+  );
+}
+
+function NavCollapsibleSubItem({ subItem, isSubItemActive }: { subItem: NavMainParentItem["subItems"][number]; isSubItemActive: (url: string) => boolean }) {
+  const SubIcon = subItem.icon;
+  const translatedTitle = useItemTitle(subItem.id, subItem.title);
+
+  return (
+    <SidebarMenuSubItem>
+      <SidebarMenuSubButton
+        asChild
+        aria-disabled={subItem.disabled}
+        isActive={isSubItemActive(subItem.url)}
+      >
+        <Link
+          prefetch={false}
+          href={subItem.url}
+          target={subItem.newTab ? "_blank" : undefined}
+          rel={subItem.newTab ? "noreferrer" : undefined}
+        >
+          {SubIcon && <SubIcon />}
+          <span>{translatedTitle}</span>
+        </Link>
+      </SidebarMenuSubButton>
+    </SidebarMenuSubItem>
   );
 }
 

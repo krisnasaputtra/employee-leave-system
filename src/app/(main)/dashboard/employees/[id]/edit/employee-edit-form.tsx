@@ -95,7 +95,7 @@ export function EmployeeEditForm({ employee, departments, employees }: Props) {
   return (
     <form noValidate onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
       {serverError && (
-        <div className="rounded-md bg-destructive/10 p-3 text-center text-destructive text-sm">{serverError}</div>
+        <div role="alert" className="rounded-md bg-destructive/10 p-3 text-center text-destructive text-sm">{serverError}</div>
       )}
 
       <div className="rounded-lg border bg-card p-6">
@@ -103,30 +103,30 @@ export function EmployeeEditForm({ employee, departments, employees }: Props) {
         <FieldGroup>
           <div className="grid gap-4 md:grid-cols-2">
             <Field>
-              <FieldLabel>Full Name</FieldLabel>
+              <FieldLabel htmlFor="edit_full_name">Full Name</FieldLabel>
               <FieldContent>
-                <Input {...form.register("full_name")} />
+                <Input id="edit_full_name" aria-required="true" {...form.register("full_name")} />
               </FieldContent>
               <FieldError>{form.formState.errors.full_name?.message}</FieldError>
             </Field>
             <Field>
-              <FieldLabel>Work Email</FieldLabel>
+              <FieldLabel htmlFor="edit_work_email">Work Email</FieldLabel>
               <FieldContent>
-                <Input type="email" {...form.register("work_email")} />
+                <Input id="edit_work_email" type="email" aria-required="true" autoComplete="email" {...form.register("work_email")} />
               </FieldContent>
             </Field>
           </div>
           <div className="grid gap-4 md:grid-cols-2">
             <Field>
-              <FieldLabel>Phone Number</FieldLabel>
+              <FieldLabel htmlFor="edit_phone_number">Phone Number</FieldLabel>
               <FieldContent>
-                <Input {...form.register("phone_number")} />
+                <Input id="edit_phone_number" autoComplete="tel" {...form.register("phone_number")} />
               </FieldContent>
             </Field>
             <Field>
-              <FieldLabel>Join Date</FieldLabel>
+              <FieldLabel htmlFor="edit_join_date">Join Date</FieldLabel>
               <FieldContent>
-                <Input type="date" {...form.register("join_date")} />
+                <Input id="edit_join_date" type="date" aria-required="true" {...form.register("join_date")} />
               </FieldContent>
             </Field>
           </div>
@@ -165,9 +165,9 @@ export function EmployeeEditForm({ employee, departments, employees }: Props) {
               </FieldContent>
             </Field>
             <Field>
-              <FieldLabel>Position</FieldLabel>
+              <FieldLabel htmlFor="edit_position">Position</FieldLabel>
               <FieldContent>
-                <Input {...form.register("position")} />
+                <Input id="edit_position" aria-required="true" {...form.register("position")} />
               </FieldContent>
             </Field>
           </div>

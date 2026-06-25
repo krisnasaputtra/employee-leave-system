@@ -88,7 +88,7 @@ export function DepartmentFormDialog({ mode, department, employees, trigger }: P
 
         <form noValidate onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           {serverError && (
-            <div className="rounded-md bg-destructive/10 p-3 text-center text-destructive text-sm">{serverError}</div>
+            <div role="alert" className="rounded-md bg-destructive/10 p-3 text-center text-destructive text-sm">{serverError}</div>
           )}
 
           <FieldGroup>

@@ -7,6 +7,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { APP_CONFIG } from "@/config/app-config";
 import { fontVars } from "@/lib/fonts/registry";
 import { PREFERENCE_DEFAULTS } from "@/lib/preferences/preferences-config";
+import { LocaleProvider } from "@/providers/locale-provider";
 import { QueryProvider } from "@/providers/query-provider";
 import { ThemeBootScript } from "@/scripts/theme-boot";
 import { PreferencesStoreProvider } from "@/stores/preferences/preferences-provider";
@@ -46,9 +47,11 @@ export default function RootLayout({ children }: Readonly<{ children: ReactNode 
             navbarStyle={navbar_style}
             font={font}
           >
-            <QueryProvider>
-              {children}
-            </QueryProvider>
+            <LocaleProvider>
+              <QueryProvider>
+                {children}
+              </QueryProvider>
+            </LocaleProvider>
             <Toaster />
           </PreferencesStoreProvider>
         </TooltipProvider>

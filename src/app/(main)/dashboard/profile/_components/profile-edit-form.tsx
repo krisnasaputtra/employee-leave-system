@@ -54,17 +54,19 @@ export function ProfileEditForm({ phoneNumber }: ProfileEditFormProps) {
       <CardContent>
         <form noValidate onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           {serverError && (
-            <div className="rounded-md bg-destructive/10 p-3 text-center text-destructive text-sm">
+            <div role="alert" className="rounded-md bg-destructive/10 p-3 text-center text-destructive text-sm">
               {serverError}
             </div>
           )}
 
           <FieldGroup>
             <Field>
-              <FieldLabel>Phone Number</FieldLabel>
+              <FieldLabel htmlFor="phone_number">Phone Number</FieldLabel>
               <FieldContent>
                 <Input
+                  id="phone_number"
                   placeholder="e.g. +62 812 3456 7890"
+                  autoComplete="tel"
                   {...form.register("phone_number")}
                 />
               </FieldContent>

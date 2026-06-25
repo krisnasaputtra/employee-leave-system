@@ -164,6 +164,7 @@ export default async function AuditLogsPage({
             placeholder="Search by actor name..."
             defaultValue={searchTerm}
             className="pl-9"
+            aria-label="Search audit logs by actor name"
           />
         </form>
 

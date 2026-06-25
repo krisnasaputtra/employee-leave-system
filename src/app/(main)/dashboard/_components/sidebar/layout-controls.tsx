@@ -99,14 +99,14 @@ export function LayoutControls() {
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button size="icon">
+        <Button size="icon" aria-label="Settings">
           <Settings />
         </Button>
       </PopoverTrigger>
       <PopoverContent align="end">
         <div className="flex flex-col gap-5">
           <div className="space-y-1.5">
-            <h4 className="font-medium text-sm leading-none">Preferences</h4>
+            <p className="font-medium text-sm leading-none">Preferences</p>
             <p className="text-muted-foreground text-xs">Customize your dashboard layout preferences.</p>
           </div>
           <div className="space-y-3 **:data-[slot=toggle-group]:w-full **:data-[slot=toggle-group-item]:flex-1 **:data-[slot=toggle-group-item]:text-xs">

@@ -17,6 +17,8 @@ import { createClient } from "@/lib/supabase/server";
 import { cn } from "@/lib/utils";
 import { getPreference } from "@/server/server-actions";
 
+import { LanguageSwitcher } from "@/components/language-switcher";
+
 import { LayoutControls } from "./_components/sidebar/layout-controls";
 import { SearchDialog } from "./_components/sidebar/search-dialog";
 import { ThemeSwitcher } from "./_components/sidebar/theme-switcher";
@@ -122,6 +124,7 @@ export default async function Layout({ children }: Readonly<{ children: ReactNod
                   )}
                 </Link>
               </Button>
+              <LanguageSwitcher />
               <LayoutControls />
               <ThemeSwitcher />
             </div>

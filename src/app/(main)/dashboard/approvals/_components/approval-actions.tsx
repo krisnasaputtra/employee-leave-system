@@ -118,15 +118,18 @@ export function ApprovalActions({ requestId, requestNumber, employeeName }: Appr
           <form onSubmit={form.handleSubmit(handleReject)}>
             <FieldGroup>
               <Field>
-                <FieldLabel>Rejection Reason</FieldLabel>
+                <FieldLabel htmlFor="rejection_reason">Rejection Reason</FieldLabel>
                 <FieldContent>
                   <Textarea
+                    id="rejection_reason"
                     placeholder="Provide a reason for rejecting this request..."
                     rows={3}
+                    aria-required="true"
+                    aria-describedby={form.formState.errors.rejection_reason ? "rejection_reason-error" : undefined}
                     {...form.register("rejection_reason")}
                   />
                 </FieldContent>
-                <FieldError>{form.formState.errors.rejection_reason?.message}</FieldError>
+                <FieldError id="rejection_reason-error">{form.formState.errors.rejection_reason?.message}</FieldError>
               </Field>
             </FieldGroup>
             <div className="mt-4 flex justify-end gap-2">

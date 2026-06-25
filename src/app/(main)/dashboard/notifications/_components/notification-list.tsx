@@ -119,12 +119,22 @@ export function NotificationList({ notifications: initialNotifications }: Notifi
         {notifications.map((notification) => (
           <Card
             key={notification.id}
-            className={`cursor-pointer transition-colors hover:bg-muted/50 ${
+            role="button"
+            tabIndex={0}
+            className={`cursor-pointer transition-colors hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
               !notification.is_read ? "border-primary/30 bg-primary/5" : ""
             }`}
             onClick={() => {
               if (!notification.is_read) {
                 markAsRead(notification.id);
+              }
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                if (!notification.is_read) {
+                  markAsRead(notification.id);
+                }
               }
             }}
           >

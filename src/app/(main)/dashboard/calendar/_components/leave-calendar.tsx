@@ -195,7 +195,7 @@ export function LeaveCalendar({ departments, leaveTypes, holidays }: LeaveCalend
       <div className="flex flex-col overflow-hidden rounded-md border">
         <div className="flex flex-col gap-4 border-b bg-sidebar p-4 text-sidebar-foreground lg:flex-row lg:items-center lg:justify-between">
           <div className="flex min-w-0 shrink-0 flex-col gap-1">
-            <div className="font-medium text-lg leading-none">{dateInfo.title}</div>
+            <h1 className="font-medium text-lg leading-none">{dateInfo.title}</h1>
             <p className="text-muted-foreground text-sm">
               {dateInfo.days} days — {eventCount} leave event
               {eventCount !== 1 ? "s" : ""}
@@ -248,13 +248,13 @@ export function LeaveCalendar({ departments, leaveTypes, holidays }: LeaveCalend
 
             {/* Navigation */}
             <ButtonGroup>
-              <Button size="icon" variant="outline" onClick={() => controller.prev()}>
+              <Button size="icon" variant="outline" onClick={() => controller.prev()} aria-label="Previous">
                 <ChevronLeft />
               </Button>
               <Button variant="outline" onClick={() => controller.today()}>
                 Today
               </Button>
-              <Button size="icon" variant="outline" onClick={() => controller.next()}>
+              <Button size="icon" variant="outline" onClick={() => controller.next()} aria-label="Next">
                 <ChevronRight />
               </Button>
             </ButtonGroup>

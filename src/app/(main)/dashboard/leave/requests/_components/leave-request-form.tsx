@@ -224,7 +224,7 @@ export function LeaveRequestForm({
 
             {/* Server Error */}
             {serverError && (
-              <div className="mt-4 rounded-md bg-destructive/10 p-3 text-destructive text-sm">{serverError}</div>
+              <div role="alert" className="mt-4 rounded-md bg-destructive/10 p-3 text-destructive text-sm">{serverError}</div>
             )}
 
             {/* Submit */}

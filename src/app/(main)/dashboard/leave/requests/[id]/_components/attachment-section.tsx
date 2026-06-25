@@ -119,6 +119,7 @@ export function AttachmentSection({ requestId, attachments, canUpload, canRemove
                     className="h-8 w-8 shrink-0 text-destructive hover:text-destructive"
                     disabled={isPending}
                     onClick={() => handleRemove(att.id, att.original_name)}
+                    aria-label="Delete attachment"
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>
