@@ -1416,3 +1416,24 @@
 - [x] Batch N+1 capacity check RPCs on approvals page with `Promise.allSettled` (perf)
 - [x] Commit and push (0586fcb)
 - [x] Update `docs/future-development-roadmap.md` — all items 1-4 marked Done
+
+## 6. Searchable Combobox Selects (Item 5)
+- [x] Convert Department + Manager selects to `@base-ui/react` Combobox (edit form)
+- [x] Convert Department + Manager selects to Combobox (create form)
+- [x] Commit and push (23fc89c)
+
+## 7. Export CSV (Item 11)
+- [x] Create `toCSV` utility (`src/lib/utils/csv.ts`)
+- [x] Create `exportEmployeesCSV` + `exportLeaveRequestsCSV` server actions
+- [x] Create `ExportCSVButton` reusable client component
+- [x] Add Export buttons to Employee list and All Requests pages
+- [x] Commit and push (23fc89c)
+
+---
+
+# Phase 18 — Feature Additions (Option C)
+
+## 1. Employee Self-Edit Profile (Item 12)
+- [ ] Create `/dashboard/profile` page with read-only info + editable phone
+- [ ] Create `updateProfileAction` server action
+- [ ] Add "My Profile" sidebar item for all roles
