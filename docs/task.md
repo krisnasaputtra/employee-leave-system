@@ -1378,3 +1378,34 @@
 ## 4. UI Integration (Warnings & Blocks)
 - [x] Update employee leave request form to catch policy errors (already handled by RPC error message extraction)
 - [x] Update manager approvals view to show capacity warnings (amber tooltip on affected rows)
+
+---
+
+# Phase 17 — Quick Wins (Option A)
+
+## 1. Code Review & Stabilization
+- [x] Comprehensive code review (425 items, 16 areas, 91.3% pass rate)
+- [x] Fix open redirect vulnerability on login page
+- [x] Remove dead template pages (Chat, Mail)
+- [x] Remove unused dependencies (d3-geo, topojson, dnd-kit, temporal-polyfill, simple-icons)
+- [x] Remove dead simple-icon component
+- [x] Commit and push (b400133)
+
+## 2. Calendar UI/UX
+- [x] Add `dayMaxEvents={3}` to prevent cell overflow
+- [x] Add custom compact `eventContent` renderer (color dot + name + leave type)
+- [x] Enable native FullCalendar popover for "+X more" overflow
+- [x] Commit and push (765f5b5)
+
+## 3. Employee Account Lifecycle
+- [x] Add `activateEmployee` service function (sets ACTIVE, unbans auth user, audit log)
+- [x] Add `activateEmployeeAction` server action with permission check
+- [x] Add Activate button on employee edit page for INACTIVE employees
+- [x] Commit and push (1b57db6)
+
+## 4. Team Leave Visibility
+- [x] Enable Team page for EMPLOYEE role (same-department colleagues)
+- [x] Employees see simplified view (name, position, on-leave badge, no balances)
+- [x] Manager/Admin retain full view with balance details and actions
+- [x] Update sidebar to show Team for all roles
+- [x] Update page headings and empty states for EMPLOYEE context
