@@ -1434,6 +1434,22 @@
 # Phase 18 — Feature Additions (Option C)
 
 ## 1. Employee Self-Edit Profile (Item 12)
-- [ ] Create `/dashboard/profile` page with read-only info + editable phone
-- [ ] Create `updateProfileAction` server action
-- [ ] Add "My Profile" sidebar item for all roles
+- [x] Create `/dashboard/profile` page with read-only info + editable phone
+- [x] Create `updateProfileAction` server action
+- [x] Add "My Profile" sidebar item for all roles
+- [x] Commit and push (6378baa)
+
+## Pre-existing Features (Verified)
+- [x] Employee Detail Page (Item 6) — Avatar, leave balance, recent requests
+- [x] Settings Tables (Item 7) — All 3 use shadcn Table, dialog-based editing
+- [x] Admin Balance Browse (Item 9) — Route + sidebar link exists
+- [x] Holiday Calendar Events (Item 10) — Already implemented
+- [x] Bulk Approve/Reject (Item 14) — Checkboxes, select all, rejection dialog
+- [x] Delegation/Proxy Approval (Item 16) — Full delegation management page
+- [x] Leave Request Comments (Item 17) — Comment section on request detail page
+- [x] Legacy Template Cleanup (Item 18) — Removed in Phase 17
+
+## Remaining (Deferred — Needs Infrastructure/High Effort)
+- [ ] Leave Analytics Dashboard (Item 13) — Charts, trends, utilization
+- [ ] Email Notifications (Item 15) — Needs email service (Resend/SES)
+- [ ] TanStack Query Integration — Client-side caching optimization
