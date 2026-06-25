@@ -68,25 +68,50 @@ export default async function ApprovalsPage() {
   // Filter out actor's own requests (self-approval prevention)
   const filteredRequests = mergedRequests.filter((r) => r.employee_id !== actor.id);
 
-  // Check capacity warnings for each request (soft warning)
+  // Check capacity warnings – batch by unique (dept, start, end) to avoid N+1 RPC calls
   const capacityWarnings: Record<string, string> = {};
+
+  // Build a map of unique capacity-check keys → request IDs
+  const capacityKeyToRequestIds = new Map<string, string[]>();
+  const capacityKeyToParams = new Map<string, { deptId: string; start: string; end: string }>();
+
   for (const req of filteredRequests) {
     const deptId = (req.employees as Record<string, unknown>)?.department_id as string | undefined;
     if (deptId) {
-      try {
-        const { data } = await supabase.rpc("check_department_capacity", {
-          p_department_id: deptId,
-          p_start_date: req.start_date,
-          p_end_date: req.end_date,
-        });
-        const result = data as Record<string, unknown> | null;
-        if (result?.warning) {
-          capacityWarnings[req.id] = (result.message as string) ?? "Department capacity may be exceeded.";
+      const key = `${deptId}|${req.start_date}|${req.end_date}`;
+      if (!capacityKeyToRequestIds.has(key)) {
+        capacityKeyToRequestIds.set(key, []);
+        capacityKeyToParams.set(key, { deptId, start: req.start_date, end: req.end_date });
+      }
+      capacityKeyToRequestIds.get(key)!.push(req.id);
+    }
+  }
+
+  // Issue one RPC call per unique key (in parallel)
+  const capacityEntries = Array.from(capacityKeyToParams.entries());
+  const capacityResults = await Promise.allSettled(
+    capacityEntries.map(([, params]) =>
+      supabase.rpc("check_department_capacity", {
+        p_department_id: params.deptId,
+        p_start_date: params.start,
+        p_end_date: params.end,
+      }),
+    ),
+  );
+
+  for (let i = 0; i < capacityEntries.length; i++) {
+    const [key] = capacityEntries[i];
+    const settled = capacityResults[i];
+    if (settled.status === "fulfilled") {
+      const result = settled.value.data as Record<string, unknown> | null;
+      if (result?.warning) {
+        const message = (result.message as string) ?? "Department capacity may be exceeded.";
+        for (const reqId of capacityKeyToRequestIds.get(key)!) {
+          capacityWarnings[reqId] = message;
         }
-      } catch {
-        // Silently skip capacity check errors
       }
     }
+    // Silently skip rejected / errored capacity checks
   }
 
   return (

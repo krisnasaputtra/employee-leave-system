@@ -26,7 +26,7 @@ export default async function HolidaysPage() {
 
   const supabase = await createClient();
 
-  const { data: holidays } = await supabase.from("holidays").select("*").order("holiday_date", { ascending: false });
+  const { data: holidays } = await supabase.from("holidays").select("id, name, holiday_date, is_recurring, is_active, created_at, updated_at").order("holiday_date", { ascending: false });
 
   return (
     <div className="@container/main flex flex-col gap-4 md:gap-6">

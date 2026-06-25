@@ -15,7 +15,7 @@ export default async function EditLeaveRequestPage({ params }: PageProps) {
   const supabase = await createClient();
 
   // Load the leave request
-  const { data: request, error } = await supabase.from("leave_requests").select("*").eq("id", id).single();
+  const { data: request, error } = await supabase.from("leave_requests").select("employee_id, status, leave_type_id, start_date, end_date, partial_day, reason").eq("id", id).single();
 
   if (error || !request) {
     redirect(`/dashboard/leave/requests/${id}`);

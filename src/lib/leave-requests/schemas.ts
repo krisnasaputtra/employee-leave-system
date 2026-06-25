@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-const UUID_RE = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
+import { UUID_RE } from "@/lib/utils/constants";
 
 // =============================================================
 // Leave Request schemas

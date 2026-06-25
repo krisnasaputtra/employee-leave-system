@@ -21,7 +21,7 @@ export default async function EditEmployeePage({ params }: { params: Promise<{ i
   const supabase = await createClient();
 
   const [{ data: employee }, { data: departments }, { data: employees }] = await Promise.all([
-    supabase.from("employees").select("*").eq("id", id).single(),
+    supabase.from("employees").select("id, employee_code, full_name, work_email, phone_number, department_id, position, manager_id, join_date, role, status, auth_user_id, must_change_password, created_at, updated_at").eq("id", id).single(),
     supabase.from("departments").select("id, name").eq("is_active", true).order("name"),
     supabase.from("employees").select("id, full_name").eq("status", "ACTIVE").neq("id", id).order("full_name"),
   ]);

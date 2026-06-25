@@ -26,7 +26,7 @@ export default async function LeaveTypesPage() {
 
   const supabase = await createClient();
 
-  const { data: leaveTypes } = await supabase.from("leave_types").select("*").order("name");
+  const { data: leaveTypes } = await supabase.from("leave_types").select("id, code, name, description, default_entitlement, color, deducts_balance, allow_negative_balance, requires_attachment, show_type_on_calendar, is_active, created_at, updated_at").order("name");
 
   return (
     <div className="@container/main flex flex-col gap-4 md:gap-6">
