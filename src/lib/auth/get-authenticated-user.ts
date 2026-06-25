@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { redirect } from "next/navigation";
 
 import type { AuthEmployee } from "@/lib/permissions/roles";
@@ -8,7 +9,13 @@ export interface AuthenticatedUser {
   employee: AuthEmployee;
 }
 
-export async function getAuthenticatedUser(): Promise<AuthenticatedUser> {
+/**
+ * Cached per-request auth check.
+ *
+ * React's `cache()` deduplicates calls within the same server request,
+ * so calling this from layout.tsx AND page.tsx only hits the DB once.
+ */
+export const getAuthenticatedUser = cache(async (): Promise<AuthenticatedUser> => {
   const supabase = await createClient();
   const {
     data: { user },
@@ -41,4 +48,4 @@ export async function getAuthenticatedUser(): Promise<AuthenticatedUser> {
     user: { id: user.id, email: user.email ?? "" },
     employee: employee as AuthEmployee,
   };
-}
+});

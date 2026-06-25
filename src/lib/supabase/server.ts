@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { cookies } from "next/headers";
 
 import { createServerClient } from "@supabase/ssr";
@@ -7,12 +8,16 @@ import type { Database } from "@/types/database.types";
 /**
  * Server request-scoped Supabase client.
  *
+ * Wrapped in React `cache()` so multiple calls within the same
+ * server request (layout.tsx + page.tsx) reuse one client instance,
+ * avoiding redundant cookie reads and client instantiation.
+ *
  * - Cookie-based authenticated session.
  * - RLS is enforced as the signed-in user.
  * - Use this in Server Components, Server Actions, and Route Handlers.
  * - Do NOT import this from Client Components.
  */
-export async function createClient() {
+export const createClient = cache(async () => {
   const cookieStore = await cookies();
 
   return createServerClient<Database>(
@@ -37,4 +42,4 @@ export async function createClient() {
       },
     },
   );
-}
+});
