@@ -1334,3 +1334,47 @@
   - pgTAP tests: Written but NOT RUN (requires Docker `supabase start` + `supabase test db`)
   - Playwright tests: Written but NOT RUN (requires dev server + provisioned test users)
   - Supabase public sign-up: Still requires manual Dashboard verification
+
+---
+
+# Future Phase Proposal
+
+- [x] Review future development roadmap
+- [x] Propose next candidate (Leave Policy Engine and Workforce Capacity Rules)
+- [x] Implementation Approved
+
+---
+
+# Pre-Phase 16 — Stabilization (Critical/High Findings)
+
+- [x] CRITICAL: `generate_request_number()` race condition → Already fixed in migration `00011` (SEQUENCE)
+- [x] HIGH: Auth in `setValueToCookie()` → Hardened: allowlist + auth guard + try/catch
+- [x] HIGH: Sanitize search inputs in `.or()` → Already fixed: all call sites use `sanitizeSearch()`
+- [x] HIGH: try/catch all server actions → Already fixed: 31 actions covered, cookie functions now wrapped
+- [x] HIGH: Index on `holidays(is_active, holiday_date)` → Already fixed in migration `00011`
+- [x] Fix governance section file references (`implementation-plan.md` not `-supabase`)
+- [x] Code review report updated: 0 Critical, 0 High → PASS ✅
+- [x] TypeScript: 0 errors
+
+---
+
+# Phase 16 — Leave Policy Engine & Workforce Capacity Rules
+
+## 1. Database Schema & RLS
+- [x] Create `supabase/migrations/20240625_add_policy_capacity.sql`
+- [x] Define `leave_policies` and `workforce_capacity_rules` tables
+- [x] Apply RLS policies
+- [x] Update `src/types/database.types.ts`
+
+## 2. Policy Evaluation Engine
+- [x] Update `create_leave_request` RPC to enforce `leave_policies` (migration `20240626`)
+- [x] Create `check_department_capacity` RPC (migration `20240626`)
+
+## 3. Admin Configuration UI
+- [x] Create `/dashboard/settings/policies/page.tsx` and actions
+- [x] Create `/dashboard/settings/capacity/page.tsx` and actions
+- [x] Update sidebar navigation
+
+## 4. UI Integration (Warnings & Blocks)
+- [x] Update employee leave request form to catch policy errors (already handled by RPC error message extraction)
+- [x] Update manager approvals view to show capacity warnings (amber tooltip on affected rows)

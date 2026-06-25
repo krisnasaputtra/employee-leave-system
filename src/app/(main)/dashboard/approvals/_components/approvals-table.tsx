@@ -5,7 +5,7 @@ import { useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
-import { CheckCircle, Eye, Loader2, XCircle } from "lucide-react";
+import { AlertTriangle, CheckCircle, Eye, Loader2, XCircle } from "lucide-react";
 import { toast } from "sonner";
 
 import {
@@ -37,6 +37,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { formatDate } from "@/lib/utils/format-date";
 
 import { bulkApproveAction, bulkRejectAction } from "../actions";
@@ -56,9 +57,10 @@ interface ApprovalRequest {
 
 interface ApprovalsTableProps {
   requests: ApprovalRequest[];
+  capacityWarnings?: Record<string, string>;
 }
 
-export function ApprovalsTable({ requests }: ApprovalsTableProps) {
+export function ApprovalsTable({ requests, capacityWarnings = {} }: ApprovalsTableProps) {
   const router = useRouter();
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [isApproving, startApproving] = useTransition();
@@ -172,9 +174,25 @@ export function ApprovalsTable({ requests }: ApprovalsTableProps) {
                     />
                   </TableCell>
                   <TableCell>
-                    <div className="font-medium">{employee?.full_name ?? "Unknown"}</div>
-                    <div className="text-muted-foreground text-sm">
-                      {employee?.employee_code ?? ""}
+                    <div className="flex items-center gap-2">
+                      <div>
+                        <div className="font-medium">{employee?.full_name ?? "Unknown"}</div>
+                        <div className="text-muted-foreground text-sm">
+                          {employee?.employee_code ?? ""}
+                        </div>
+                      </div>
+                      {capacityWarnings[r.id] && (
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <AlertTriangle className="h-4 w-4 text-amber-500" />
+                            </TooltipTrigger>
+                            <TooltipContent className="max-w-xs">
+                              <p>{capacityWarnings[r.id]}</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      )}
                     </div>
                   </TableCell>
                   <TableCell>

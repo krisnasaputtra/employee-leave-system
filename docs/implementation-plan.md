@@ -1639,3 +1639,51 @@ Return:
 Update task.md only after the repository inspection is complete.
 Do not mark a task complete unless the related code and verification have actually been performed.
 ```
+
+---
+
+# Future Development Governance
+
+This section governs the lifecycle of new features and roadmap items:
+
+- `implementation-plan.md` contains approved active work only.
+- `future-development-roadmap.md` contains proposed future work.
+- `task.md` contains execution tasks for approved active phases only.
+- Roadmap items must not be added to `task.md` until they are formally approved.
+- Stabilization and Critical/High code-review findings take priority over new features.
+
+---
+
+# Phase 16 — Leave Policy Engine & Workforce Capacity Rules
+
+This phase implements automated HR policy enforcement and department capacity warnings.
+
+### 1. Database Schema & RLS
+- Create `leave_policies` table (linked to `leave_types`).
+  - Fields: `id`, `leave_type_id`, `max_consecutive_days`, `notice_period_days`, `requires_attachment`.
+- Create `workforce_capacity_rules` table (linked to `departments`).
+  - Fields: `id`, `department_id`, `max_absent_percentage`, `min_staff_count`.
+- Apply RLS: Admins have `ALL`, Employees/Managers have `SELECT` for their context.
+- Create migration file and update `database.types.ts`.
+
+### 2. Policy Evaluation Engine (RPC Updates)
+- Update `create_leave_request` RPC:
+  - Fetch relevant `leave_policies`.
+  - Evaluate notice period (difference between start_date and today).
+  - Evaluate consecutive days limits.
+  - Throw exceptions (HTTP 400 equivalent) if policy is violated (Hard Blocks).
+- Add new RPC `check_department_capacity`:
+  - Calculate overlapping approved leaves for the requested dates in the department.
+  - Return boolean warning flag if limits in `workforce_capacity_rules` are exceeded.
+
+### 3. Admin Configuration UI
+- Create `/dashboard/settings/policies/page.tsx` for managing Leave Policies.
+- Create `/dashboard/settings/capacity/page.tsx` for managing Capacity Rules.
+- Add both to Sidebar Navigation under Settings.
+
+### 4. Employee/Manager UI Integration
+- Employee Leave Request Form (`/dashboard/leave/requests/new`):
+  - Catch and display policy violation errors from the RPC cleanly.
+- Manager Approval Modal (`/dashboard/approvals`):
+  - Pre-fetch `check_department_capacity` when viewing a request.
+  - Display a soft warning alert (yellow/orange) if approving would exceed department capacity limits.

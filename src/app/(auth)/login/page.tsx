@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 
 import { APP_CONFIG } from "@/config/app-config";
+import { getSafeRedirectUrl } from "@/lib/auth/safe-redirect";
 import { createClient } from "@/lib/supabase/server";
 
 import { LoginForm } from "./login-form";
@@ -17,7 +18,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
 
   if (user) {
     const params = await searchParams;
-    redirect(params.redirectTo ?? "/dashboard");
+    redirect(getSafeRedirectUrl(params.redirectTo));
   }
 
   return (

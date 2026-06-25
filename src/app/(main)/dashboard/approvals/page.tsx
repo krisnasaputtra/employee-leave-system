@@ -22,7 +22,7 @@ export default async function ApprovalsPage() {
   // Direct pending requests (original query)
   const { data: requests } = await supabase
     .from("leave_requests")
-    .select("*, leave_types(name, color, code), employees!leave_requests_employee_id_fk(id, full_name, employee_code)")
+    .select("*, leave_types(name, color, code), employees!leave_requests_employee_id_fk(id, full_name, employee_code, department_id)")
     .eq("status", "PENDING")
     .order("created_at", { ascending: true });
 
@@ -51,7 +51,7 @@ export default async function ApprovalsPage() {
     if (delegatedEmployeeIds.length > 0) {
       const { data: dRequests } = await supabase
         .from("leave_requests")
-        .select("*, leave_types(name, color, code), employees!leave_requests_employee_id_fk(id, full_name, employee_code)")
+        .select("*, leave_types(name, color, code), employees!leave_requests_employee_id_fk(id, full_name, employee_code, department_id)")
         .eq("status", "PENDING")
         .in("employee_id", delegatedEmployeeIds)
         .order("created_at", { ascending: true });
@@ -68,6 +68,27 @@ export default async function ApprovalsPage() {
   // Filter out actor's own requests (self-approval prevention)
   const filteredRequests = mergedRequests.filter((r) => r.employee_id !== actor.id);
 
+  // Check capacity warnings for each request (soft warning)
+  const capacityWarnings: Record<string, string> = {};
+  for (const req of filteredRequests) {
+    const deptId = (req.employees as Record<string, unknown>)?.department_id as string | undefined;
+    if (deptId) {
+      try {
+        const { data } = await supabase.rpc("check_department_capacity", {
+          p_department_id: deptId,
+          p_start_date: req.start_date,
+          p_end_date: req.end_date,
+        });
+        const result = data as Record<string, unknown> | null;
+        if (result?.warning) {
+          capacityWarnings[req.id] = (result.message as string) ?? "Department capacity may be exceeded.";
+        }
+      } catch {
+        // Silently skip capacity check errors
+      }
+    }
+  }
+
   return (
     <div className="@container/main flex flex-col gap-4 md:gap-6">
       <div className="flex items-center gap-3">
@@ -82,7 +103,7 @@ export default async function ApprovalsPage() {
           description="There are no leave requests waiting for your approval at this time."
         />
       ) : (
-        <ApprovalsTable requests={filteredRequests} />
+        <ApprovalsTable requests={filteredRequests} capacityWarnings={capacityWarnings} />
       )}
     </div>
   );

@@ -224,6 +224,16 @@ export const sidebarItems: NavGroup[] = [
             title: "Holidays",
             url: "/dashboard/settings/holidays",
           },
+          {
+            id: "leave-policies",
+            title: "Leave Policies",
+            url: "/dashboard/settings/policies",
+          },
+          {
+            id: "capacity-rules",
+            title: "Capacity Rules",
+            url: "/dashboard/settings/capacity",
+          },
         ],
       },
     ],

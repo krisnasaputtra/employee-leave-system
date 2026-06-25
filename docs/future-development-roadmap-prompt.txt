@@ -1,0 +1,79 @@
+Read these files completely:
+
+- leave-request-management-prd-supabase.md
+- leave-request-management-project-rules-supabase.md
+- implementation-plan-supabase.md
+- future-development-roadmap.md
+- task.md
+- comprehensive-code-review-checklist-leave-management.md
+
+Review the current implementation status and unresolved findings.
+
+Do not implement new product features yet.
+
+Task:
+
+1. Add a new section to implementation-plan-supabase.md named:
+
+   Future Development Governance
+
+2. The section must explain:
+   - implementation-plan-supabase.md contains approved active work only
+   - future-development-roadmap.md contains proposed future work
+   - task.md contains execution tasks for approved active phases only
+   - roadmap items must not be added to task.md until approved
+   - stabilization and Critical/High code-review findings take priority over new features
+
+3. Review future-development-roadmap.md and validate:
+   - priority order
+   - technical dependencies
+   - database impact
+   - RLS and authorization impact
+   - UI impact
+   - test impact
+   - unresolved risks
+
+4. Recommend the next development phase after current stabilization.
+
+5. Prefer this candidate unless repository evidence shows a higher-priority need:
+
+   Leave Policy Engine and Workforce Capacity Rules
+
+6. Do not create implementation tasks for the recommended phase yet.
+
+7. Produce a proposal containing:
+   - problem statement
+   - target roles
+   - business value
+   - in scope
+   - out of scope
+   - database changes
+   - RPC/function changes
+   - RLS impact
+   - route/UI changes
+   - test strategy
+   - migration risk
+   - acceptance criteria
+   - estimated implementation phases
+
+8. Update task.md only to add a documentation task confirming:
+   - roadmap reviewed
+   - next candidate proposed
+   - implementation not yet approved
+
+Rules:
+
+- Do not implement product code.
+- Do not create migrations.
+- Do not add dependencies.
+- Do not mark the future phase as approved.
+- Do not move all roadmap items into the implementation plan.
+- Do not invent repository or test results.
+- Preserve current phase and completed task history.
+
+After completion:
+1. List documentation files modified.
+2. Show the exact section added to implementation-plan-supabase.md.
+3. Show the proposed next phase.
+4. List unresolved decisions requiring user approval.
+5. Stop before implementation.
