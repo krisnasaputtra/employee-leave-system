@@ -34,6 +34,22 @@ export async function createDelegationAction(
 
     const supabase = await createClient();
 
+    // Verify delegate is in the same department
+    const { data: delegate } = await supabase
+      .from("employees")
+      .select("id, department_id")
+      .eq("id", parsed.data.delegate_id)
+      .eq("status", "ACTIVE")
+      .single();
+
+    if (!delegate) {
+      return { success: false, error: "Delegate employee not found or inactive." };
+    }
+
+    if (actor.role !== "ADMIN" && delegate.department_id !== actor.department_id) {
+      return { success: false, error: "You can only delegate to employees in your department." };
+    }
+
     const { error } = await supabase.from("approval_delegations").insert({
       delegator_id: actor.id,
       delegate_id: parsed.data.delegate_id,

@@ -45,12 +45,13 @@ export default async function DelegationsPage() {
     .eq("is_active", true)
     .order("created_at", { ascending: false });
 
-  // Get employees for delegation form (exclude self, only active employees)
+  // Get employees for delegation form (exclude self, only active employees in same department)
   const { data: employees } = await supabase
     .from("employees")
     .select("id, full_name, employee_code")
     .neq("id", actor.id)
     .eq("status", "ACTIVE")
+    .eq("department_id", actor.department_id)
     .order("full_name");
 
   const safeDelegations = myDelegations ?? [];
