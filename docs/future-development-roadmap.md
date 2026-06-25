@@ -8,7 +8,7 @@ Items here are **not yet approved for active development**. They must be formall
 
 ## 1. Leave Policy Engine and Workforce Capacity Rules (Next Candidate)
 
-**Status:** Proposed | **Priority:** High | **Impact:** High
+**Status:** ✅ Done (Phase 16) | **Priority:** High | **Impact:** High
 
 **Problem:** 
 Leave requests are validated manually against company policy. There are no safeguards to prevent department understaffing.
@@ -22,7 +22,7 @@ Leave requests are validated manually against company policy. There are no safeg
 
 ## 2. Calendar UI/UX Improvements for High Volume
 
-**Status:** Proposed (QA Feedback) | **Priority:** Medium | **Impact:** Medium
+**Status:** ✅ Done (Phase 17) | **Priority:** Medium | **Impact:** Medium
 
 **Problem:** 
 When a large number of employees (e.g., 20+) take leave on the same date, the FullCalendar view becomes cluttered and difficult to read.
@@ -36,7 +36,7 @@ When a large number of employees (e.g., 20+) take leave on the same date, the Fu
 
 ## 3. Team Leave Visibility for Employees
 
-**Status:** Proposed (QA Feedback) | **Priority:** Medium | **Impact:** High (UX)
+**Status:** ✅ Done (Phase 17) | **Priority:** Medium | **Impact:** High (UX)
 
 **Problem:** 
 Employees currently cannot see when their team members are on leave, making it difficult to plan their own leave without overlapping with critical team members.
@@ -50,7 +50,7 @@ Employees currently cannot see when their team members are on leave, making it d
 
 ## 4. Employee Account Lifecycle Management (Activate/Deactivate)
 
-**Status:** Proposed (QA Feedback) | **Priority:** Medium | **Impact:** High (Security/Admin)
+**Status:** ✅ Done (Phase 17) | **Priority:** Medium | **Impact:** High (Security/Admin)
 
 **Problem:** 
 Admins need a clear, explicit way to manage the lifecycle of an employee account, specifically regarding offboarding or temporary suspension.

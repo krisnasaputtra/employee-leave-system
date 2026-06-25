@@ -1409,3 +1409,10 @@
 - [x] Manager/Admin retain full view with balance details and actions
 - [x] Update sidebar to show Team for all roles
 - [x] Update page headings and empty states for EMPLOYEE context
+
+## 5. Code Quality Fixes (Code Review Findings)
+- [x] Extract shared `UUID_RE` to `src/lib/utils/constants.ts` (DRY — 3 schema files)
+- [x] Replace `select("*")` with explicit columns in 4 pages (perf)
+- [x] Batch N+1 capacity check RPCs on approvals page with `Promise.allSettled` (perf)
+- [x] Commit and push (0586fcb)
+- [x] Update `docs/future-development-roadmap.md` — all items 1-4 marked Done
