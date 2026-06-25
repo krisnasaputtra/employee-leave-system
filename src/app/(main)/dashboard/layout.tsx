@@ -1,28 +1,31 @@
 import type { ReactNode } from "react";
 
 import { cookies } from "next/headers";
-import Link from "next/link";
 import { redirect } from "next/navigation";
 
-import { Bell } from "lucide-react";
-
 import { AppSidebar } from "@/app/(main)/dashboard/_components/sidebar/app-sidebar";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { getAuthenticatedUser } from "@/lib/auth/get-authenticated-user";
 import { SIDEBAR_COLLAPSIBLE_VALUES, SIDEBAR_VARIANT_VALUES } from "@/lib/preferences/layout";
-import { createClient } from "@/lib/supabase/server";
 import { cn } from "@/lib/utils";
 import { getPreference } from "@/server/server-actions";
 
 import { LanguageSwitcher } from "@/components/language-switcher";
 
+import { NotificationBell } from "./_components/notification-bell";
 import { LayoutControls } from "./_components/sidebar/layout-controls";
 import { SearchDialog } from "./_components/sidebar/search-dialog";
 import { ThemeSwitcher } from "./_components/sidebar/theme-switcher";
 
+/**
+ * Dashboard layout.
+ *
+ * PERFORMANCE: We removed blocking Supabase queries from the layout.
+ * Notification count and approval count are now fetched client-side
+ * via TanStack Query (in NotificationBell and AppSidebar), so
+ * navigation between pages is instant — no more 1-2s delays!
+ */
 export default async function Layout({ children }: Readonly<{ children: ReactNode }>) {
   // Server-side auth check — redirect to /login if not authenticated
   const { employee } = await getAuthenticatedUser();
@@ -31,36 +34,6 @@ export default async function Layout({ children }: Readonly<{ children: ReactNod
   if (employee.must_change_password) {
     redirect("/change-password");
   }
-
-  const supabase = await createClient();
-
-  // Build the approval count query based on role
-  const approvalQuery =
-    employee.role === "ADMIN"
-      ? supabase
-          .from("leave_requests")
-          .select("*", { count: "exact", head: true })
-          .eq("status", "PENDING")
-      : employee.role === "MANAGER"
-        ? supabase
-            .from("leave_requests")
-            .select("*, employees!inner(manager_id)", { count: "exact", head: true })
-            .eq("status", "PENDING")
-            .eq("employees.manager_id", employee.id)
-        : null;
-
-  // Run independent queries in parallel
-  const [notifResult, approvalResult] = await Promise.all([
-    supabase
-      .from("notifications")
-      .select("id", { count: "exact", head: true })
-      .eq("employee_id", employee.id)
-      .eq("is_read", false),
-    approvalQuery ?? Promise.resolve({ count: 0 }),
-  ]);
-
-  const unreadCount = notifResult.count;
-  const pendingApprovalCount = approvalResult.count ?? 0;
 
   const cookieStore = await cookies();
   const defaultOpen = cookieStore.get("sidebar_state")?.value !== "false";
@@ -84,7 +57,7 @@ export default async function Layout({ children }: Readonly<{ children: ReactNod
         } as React.CSSProperties
       }
     >
-      <AppSidebar variant={variant} collapsible={collapsible} user={sidebarUser} pendingApprovalCount={pendingApprovalCount} />
+      <AppSidebar variant={variant} collapsible={collapsible} user={sidebarUser} />
       <SidebarInset
         className={cn(
           "[html[data-content-layout=centered]_&>*]:mx-auto",
@@ -111,19 +84,7 @@ export default async function Layout({ children }: Readonly<{ children: ReactNod
               <SearchDialog />
             </div>
             <div className="flex items-center gap-2">
-              <Button variant="ghost" size="icon" asChild className="relative">
-                <Link href="/dashboard/notifications" aria-label="Notifications">
-                  <Bell className="h-4 w-4" />
-                  {(unreadCount ?? 0) > 0 && (
-                    <Badge
-                      variant="destructive"
-                      className="absolute -top-1 -right-1 flex h-4 min-w-4 items-center justify-center px-1 text-[10px]"
-                    >
-                      {unreadCount}
-                    </Badge>
-                  )}
-                </Link>
-              </Button>
+              <NotificationBell />
               <LanguageSwitcher />
               <LayoutControls />
               <ThemeSwitcher />
