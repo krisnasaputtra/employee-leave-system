@@ -55,11 +55,24 @@ export async function fetchAllRequests(
   const offset = (page - 1) * pageSize;
   const statusFilter =
     params.status && params.status !== "ALL" ? params.status : null;
+  const safeSearch = params.search ? sanitizeSearch(params.search) : null;
+
+  // If searching by employee name, first find matching employee IDs (fast indexed lookup)
+  let employeeIds: string[] | null = null;
+  if (safeSearch) {
+    const { data: matchedEmployees } = await supabase
+      .from("employees")
+      .select("id")
+      .or(
+        `full_name.ilike.%${safeSearch}%,employee_code.ilike.%${safeSearch}%`,
+      );
+    employeeIds = (matchedEmployees ?? []).map((e) => e.id);
+  }
 
   let query = supabase
     .from("leave_requests")
     .select(
-      "*, employees!leave_requests_employee_id_fk(full_name, employee_code), leave_types!leave_requests_leave_type_id_fk(name, color)",
+      "id, request_number, employee_id, leave_type_id, start_date, end_date, requested_days, status, reason, partial_day, created_at, employees!leave_requests_employee_id_fk(full_name, employee_code), leave_types!leave_requests_leave_type_id_fk(name, color)",
       { count: "exact" },
     );
 
@@ -73,12 +86,16 @@ export async function fetchAllRequests(
     );
   }
 
-  if (params.search) {
-    const safeSearch = sanitizeSearch(params.search);
-    if (safeSearch) {
+  // Two-step search: filter by request_number OR matching employee IDs
+  if (safeSearch && employeeIds !== null) {
+    if (employeeIds.length > 0) {
+      // Match request_number OR employee_id in matched set
       query = query.or(
-        `request_number.ilike.%${safeSearch}%,employees.full_name.ilike.%${safeSearch}%`,
+        `request_number.ilike.%${safeSearch}%,employee_id.in.(${employeeIds.join(",")})`,
       );
+    } else {
+      // No employees matched — only search request_number
+      query = query.ilike("request_number", `%${safeSearch}%`);
     }
   }
 
