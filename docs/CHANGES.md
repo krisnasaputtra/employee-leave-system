@@ -299,6 +299,26 @@ page.tsx (Server Component) → fetchXxx() SSR
 2. Read cookies — zero latency
 3. Read preferences — cookies
 
+### `b177306` perf: Set Vercel region to syd1 (Sydney)
+**Problem:** Vercel default region `iad1` (US East), Supabase di `ap-southeast-2` (Sydney). Setiap DB query = cross-continent round-trip ~300-400ms.
+
+**Kenapa local kenceng, deploy lemot:**
+- Local: PC (Jakarta) → Supabase (Sydney) = ~100ms
+- Deploy: Browser → Vercel (US) → Supabase (Sydney) → Vercel → Browser = ~700ms per query
+
+**Fix:** Buat `vercel.json` dengan `regions: ["syd1"]` — Vercel functions sekarang di Sydney, same region dengan Supabase.
+
+**Files baru:**
+- `vercel.json`
+
+### `8ac0249` fix: Restrict delegation to same department only
+**Bug:** Manager Finance bisa delegate approval ke Employee001 (tim Engineering). Seharusnya hanya bisa delegate ke anggota tim sendiri.
+
+**Fix:**
+- `src/app/(main)/dashboard/delegations/page.tsx` — Filter employee dropdown `.eq("department_id", actor.department_id)` (UI)
+- `src/app/(main)/dashboard/delegations/actions.ts` — Server-side validasi `delegate.department_id !== actor.department_id` → reject (mencegah manipulasi API)
+- Admin tetap bisa delegate cross-department (exception)
+
 ---
 
 ## Tech Stack Final
