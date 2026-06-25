@@ -151,7 +151,7 @@ export const sidebarItems: NavGroup[] = [
         title: "Team",
         url: "/dashboard/team",
         icon: Users,
-        roles: ["MANAGER"],
+        roles: ["ADMIN", "MANAGER", "EMPLOYEE"],
       },
       {
         id: "all-requests",

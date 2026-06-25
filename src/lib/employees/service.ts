@@ -209,3 +209,63 @@ export async function deactivateEmployee(
 
   return { success: true };
 }
+
+/**
+ * Activate an employee and unban their Auth account.
+ */
+export async function activateEmployee(
+  employeeId: string,
+  actorEmployeeId: string,
+): Promise<{ success: boolean; error?: string }> {
+  const admin = createAdminClient();
+
+  // Load the employee
+  const { data: employee, error: loadError } = await admin
+    .from("employees")
+    .select("id, auth_user_id, full_name, status")
+    .eq("id", employeeId)
+    .single();
+
+  if (loadError || !employee) {
+    return { success: false, error: "Employee not found." };
+  }
+
+  if (employee.status !== "INACTIVE") {
+    return { success: false, error: "Employee is already active." };
+  }
+
+  // Update employee status
+  const { error: updateError } = await admin.from("employees").update({ status: "ACTIVE" }).eq("id", employeeId);
+
+  if (updateError) {
+    return {
+      success: false,
+      error: `Failed to activate: ${updateError.message}`,
+    };
+  }
+
+  // Unban the Auth user if linked
+  if (employee.auth_user_id) {
+    const { error: unbanError } = await admin.auth.admin.updateUserById(employee.auth_user_id, {
+      ban_duration: "none",
+    });
+
+    if (unbanError) {
+      console.error("Failed to unban auth user:", unbanError.message);
+    }
+  }
+
+  // Write audit log
+  await admin.from("audit_logs").insert({
+    actor_employee_id: actorEmployeeId,
+    action: "EMPLOYEE_ACTIVATED",
+    entity_type: "employee",
+    entity_id: employeeId,
+    metadata: {
+      old_status: employee.status,
+      new_status: "ACTIVE",
+    },
+  });
+
+  return { success: true };
+}

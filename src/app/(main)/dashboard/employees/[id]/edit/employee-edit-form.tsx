@@ -25,7 +25,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { Database } from "@/types/database.types";
 
-import { deactivateEmployeeAction, updateEmployeeAction } from "../../actions";
+import { activateEmployeeAction, deactivateEmployeeAction, updateEmployeeAction } from "../../actions";
 
 type Employee = Database["public"]["Tables"]["employees"]["Row"];
 
@@ -75,6 +75,18 @@ export function EmployeeEditForm({ employee, departments, employees }: Props) {
       } else {
         toast.success("Employee deactivated.");
         router.push("/dashboard/employees");
+      }
+    });
+  };
+
+  const handleActivate = () => {
+    startTransition(async () => {
+      const result = await activateEmployeeAction(employee.id);
+      if (!result.success) {
+        setServerError(result.error ?? "Activation failed.");
+      } else {
+        toast.success("Employee activated.");
+        router.refresh();
       }
     });
   };
@@ -227,6 +239,29 @@ export function EmployeeEditForm({ employee, departments, employees }: Props) {
                 <AlertDialogCancel>Cancel</AlertDialogCancel>
                 <AlertDialogAction onClick={handleDeactivate}>
                   Deactivate
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        )}
+        {employee.status === "INACTIVE" && (
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button type="button" variant="outline" disabled={isPending}>
+                Activate
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Activate Employee</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Are you sure you want to reactivate this employee? Their login ban will be lifted and they will be able to access the system again.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction onClick={handleActivate}>
+                  Activate
                 </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>

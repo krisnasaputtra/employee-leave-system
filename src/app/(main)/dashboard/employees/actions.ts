@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import { isNextInternalError } from "@/lib/utils/server-action-utils";
 import { getAuthenticatedUser } from "@/lib/auth/get-authenticated-user";
 import { employeeCreateSchema, employeeUpdateSchema } from "@/lib/employees/schemas";
-import { createEmployeeWithAccount, deactivateEmployee } from "@/lib/employees/service";
+import { activateEmployee, createEmployeeWithAccount, deactivateEmployee } from "@/lib/employees/service";
 import { canManageEmployees } from "@/lib/permissions";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { sanitizeDbError } from "@/lib/utils/sanitize-error";
@@ -145,6 +145,31 @@ export async function deactivateEmployeeAction(employeeId: string): Promise<Acti
   } catch (error) {
     if (isNextInternalError(error)) throw error;
     console.error("deactivateEmployeeAction failed:", error);
+    return { success: false, error: "An unexpected error occurred. Please try again." };
+  }
+}
+
+export async function activateEmployeeAction(employeeId: string): Promise<ActionResult> {
+  try {
+    const { employee: actor } = await getAuthenticatedUser();
+
+    if (!canManageEmployees(actor.role)) {
+      return {
+        success: false,
+        error: "You do not have permission to activate employees.",
+      };
+    }
+
+    const result = await activateEmployee(employeeId, actor.id);
+
+    if (result.success) {
+      revalidatePath("/dashboard/employees");
+    }
+
+    return result;
+  } catch (error) {
+    if (isNextInternalError(error)) throw error;
+    console.error("activateEmployeeAction failed:", error);
     return { success: false, error: "An unexpected error occurred. Please try again." };
   }
 }

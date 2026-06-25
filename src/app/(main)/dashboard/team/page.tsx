@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
 
 import {
   Briefcase,
@@ -52,15 +51,15 @@ function getInitials(name: string): string {
 export default async function TeamPage() {
   const { employee: actor } = await getAuthenticatedUser();
 
-  // Only MANAGER and ADMIN can access this page
-  if (actor.role === "EMPLOYEE") {
-    redirect("/dashboard");
-  }
-
   const supabase = await createClient();
   const isAdmin = actor.role === "ADMIN";
+  const isManager = actor.role === "MANAGER";
+  const isEmployee = actor.role === "EMPLOYEE";
 
-  // Get direct reports (or all employees for ADMIN)
+  // Get team members based on role:
+  // ADMIN: all employees except self
+  // MANAGER: direct reports
+  // EMPLOYEE: same department colleagues (limited view)
   let query = supabase
     .from("employees")
     .select(
@@ -69,11 +68,16 @@ export default async function TeamPage() {
     )
     .order("full_name");
 
-  if (!isAdmin) {
+  if (isAdmin) {
+    query = query.neq("id", actor.id);
+  } else if (isManager) {
     query = query.eq("manager_id", actor.id);
   } else {
-    // ADMIN sees all except themselves
-    query = query.neq("id", actor.id);
+    // EMPLOYEE: see colleagues in same department
+    query = query
+      .eq("department_id", actor.department_id)
+      .eq("status", "ACTIVE")
+      .neq("id", actor.id);
   }
 
   const { data: teamMembers, error } = await query;
@@ -83,7 +87,7 @@ export default async function TeamPage() {
       <div className="@container/main flex flex-col gap-4 md:gap-6">
         <div>
           <h1 className="font-semibold text-2xl tracking-tight">
-            {isAdmin ? "All Employees" : "My Team"}
+            {isAdmin ? "All Employees" : isEmployee ? "My Department" : "My Team"}
           </h1>
         </div>
         <div className="flex flex-col items-center justify-center gap-2 py-20">
@@ -182,10 +186,10 @@ export default async function TeamPage() {
       <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="font-semibold text-2xl tracking-tight">
-            {isAdmin ? "All Employees" : "My Team"}
+            {isAdmin ? "All Employees" : isEmployee ? "My Department" : "My Team"}
           </h1>
           <p className="text-muted-foreground text-sm">
-            {members.length} {isAdmin ? "employee" : "direct report"}
+            {members.length} {isAdmin ? "employee" : isEmployee ? "colleague" : "direct report"}
             {members.length !== 1 ? "s" : ""}
           </p>
         </div>
@@ -204,7 +208,7 @@ export default async function TeamPage() {
                 {onLeaveCount} On Leave
               </Badge>
             )}
-            {totalPending > 0 && (
+            {!isEmployee && totalPending > 0 && (
               <Badge
                 variant="secondary"
                 className="gap-1.5 bg-orange-500/10 text-orange-700 dark:text-orange-400"
@@ -217,8 +221,8 @@ export default async function TeamPage() {
         )}
       </div>
 
-      {/* Summary Cards */}
-      {members.length > 0 && (
+      {/* Summary Cards — hidden for EMPLOYEE role (no balance visibility for peers) */}
+      {!isEmployee && members.length > 0 && (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <Card>
             <CardHeader className="pb-2">
@@ -280,11 +284,13 @@ export default async function TeamPage() {
           <CardContent className="py-16">
             <EmptyState
               icon={UserX}
-              title="No Direct Reports"
+              title={isEmployee ? "No Colleagues" : "No Direct Reports"}
               description={
                 isAdmin
                   ? "No employees found in the system."
-                  : "You don't have any team members assigned to you yet. Contact an administrator to assign employees to your team."
+                  : isEmployee
+                    ? "No colleagues found in your department."
+                    : "You don't have any team members assigned to you yet. Contact an administrator to assign employees to your team."
               }
             />
           </CardContent>
@@ -293,11 +299,13 @@ export default async function TeamPage() {
         /* Team Member Table */
         <Card>
           <CardHeader>
-            <CardTitle>Team Members</CardTitle>
+            <CardTitle>{isEmployee ? "Department Colleagues" : "Team Members"}</CardTitle>
             <CardDescription>
               {isAdmin
                 ? "Overview of all employees with leave balances"
-                : "Your direct reports with leave balance summary"}
+                : isEmployee
+                  ? "Colleagues in your department — who's on leave today"
+                  : "Your direct reports with leave balance summary"}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -308,11 +316,15 @@ export default async function TeamPage() {
                   <TableHead>Department</TableHead>
                   <TableHead>Position</TableHead>
                   <TableHead>Status</TableHead>
-                  <TableHead className="text-center">Entitled</TableHead>
-                  <TableHead className="text-center">Used</TableHead>
-                  <TableHead className="text-center">Remaining</TableHead>
-                  <TableHead className="text-center">Pending</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+                  {!isEmployee && (
+                    <>
+                      <TableHead className="text-center">Entitled</TableHead>
+                      <TableHead className="text-center">Used</TableHead>
+                      <TableHead className="text-center">Remaining</TableHead>
+                      <TableHead className="text-center">Pending</TableHead>
+                    </>
+                  )}
+                  {!isEmployee && <TableHead className="text-right">Actions</TableHead>}
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -384,67 +396,73 @@ export default async function TeamPage() {
                           {member.status}
                         </Badge>
                       </TableCell>
-                      <TableCell className="text-center">
-                        <span className="font-medium text-sm">
-                          {balance.entitled}
-                        </span>
-                      </TableCell>
-                      <TableCell className="text-center">
-                        <span className="text-sm">{balance.used}</span>
-                      </TableCell>
-                      <TableCell className="text-center">
-                        <span
-                          className={`font-medium text-sm ${
-                            balance.remaining <= 3 && balance.remaining > 0
-                              ? "text-amber-600 dark:text-amber-400"
-                              : balance.remaining === 0
-                                ? "text-red-600 dark:text-red-400"
-                                : "text-emerald-600 dark:text-emerald-400"
-                          }`}
-                        >
-                          {balance.remaining}
-                        </span>
-                      </TableCell>
-                      <TableCell className="text-center">
-                        {pendingCount > 0 ? (
-                          <Badge variant="destructive" className="text-[10px]">
-                            <Clock className="mr-0.5 h-2.5 w-2.5" />
-                            {pendingCount}
-                          </Badge>
-                        ) : (
-                          <span className="text-muted-foreground text-sm">
-                            0
-                          </span>
-                        )}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex items-center justify-end gap-1">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            asChild
-                          >
-                            <Link
-                              href={`/dashboard/employees/${member.id}`}
+                      {!isEmployee && (
+                        <>
+                          <TableCell className="text-center">
+                            <span className="font-medium text-sm">
+                              {balance.entitled}
+                            </span>
+                          </TableCell>
+                          <TableCell className="text-center">
+                            <span className="text-sm">{balance.used}</span>
+                          </TableCell>
+                          <TableCell className="text-center">
+                            <span
+                              className={`font-medium text-sm ${
+                                balance.remaining <= 3 && balance.remaining > 0
+                                  ? "text-amber-600 dark:text-amber-400"
+                                  : balance.remaining === 0
+                                    ? "text-red-600 dark:text-red-400"
+                                    : "text-emerald-600 dark:text-emerald-400"
+                              }`}
                             >
-                              <Eye className="mr-1 h-3.5 w-3.5" />
-                              View
-                            </Link>
-                          </Button>
-                          {pendingCount > 0 && (
+                              {balance.remaining}
+                            </span>
+                          </TableCell>
+                          <TableCell className="text-center">
+                            {pendingCount > 0 ? (
+                              <Badge variant="destructive" className="text-[10px]">
+                                <Clock className="mr-0.5 h-2.5 w-2.5" />
+                                {pendingCount}
+                              </Badge>
+                            ) : (
+                              <span className="text-muted-foreground text-sm">
+                                0
+                              </span>
+                            )}
+                          </TableCell>
+                        </>
+                      )}
+                      {!isEmployee && (
+                        <TableCell className="text-right">
+                          <div className="flex items-center justify-end gap-1">
                             <Button
-                              variant="outline"
+                              variant="ghost"
                               size="sm"
                               asChild
                             >
-                              <Link href="/dashboard/approvals">
-                                <CheckCircle2 className="mr-1 h-3.5 w-3.5" />
-                                Approve
+                              <Link
+                                href={`/dashboard/employees/${member.id}`}
+                              >
+                                <Eye className="mr-1 h-3.5 w-3.5" />
+                                View
                               </Link>
                             </Button>
-                          )}
-                        </div>
-                      </TableCell>
+                            {pendingCount > 0 && (
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                asChild
+                              >
+                                <Link href="/dashboard/approvals">
+                                  <CheckCircle2 className="mr-1 h-3.5 w-3.5" />
+                                  Approve
+                                </Link>
+                              </Button>
+                            )}
+                          </div>
+                        </TableCell>
+                      )}
                     </TableRow>
                   );
                 })}
