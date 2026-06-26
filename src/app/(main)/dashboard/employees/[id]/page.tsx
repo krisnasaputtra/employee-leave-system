@@ -46,8 +46,6 @@ import {
 } from "@/lib/ui/badge-variants";
 import { formatDate } from "@/lib/utils/format-date";
 
-import { GrantLoginButton } from "./grant-login-button";
-
 export default async function EmployeeDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { employee: actor } = await getAuthenticatedUser();
   const { id } = await params;
@@ -240,13 +238,10 @@ export default async function EmployeeDetailPage({ params }: { params: Promise<{
                 <Shield className="h-4 w-4 text-muted-foreground shrink-0" />
                 <div>
                   <dt className="text-muted-foreground text-xs">Login Access</dt>
-                  <dd className="flex items-center gap-2">
+                  <dd>
                     <Badge variant={employee.auth_user_id ? "default" : "outline"}>
                       {employee.auth_user_id ? "Yes" : "No"}
                     </Badge>
-                    {isAdmin && !employee.auth_user_id && employee.status === "ACTIVE" && (
-                      <GrantLoginButton employeeId={employee.id} employeeName={employee.full_name} />
-                    )}
                   </dd>
                 </div>
               </div>

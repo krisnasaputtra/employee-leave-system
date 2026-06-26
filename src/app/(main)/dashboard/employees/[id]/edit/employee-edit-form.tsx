@@ -27,6 +27,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import type { Database } from "@/types/database.types";
 
 import { activateEmployeeAction, deactivateEmployeeAction, updateEmployeeAction } from "../../actions";
+import { GrantLoginButton } from "../grant-login-button";
 
 type Employee = Database["public"]["Tables"]["employees"]["Row"];
 
@@ -229,6 +230,9 @@ export function EmployeeEditForm({ employee, departments, employees }: Props) {
           {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
           Save Changes
         </Button>
+        {employee.status === "ACTIVE" && !employee.auth_user_id && (
+          <GrantLoginButton employeeId={employee.id} employeeName={employee.full_name} />
+        )}
         {employee.status === "ACTIVE" && (
           <AlertDialog>
             <AlertDialogTrigger asChild>
