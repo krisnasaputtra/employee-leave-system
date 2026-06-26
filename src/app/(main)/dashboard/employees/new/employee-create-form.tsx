@@ -20,10 +20,9 @@ import { createEmployeeAction } from "../actions";
 
 interface Props {
   departments: { id: string; name: string }[];
-  employees: { id: string; full_name: string }[];
 }
 
-export function EmployeeCreateForm({ departments, employees }: Props) {
+export function EmployeeCreateForm({ departments }: Props) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [serverError, setServerError] = useState<string | null>(null);
@@ -39,7 +38,6 @@ export function EmployeeCreateForm({ departments, employees }: Props) {
       phone_number: "",
       department_id: "",
       position: "",
-      manager_id: "",
       join_date: new Date().toISOString().split("T")[0],
       role: "EMPLOYEE",
       status: "ACTIVE",
@@ -162,7 +160,7 @@ export function EmployeeCreateForm({ departments, employees }: Props) {
         <FieldGroup>
           <div className="grid gap-4 md:grid-cols-2">
             <Field>
-              <FieldLabel>Department</FieldLabel>
+              <FieldLabel>Team</FieldLabel>
               <FieldContent>
                 <Controller
                   control={form.control}
@@ -172,10 +170,10 @@ export function EmployeeCreateForm({ departments, employees }: Props) {
                       value={field.value}
                       onValueChange={(val) => field.onChange(val as string)}
                     >
-                      <ComboboxInput showClear placeholder="Search department..." />
+                      <ComboboxInput showClear placeholder="Search team..." />
                       <ComboboxContent>
                         <ComboboxList>
-                          <ComboboxEmpty>No department found.</ComboboxEmpty>
+                          <ComboboxEmpty>No team found.</ComboboxEmpty>
                           {departments.map((d) => (
                             <ComboboxItem key={d.id} value={d.id}>
                               {d.name}
@@ -198,33 +196,6 @@ export function EmployeeCreateForm({ departments, employees }: Props) {
             </Field>
           </div>
           <div className="grid gap-4 md:grid-cols-2">
-            <Field>
-              <FieldLabel>Manager</FieldLabel>
-              <FieldContent>
-                <Controller
-                  control={form.control}
-                  name="manager_id"
-                  render={({ field }) => (
-                    <Combobox
-                      value={field.value}
-                      onValueChange={(val) => field.onChange((val as string) ?? "")}
-                    >
-                      <ComboboxInput showClear placeholder="Search manager..." />
-                      <ComboboxContent>
-                        <ComboboxList>
-                          <ComboboxEmpty>No employee found.</ComboboxEmpty>
-                          {employees.map((e) => (
-                            <ComboboxItem key={e.id} value={e.id}>
-                              {e.full_name}
-                            </ComboboxItem>
-                          ))}
-                        </ComboboxList>
-                      </ComboboxContent>
-                    </Combobox>
-                  )}
-                />
-              </FieldContent>
-            </Field>
             <Field>
               <FieldLabel>Role</FieldLabel>
               <FieldContent>

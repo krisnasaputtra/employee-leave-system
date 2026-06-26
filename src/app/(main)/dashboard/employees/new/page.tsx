@@ -19,10 +19,11 @@ export default async function NewEmployeePage() {
 
   const supabase = await createClient();
 
-  const [{ data: departments }, { data: employees }] = await Promise.all([
-    supabase.from("departments").select("id, name").eq("is_active", true).order("name"),
-    supabase.from("employees").select("id, full_name").eq("status", "ACTIVE").order("full_name"),
-  ]);
+  const { data: departments } = await supabase
+    .from("departments")
+    .select("id, name")
+    .eq("is_active", true)
+    .order("name");
 
   return (
     <div className="@container/main flex flex-col gap-4 md:gap-6">
@@ -34,7 +35,7 @@ export default async function NewEmployeePage() {
         </Button>
         <h1 className="font-semibold text-2xl tracking-tight">Add Employee</h1>
       </div>
-      <EmployeeCreateForm departments={departments ?? []} employees={employees ?? []} />
+      <EmployeeCreateForm departments={departments ?? []} />
     </div>
   );
 }

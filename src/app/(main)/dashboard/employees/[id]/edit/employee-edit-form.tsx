@@ -140,7 +140,7 @@ export function EmployeeEditForm({ employee, departments, employees }: Props) {
         <FieldGroup>
           <div className="grid gap-4 md:grid-cols-2">
             <Field>
-              <FieldLabel>Department</FieldLabel>
+              <FieldLabel>Team</FieldLabel>
               <FieldContent>
                 <Controller
                   control={form.control}
@@ -150,10 +150,10 @@ export function EmployeeEditForm({ employee, departments, employees }: Props) {
                       value={field.value}
                       onValueChange={(val) => field.onChange(val as string)}
                     >
-                      <ComboboxInput showClear placeholder="Search department..." />
+                      <ComboboxInput showClear placeholder="Search team..." />
                       <ComboboxContent>
                         <ComboboxList>
-                          <ComboboxEmpty>No department found.</ComboboxEmpty>
+                          <ComboboxEmpty>No team found.</ComboboxEmpty>
                           {departments.map((d) => (
                             <ComboboxItem key={d.id} value={d.id}>
                               {d.name}
