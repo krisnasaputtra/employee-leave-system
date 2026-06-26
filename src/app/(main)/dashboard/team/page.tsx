@@ -71,7 +71,10 @@ export default async function TeamPage() {
   if (isAdmin) {
     query = query.neq("id", actor.id);
   } else if (isManager) {
-    query = query.eq("manager_id", actor.id);
+    // Show all employees in the same department
+    query = query
+      .eq("department_id", actor.department_id)
+      .neq("id", actor.id);
   } else {
     // EMPLOYEE: see colleagues in same department
     query = query
