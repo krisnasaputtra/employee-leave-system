@@ -21,6 +21,7 @@ import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { type DepartmentCreateInput, departmentCreateSchema } from "@/lib/settings/schemas";
 import type { Database } from "@/types/database.types";
+import { useTranslation } from "@/providers/locale-provider";
 
 import { createDepartmentAction, updateDepartmentAction } from "../../actions";
 
@@ -34,6 +35,7 @@ interface Props {
 }
 
 export function DepartmentFormDialog({ mode, department, employees, trigger }: Props) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [serverError, setServerError] = useState<string | null>(null);
@@ -80,9 +82,9 @@ export function DepartmentFormDialog({ mode, department, employees, trigger }: P
       <DialogTrigger asChild>{trigger}</DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>{mode === "create" ? "Create Department" : "Edit Department"}</DialogTitle>
+          <DialogTitle>{mode === "create" ? t("settings.createDepartment") : t("settings.editDepartment")}</DialogTitle>
           <DialogDescription>
-            {mode === "create" ? "Add a new department to the organization." : "Update the department details."}
+            {mode === "create" ? t("settings.createDepartmentDesc") : t("settings.editDepartmentDesc")}
           </DialogDescription>
         </DialogHeader>
 
@@ -93,7 +95,7 @@ export function DepartmentFormDialog({ mode, department, employees, trigger }: P
 
           <FieldGroup>
             <Field>
-              <FieldLabel>Code</FieldLabel>
+              <FieldLabel>{t("settings.code")}</FieldLabel>
               <FieldContent>
                 <Input placeholder="DEPT_CODE" disabled={mode === "edit"} {...form.register("code")} />
               </FieldContent>
@@ -101,7 +103,7 @@ export function DepartmentFormDialog({ mode, department, employees, trigger }: P
             </Field>
 
             <Field>
-              <FieldLabel>Name</FieldLabel>
+              <FieldLabel>{t("settings.name")}</FieldLabel>
               <FieldContent>
                 <Input placeholder="Department name" {...form.register("name")} />
               </FieldContent>
@@ -109,7 +111,7 @@ export function DepartmentFormDialog({ mode, department, employees, trigger }: P
             </Field>
 
             <Field>
-              <FieldLabel>Description</FieldLabel>
+              <FieldLabel>{t("settings.description")}</FieldLabel>
               <FieldContent>
                 <textarea
                   className="flex min-h-[80px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
@@ -121,13 +123,13 @@ export function DepartmentFormDialog({ mode, department, employees, trigger }: P
             </Field>
 
             <Field>
-              <FieldLabel>Manager</FieldLabel>
+              <FieldLabel>{t("settings.manager")}</FieldLabel>
               <FieldContent>
                 <select
                   className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs"
                   {...form.register("manager_employee_id")}
                 >
-                  <option value="">No manager</option>
+                  <option value="">{t("settings.noManager")}</option>
                   {employees.map((e) => (
                     <option key={e.id} value={e.id}>
                       {e.full_name}
@@ -139,7 +141,7 @@ export function DepartmentFormDialog({ mode, department, employees, trigger }: P
 
             <Field>
               <div className="flex items-center justify-between">
-                <FieldLabel>Active</FieldLabel>
+                <FieldLabel>{t("status.active")}</FieldLabel>
                 <Switch checked={form.watch("is_active")} onCheckedChange={(v) => form.setValue("is_active", v)} />
               </div>
             </Field>
@@ -147,7 +149,7 @@ export function DepartmentFormDialog({ mode, department, employees, trigger }: P
 
           <Button className="w-full" type="submit" disabled={isPending}>
             {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            {mode === "create" ? "Create" : "Save Changes"}
+            {mode === "create" ? t("common.create") : t("common.saveChanges")}
           </Button>
         </form>
       </DialogContent>

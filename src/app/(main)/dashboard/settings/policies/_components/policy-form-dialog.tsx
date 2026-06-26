@@ -1,5 +1,7 @@
 "use client";
 
+import { useTranslation } from "@/providers/locale-provider";
+
 import { useState, useTransition } from "react";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -66,6 +68,7 @@ interface Props {
 // =============================================================
 
 export function PolicyFormDialog({ leaveTypeId, leaveTypeName, policy, trigger }: Props) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [serverError, setServerError] = useState<string | null>(null);
@@ -99,9 +102,9 @@ export function PolicyFormDialog({ leaveTypeId, leaveTypeName, policy, trigger }
       <DialogTrigger asChild>{trigger}</DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>{policy ? "Edit Policy" : "Configure Policy"}</DialogTitle>
+          <DialogTitle>{policy ? t("settings.editPolicy") : t("settings.configurePolicy")}</DialogTitle>
           <DialogDescription>
-            {policy ? `Update the policy for ${leaveTypeName}.` : `Set submission rules for ${leaveTypeName}.`}
+            {policy ? `${t("settings.editPolicyDesc")} — ${leaveTypeName}` : `${t("settings.configurePolicyDesc")} — ${leaveTypeName}`}
           </DialogDescription>
         </DialogHeader>
 
@@ -112,7 +115,7 @@ export function PolicyFormDialog({ leaveTypeId, leaveTypeName, policy, trigger }
 
           <FieldGroup>
             <Field>
-              <FieldLabel>Notice Period (days)</FieldLabel>
+              <FieldLabel>{t("settings.noticePeriod")}</FieldLabel>
               <FieldContent>
                 <Input
                   type="number"
@@ -125,7 +128,7 @@ export function PolicyFormDialog({ leaveTypeId, leaveTypeName, policy, trigger }
             </Field>
 
             <Field>
-              <FieldLabel>Max Consecutive Days</FieldLabel>
+              <FieldLabel>{t("settings.maxConsecutiveDays")}</FieldLabel>
               <FieldContent>
                 <Input
                   type="number"
@@ -139,7 +142,7 @@ export function PolicyFormDialog({ leaveTypeId, leaveTypeName, policy, trigger }
 
             <Field>
               <div className="flex items-center justify-between">
-                <FieldLabel>Requires Attachment</FieldLabel>
+                <FieldLabel>{t("settings.requiresAttachment")}</FieldLabel>
                 <Switch
                   checked={form.watch("requires_attachment")}
                   onCheckedChange={(v) => form.setValue("requires_attachment", v)}
@@ -150,7 +153,7 @@ export function PolicyFormDialog({ leaveTypeId, leaveTypeName, policy, trigger }
 
           <Button className="w-full" type="submit" disabled={isPending}>
             {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            {policy ? "Save Changes" : "Configure Policy"}
+            {policy ? t("common.saveChanges") : t("settings.configurePolicy")}
           </Button>
         </form>
       </DialogContent>

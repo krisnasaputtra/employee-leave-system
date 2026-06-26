@@ -19,6 +19,7 @@ import { ButtonGroup } from "@/components/ui/button-group";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { createClient } from "@/lib/supabase/client";
+import { useTranslation } from "@/providers/locale-provider";
 
 interface CalendarEvent {
   request_id: string;
@@ -49,16 +50,19 @@ interface LeaveCalendarProps {
   holidays: Holiday[];
 }
 
-const views = [
-  { key: "dayGridMonth", label: "Month" },
-  { key: "timeGridWeek", label: "Week" },
-  { key: "listWeek", label: "List" },
-];
+
 
 const plugins = [dayGridPlugin, timeGridPlugin, listPlugin, interactionPlugin, multiMonthPlugin];
 
 export function LeaveCalendar({ departments, leaveTypes, holidays }: LeaveCalendarProps) {
   const controller = useCalendarController();
+  const { t } = useTranslation();
+
+  const views = [
+    { key: "dayGridMonth", label: t("calendar.month") },
+    { key: "timeGridWeek", label: t("calendar.week") },
+    { key: "listWeek", label: t("calendar.list") },
+  ];
   const [events, setEvents] = React.useState<EventInput[]>([]);
   const [eventCount, setEventCount] = React.useState(0);
   const [selectedDepartment, setSelectedDepartment] = React.useState("all");
@@ -212,7 +216,7 @@ export function LeaveCalendar({ departments, leaveTypes, holidays }: LeaveCalend
               </SelectTrigger>
               <SelectContent position="popper">
                 <SelectGroup>
-                  <SelectItem value="all">All Departments</SelectItem>
+                  <SelectItem value="all">{t("calendar.allDepartments")}</SelectItem>
                   {departments.map((d) => (
                     <SelectItem key={d.id} value={d.id}>
                       {d.name}
@@ -231,7 +235,7 @@ export function LeaveCalendar({ departments, leaveTypes, holidays }: LeaveCalend
                 </SelectTrigger>
                 <SelectContent position="popper">
                   <SelectGroup>
-                    <SelectItem value="all">All Types</SelectItem>
+                    <SelectItem value="all">{t("calendar.allTypes")}</SelectItem>
                     {leaveTypes.map((lt) => (
                       <SelectItem key={lt.id} value={lt.id}>
                         <span
@@ -252,7 +256,7 @@ export function LeaveCalendar({ departments, leaveTypes, holidays }: LeaveCalend
                 <ChevronLeft />
               </Button>
               <Button variant="outline" onClick={() => controller.today()}>
-                Today
+                {t("calendar.today")}
               </Button>
               <Button size="icon" variant="outline" onClick={() => controller.next()} aria-label="Next">
                 <ChevronRight />
@@ -293,7 +297,7 @@ export function LeaveCalendar({ departments, leaveTypes, holidays }: LeaveCalend
           ))}
           <div className="flex items-center gap-1.5">
             <span className="inline-block size-2.5 rounded-full bg-red-600" />
-            Holiday
+            {t("calendar.holiday")}
           </div>
         </div>
 
@@ -333,22 +337,22 @@ export function LeaveCalendar({ departments, leaveTypes, holidays }: LeaveCalend
                 <span className="font-medium">{selectedEvent.public_label}</span>
                 {selectedEvent.partial_day !== "NONE" && (
                   <Badge variant="secondary">
-                    {selectedEvent.partial_day === "FIRST_HALF" ? "Morning" : "Afternoon"}
+                    {selectedEvent.partial_day === "FIRST_HALF" ? t("calendar.morning") : t("calendar.afternoon")}
                   </Badge>
                 )}
               </div>
 
               <div className="grid grid-cols-2 gap-3 text-sm">
                 <div>
-                  <div className="text-muted-foreground">From</div>
+                  <div className="text-muted-foreground">{t("calendar.from")}</div>
                   <div className="font-medium">{formatDate(selectedEvent.start_date)}</div>
                 </div>
                 <div>
-                  <div className="text-muted-foreground">To</div>
+                  <div className="text-muted-foreground">{t("calendar.to")}</div>
                   <div className="font-medium">{formatDate(selectedEvent.end_date)}</div>
                 </div>
                 <div>
-                  <div className="text-muted-foreground">Duration</div>
+                  <div className="text-muted-foreground">{t("calendar.duration")}</div>
                   <div className="font-medium">
                     {selectedEvent.requested_days} day
                     {selectedEvent.requested_days !== 1 ? "s" : ""}
@@ -356,7 +360,7 @@ export function LeaveCalendar({ departments, leaveTypes, holidays }: LeaveCalend
                 </div>
                 {selectedEvent.department_name && (
                   <div>
-                    <div className="text-muted-foreground">Department</div>
+                    <div className="text-muted-foreground">{t("calendar.department")}</div>
                     <div className="font-medium">{selectedEvent.department_name}</div>
                   </div>
                 )}

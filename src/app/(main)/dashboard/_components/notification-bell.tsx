@@ -6,6 +6,7 @@ import { Bell } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { useTranslation } from "@/providers/locale-provider";
 
 import { fetchHeaderCounts } from "../fetch-header-counts";
 
@@ -21,11 +22,12 @@ export function NotificationBell() {
     refetchInterval: 60 * 1000, // auto-refetch every 60s
   });
 
+  const { t } = useTranslation();
   const unreadCount = data?.unreadNotifications ?? 0;
 
   return (
     <Button variant="ghost" size="icon" asChild className="relative">
-      <Link href="/dashboard/notifications" aria-label="Notifications">
+      <Link href="/dashboard/notifications" aria-label={t("notification.title")}>
         <Bell className="h-4 w-4" />
         {unreadCount > 0 && (
           <Badge

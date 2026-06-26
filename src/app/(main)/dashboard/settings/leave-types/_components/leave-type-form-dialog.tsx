@@ -1,5 +1,7 @@
 "use client";
 
+import { useTranslation } from "@/providers/locale-provider";
+
 import { useState, useTransition } from "react";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -33,6 +35,7 @@ interface Props {
 }
 
 export function LeaveTypeFormDialog({ mode, leaveType, trigger }: Props) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [serverError, setServerError] = useState<string | null>(null);
@@ -89,9 +92,9 @@ export function LeaveTypeFormDialog({ mode, leaveType, trigger }: Props) {
       <DialogTrigger asChild>{trigger}</DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>{mode === "create" ? "Create Leave Type" : "Edit Leave Type"}</DialogTitle>
+          <DialogTitle>{mode === "create" ? t("settings.createLeaveType") : t("settings.editLeaveType")}</DialogTitle>
           <DialogDescription>
-            {mode === "create" ? "Add a new leave type definition." : "Update the leave type details."}
+            {mode === "create" ? t("settings.createLeaveTypeDesc") : t("settings.editLeaveTypeDesc")}
           </DialogDescription>
         </DialogHeader>
 
@@ -103,7 +106,7 @@ export function LeaveTypeFormDialog({ mode, leaveType, trigger }: Props) {
           <FieldGroup>
             <div className="grid gap-4 md:grid-cols-2">
               <Field>
-                <FieldLabel>Code</FieldLabel>
+                <FieldLabel>{t("settings.code")}</FieldLabel>
                 <FieldContent>
                   <Input placeholder="LEAVE_CODE" disabled={mode === "edit"} {...form.register("code")} />
                 </FieldContent>
@@ -111,7 +114,7 @@ export function LeaveTypeFormDialog({ mode, leaveType, trigger }: Props) {
               </Field>
 
               <Field>
-                <FieldLabel>Name</FieldLabel>
+                <FieldLabel>{t("settings.name")}</FieldLabel>
                 <FieldContent>
                   <Input placeholder="Leave type name" {...form.register("name")} />
                 </FieldContent>
@@ -120,7 +123,7 @@ export function LeaveTypeFormDialog({ mode, leaveType, trigger }: Props) {
             </div>
 
             <Field>
-              <FieldLabel>Description</FieldLabel>
+              <FieldLabel>{t("settings.description")}</FieldLabel>
               <FieldContent>
                 <textarea
                   className="flex min-h-[80px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
@@ -133,7 +136,7 @@ export function LeaveTypeFormDialog({ mode, leaveType, trigger }: Props) {
 
             <div className="grid gap-4 md:grid-cols-2">
               <Field>
-                <FieldLabel>Default Entitlement</FieldLabel>
+                <FieldLabel>{t("settings.defaultEntitlement")}</FieldLabel>
                 <FieldContent>
                   <Input
                     type="number"
@@ -146,7 +149,7 @@ export function LeaveTypeFormDialog({ mode, leaveType, trigger }: Props) {
               </Field>
 
               <Field>
-                <FieldLabel>Color</FieldLabel>
+                <FieldLabel>{t("settings.color")}</FieldLabel>
                 <FieldContent>
                   <div className="flex items-center gap-2">
                     <div
@@ -165,7 +168,7 @@ export function LeaveTypeFormDialog({ mode, leaveType, trigger }: Props) {
             <div className="grid gap-3">
               <Field>
                 <div className="flex items-center justify-between">
-                  <FieldLabel>Deducts Balance</FieldLabel>
+                  <FieldLabel>{t("settings.deductsBalance")}</FieldLabel>
                   <Switch
                     checked={form.watch("deducts_balance")}
                     onCheckedChange={(v) => form.setValue("deducts_balance", v)}
@@ -175,7 +178,7 @@ export function LeaveTypeFormDialog({ mode, leaveType, trigger }: Props) {
 
               <Field>
                 <div className="flex items-center justify-between">
-                  <FieldLabel>Allow Negative Balance</FieldLabel>
+                  <FieldLabel>{t("settings.allowNegativeBalance")}</FieldLabel>
                   <Switch
                     checked={form.watch("allow_negative_balance")}
                     onCheckedChange={(v) => form.setValue("allow_negative_balance", v)}
@@ -185,7 +188,7 @@ export function LeaveTypeFormDialog({ mode, leaveType, trigger }: Props) {
 
               <Field>
                 <div className="flex items-center justify-between">
-                  <FieldLabel>Requires Attachment</FieldLabel>
+                  <FieldLabel>{t("settings.requiresAttachment")}</FieldLabel>
                   <Switch
                     checked={form.watch("requires_attachment")}
                     onCheckedChange={(v) => form.setValue("requires_attachment", v)}
@@ -195,7 +198,7 @@ export function LeaveTypeFormDialog({ mode, leaveType, trigger }: Props) {
 
               <Field>
                 <div className="flex items-center justify-between">
-                  <FieldLabel>Show on Calendar</FieldLabel>
+                  <FieldLabel>{t("settings.showOnCalendar")}</FieldLabel>
                   <Switch
                     checked={form.watch("show_type_on_calendar")}
                     onCheckedChange={(v) => form.setValue("show_type_on_calendar", v)}
@@ -205,7 +208,7 @@ export function LeaveTypeFormDialog({ mode, leaveType, trigger }: Props) {
 
               <Field>
                 <div className="flex items-center justify-between">
-                  <FieldLabel>Active</FieldLabel>
+                  <FieldLabel>{t("status.active")}</FieldLabel>
                   <Switch checked={form.watch("is_active")} onCheckedChange={(v) => form.setValue("is_active", v)} />
                 </div>
               </Field>
@@ -214,7 +217,7 @@ export function LeaveTypeFormDialog({ mode, leaveType, trigger }: Props) {
 
           <Button className="w-full" type="submit" disabled={isPending}>
             {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            {mode === "create" ? "Create" : "Save Changes"}
+            {mode === "create" ? t("common.create") : t("common.saveChanges")}
           </Button>
         </form>
       </DialogContent>

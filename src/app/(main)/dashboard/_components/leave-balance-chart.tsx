@@ -3,6 +3,7 @@
 import { Cell, Label, Pie, PieChart } from "recharts";
 
 import { type ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
+import { useTranslation } from "@/providers/locale-provider";
 
 interface LeaveBalanceChartProps {
   used: number;
@@ -24,6 +25,7 @@ const chartConfig = {
 } satisfies ChartConfig;
 
 export function LeaveBalanceChart({ used, pending, remaining }: LeaveBalanceChartProps) {
+  const { t } = useTranslation();
   const total = used + pending + remaining;
   const chartData = [
     { name: "Used", days: used, fill: BALANCE_COLORS.used },
@@ -32,7 +34,7 @@ export function LeaveBalanceChart({ used, pending, remaining }: LeaveBalanceChar
   ].filter((d) => d.days > 0);
 
   if (total === 0) {
-    return <p className="py-4 text-center text-muted-foreground text-sm">No leave balance data.</p>;
+    return <p className="py-4 text-center text-muted-foreground text-sm">{t("dashboard.noLeaveBalanceData")}</p>;
   }
 
   return (
@@ -52,7 +54,7 @@ export function LeaveBalanceChart({ used, pending, remaining }: LeaveBalanceChar
                       {remaining}
                     </tspan>
                     <tspan x={viewBox.cx} y={(viewBox.cy ?? 0) + 18} className="fill-muted-foreground text-[10px]">
-                      remaining
+                      {t("dashboard.remaining")}
                     </tspan>
                   </text>
                 );

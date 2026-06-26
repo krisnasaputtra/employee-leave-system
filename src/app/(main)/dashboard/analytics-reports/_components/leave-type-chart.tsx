@@ -2,6 +2,8 @@
 
 import { Cell, Label, Pie, PieChart } from "recharts";
 
+import { useTranslation } from "@/providers/locale-provider";
+
 import {
   type ChartConfig,
   ChartContainer,
@@ -24,6 +26,7 @@ interface LeaveTypeChartProps {
 }
 
 export function LeaveTypeDistributionChart({ data, totalRequests }: LeaveTypeChartProps) {
+  const { t } = useTranslation();
   const chartConfig = data.reduce<ChartConfig>((acc, item) => {
     acc[item.name] = { label: item.name, color: item.color };
     return acc;
@@ -58,7 +61,7 @@ export function LeaveTypeDistributionChart({ data, totalRequests }: LeaveTypeCha
                       {totalRequests}
                     </tspan>
                     <tspan x={viewBox.cx} y={(viewBox.cy ?? 0) + 24} className="fill-muted-foreground text-sm">
-                      Total
+                      {t("common.total")}
                     </tspan>
                   </text>
                 );

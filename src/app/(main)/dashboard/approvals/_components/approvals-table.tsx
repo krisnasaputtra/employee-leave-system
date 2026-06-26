@@ -39,6 +39,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { formatDate } from "@/lib/utils/format-date";
+import { useTranslation } from "@/providers/locale-provider";
 
 import { bulkApproveAction, bulkRejectAction } from "../actions";
 
@@ -61,6 +62,7 @@ interface ApprovalsTableProps {
 }
 
 export function ApprovalsTable({ requests, capacityWarnings = {} }: ApprovalsTableProps) {
+  const { t } = useTranslation();
   const router = useRouter();
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [isApproving, startApproving] = useTransition();
@@ -151,12 +153,12 @@ export function ApprovalsTable({ requests, capacityWarnings = {} }: ApprovalsTab
                   aria-label="Select all requests"
                 />
               </TableHead>
-              <TableHead>Employee</TableHead>
-              <TableHead>Leave Type</TableHead>
-              <TableHead>Date Range</TableHead>
-              <TableHead className="text-right">Days</TableHead>
-              <TableHead>Requested On</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
+              <TableHead>{t("employee.fullName")}</TableHead>
+              <TableHead>{t("leave.leaveType")}</TableHead>
+              <TableHead>{t("leave.dateRange")}</TableHead>
+              <TableHead className="text-right">{t("leave.days")}</TableHead>
+              <TableHead>{t("approval.requestedOn")}</TableHead>
+              <TableHead className="text-right">{t("common.actions")}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -220,7 +222,7 @@ export function ApprovalsTable({ requests, capacityWarnings = {} }: ApprovalsTab
                       <Button variant="outline" size="sm" asChild>
                         <Link href={`/dashboard/leave/requests/${r.id}`}>
                           <Eye className="mr-1 h-4 w-4" />
-                          View
+                          {t("common.view")}
                         </Link>
                       </Button>
                       <ApprovalActions
@@ -241,29 +243,28 @@ export function ApprovalsTable({ requests, capacityWarnings = {} }: ApprovalsTab
       {selectedIds.size > 0 && (
         <div className="fixed bottom-6 left-1/2 z-50 -translate-x-1/2 rounded-lg border bg-card p-4 shadow-lg">
           <div className="flex items-center gap-4">
-            <span className="text-sm font-medium">{selectedIds.size} selected</span>
+            <span className="text-sm font-medium">{selectedIds.size} {t("approval.selected")}</span>
 
             {/* Bulk Approve */}
             <AlertDialog>
               <AlertDialogTrigger asChild>
                 <Button size="sm" disabled={isApproving}>
                   <CheckCircle className="mr-1 h-4 w-4" />
-                  Approve Selected ({selectedIds.size})
+                  {t("approval.bulkApprove")} ({selectedIds.size})
                 </Button>
               </AlertDialogTrigger>
               <AlertDialogContent>
                 <AlertDialogHeader>
-                  <AlertDialogTitle>Bulk Approve Leave Requests</AlertDialogTitle>
+                  <AlertDialogTitle>{t("approval.bulkApproveTitle")}</AlertDialogTitle>
                   <AlertDialogDescription>
-                    Are you sure you want to approve <strong>{selectedIds.size}</strong> leave
-                    request(s)? This will deduct from each employee&apos;s leave balance.
+                    {`${t("approval.bulkApproveDescription")} (${selectedIds.size})`}
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
                   <AlertDialogAction onClick={handleBulkApprove} disabled={isApproving}>
                     {isApproving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                    Yes, approve all
+                    {t("approval.yesApproveAll")}
                   </AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
@@ -277,7 +278,7 @@ export function ApprovalsTable({ requests, capacityWarnings = {} }: ApprovalsTab
               onClick={() => setRejectDialogOpen(true)}
             >
               <XCircle className="mr-1 h-4 w-4" />
-              Reject Selected ({selectedIds.size})
+              {t("approval.bulkReject")} ({selectedIds.size})
             </Button>
           </div>
         </div>
@@ -287,15 +288,14 @@ export function ApprovalsTable({ requests, capacityWarnings = {} }: ApprovalsTab
       <Dialog open={rejectDialogOpen} onOpenChange={setRejectDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Bulk Reject Leave Requests</DialogTitle>
+            <DialogTitle>{t("approval.bulkRejectTitle")}</DialogTitle>
             <DialogDescription>
-              You are about to reject <strong>{selectedIds.size}</strong> leave request(s). Please
-              provide a reason that will be applied to all selected requests.
+              {`${t("approval.bulkRejectDescription")} (${selectedIds.size})`}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <Textarea
-              placeholder="Provide a reason for rejecting these requests..."
+              placeholder={t("approval.rejectionReasonPlaceholder")}
               rows={3}
               value={rejectionReason}
               onChange={(e) => setRejectionReason(e.target.value)}
@@ -309,7 +309,7 @@ export function ApprovalsTable({ requests, capacityWarnings = {} }: ApprovalsTab
                   setRejectionReason("");
                 }}
               >
-                Cancel
+                {t("common.cancel")}
               </Button>
               <Button
                 variant="destructive"
@@ -317,7 +317,7 @@ export function ApprovalsTable({ requests, capacityWarnings = {} }: ApprovalsTab
                 onClick={handleBulkReject}
               >
                 {isRejecting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Reject {selectedIds.size} Request(s)
+                {`${t("approval.rejectCount")} (${selectedIds.size})`}
               </Button>
             </div>
           </div>

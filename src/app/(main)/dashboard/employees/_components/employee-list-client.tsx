@@ -5,6 +5,8 @@ import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { Loader2, Plus, Search, Users, X } from "lucide-react";
 
+import { useTranslation } from "@/providers/locale-provider";
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -46,6 +48,7 @@ export function EmployeeListClient({
   isAdmin,
   departments,
 }: EmployeeListClientProps) {
+  const { t } = useTranslation();
   // ------ local filter / pagination state ------
   const [search, setSearch] = useState("");
   const [department, setDepartment] = useState("");
@@ -125,9 +128,9 @@ export function EmployeeListClient({
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="font-semibold text-2xl tracking-tight">Employees</h1>
+          <h1 className="font-semibold text-2xl tracking-tight">{t("employee.title")}</h1>
           <p className="text-muted-foreground text-sm">
-            {totalCount} employee{totalCount !== 1 ? "s" : ""} total
+            {totalCount} {t("employee.employeeCountLabel")} {t("common.total").toLowerCase()}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -136,14 +139,14 @@ export function EmployeeListClient({
             <ExportCSVButton
               exportFn={exportEmployeesCSV}
               filename="employees"
-              label="Export All"
+              label={t("common.exportAll")}
             />
           )}
           {isAdmin && (
             <Button asChild>
               <Link href="/dashboard/employees/new">
                 <Plus className="mr-2 h-4 w-4" />
-                Add Employee
+                {t("employee.addEmployee")}
               </Link>
             </Button>
           )}
@@ -156,7 +159,7 @@ export function EmployeeListClient({
         <div className="relative flex-1 max-w-sm">
           <Search className="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
-            placeholder="Search name, code, or email…"
+            placeholder={t("employee.searchPlaceholder")}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="pl-8"
@@ -169,7 +172,7 @@ export function EmployeeListClient({
           onChange={(e) => setDepartment(e.target.value)}
           className="w-full sm:w-auto"
         >
-          <NativeSelectOption value="">All Departments</NativeSelectOption>
+          <NativeSelectOption value="">{t("employee.allDepartments")}</NativeSelectOption>
           {departments.map((d) => (
             <NativeSelectOption key={d.id} value={d.id}>
               {d.name}
@@ -183,10 +186,10 @@ export function EmployeeListClient({
           onChange={(e) => setRole(e.target.value)}
           className="w-full sm:w-auto"
         >
-          <NativeSelectOption value="">All Roles</NativeSelectOption>
-          <NativeSelectOption value="ADMIN">Admin</NativeSelectOption>
-          <NativeSelectOption value="MANAGER">Manager</NativeSelectOption>
-          <NativeSelectOption value="EMPLOYEE">Employee</NativeSelectOption>
+          <NativeSelectOption value="">{t("employee.allRoles")}</NativeSelectOption>
+          <NativeSelectOption value="ADMIN">{t("employee.roleAdmin")}</NativeSelectOption>
+          <NativeSelectOption value="MANAGER">{t("employee.roleManager")}</NativeSelectOption>
+          <NativeSelectOption value="EMPLOYEE">{t("employee.roleEmployee")}</NativeSelectOption>
         </NativeSelect>
 
         {/* Status filter */}
@@ -195,10 +198,10 @@ export function EmployeeListClient({
           onChange={(e) => setStatus(e.target.value)}
           className="w-full sm:w-auto"
         >
-          <NativeSelectOption value="">All Statuses</NativeSelectOption>
-          <NativeSelectOption value="ACTIVE">Active</NativeSelectOption>
-          <NativeSelectOption value="INACTIVE">Inactive</NativeSelectOption>
-          <NativeSelectOption value="TERMINATED">Terminated</NativeSelectOption>
+          <NativeSelectOption value="">{t("employee.allStatuses")}</NativeSelectOption>
+          <NativeSelectOption value="ACTIVE">{t("status.active")}</NativeSelectOption>
+          <NativeSelectOption value="INACTIVE">{t("status.inactive")}</NativeSelectOption>
+          <NativeSelectOption value="TERMINATED">{t("employee.statusTerminated")}</NativeSelectOption>
         </NativeSelect>
 
         {/* Clear filters */}
@@ -210,7 +213,7 @@ export function EmployeeListClient({
             className="text-muted-foreground"
           >
             <X className="mr-1 h-3.5 w-3.5" />
-            Clear
+            {t("common.clearFilters")}
           </Button>
         )}
 
@@ -224,8 +227,8 @@ export function EmployeeListClient({
       {employees.length === 0 && !isFetching ? (
         <EmptyState
           icon={Users}
-          title="No employees found"
-          description="Try adjusting your filters or add a new employee."
+          title={t("employee.noEmployees")}
+          description={t("employee.noEmployeesDescription")}
         />
       ) : (
         <div
@@ -237,18 +240,18 @@ export function EmployeeListClient({
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Employee</TableHead>
-                  <TableHead>Code</TableHead>
+                  <TableHead>{t("employee.fullName")}</TableHead>
+                  <TableHead>{t("employee.employeeCode")}</TableHead>
                   <TableHead className="hidden md:table-cell">
-                    Department
+                    {t("employee.department")}
                   </TableHead>
                   <TableHead className="hidden lg:table-cell">
-                    Position
+                    {t("employee.position")}
                   </TableHead>
-                  <TableHead>Role</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="hidden sm:table-cell">Login</TableHead>
-                  {isAdmin && <TableHead>Actions</TableHead>}
+                  <TableHead>{t("employee.role")}</TableHead>
+                  <TableHead>{t("common.status")}</TableHead>
+                  <TableHead className="hidden sm:table-cell">{t("employee.loginEnabled")}</TableHead>
+                  {isAdmin && <TableHead>{t("common.actions")}</TableHead>}
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -294,7 +297,7 @@ export function EmployeeListClient({
                     </TableCell>
                     <TableCell className="hidden sm:table-cell">
                       <Badge variant={emp.auth_user_id ? "default" : "outline"}>
-                        {emp.auth_user_id ? "Yes" : "No"}
+                        {emp.auth_user_id ? t("common.yes") : t("common.no")}
                       </Badge>
                     </TableCell>
                     {isAdmin && (
@@ -304,7 +307,7 @@ export function EmployeeListClient({
                             <Link
                               href={`/dashboard/employees/${emp.id}/edit`}
                             >
-                              Edit
+                              {t("common.edit")}
                             </Link>
                           </Button>
                         </div>
@@ -320,7 +323,7 @@ export function EmployeeListClient({
           {totalPages > 1 && (
             <div className="flex items-center justify-between border-t px-4 py-3">
               <p className="text-muted-foreground text-xs">
-                Page {page} of {totalPages}
+                {t("common.page")} {page} {t("common.of")} {totalPages}
               </p>
               <div className="flex gap-1">
                 {page > 1 && (
@@ -329,7 +332,7 @@ export function EmployeeListClient({
                     size="sm"
                     onClick={() => setPage((p) => p - 1)}
                   >
-                    Previous
+                    {t("common.previous")}
                   </Button>
                 )}
                 {page < totalPages && (
@@ -338,7 +341,7 @@ export function EmployeeListClient({
                     size="sm"
                     onClick={() => setPage((p) => p + 1)}
                   >
-                    Next
+                    {t("common.next")}
                   </Button>
                 )}
               </div>

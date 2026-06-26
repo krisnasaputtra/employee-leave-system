@@ -10,6 +10,7 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
+import { useTranslation } from "@/providers/locale-provider";
 
 export interface MonthlyTrendItem {
   month: string;
@@ -23,14 +24,16 @@ interface MonthlyTrendChartProps {
   data: MonthlyTrendItem[];
 }
 
-const chartConfig = {
-  APPROVED: { label: "Approved", color: "hsl(142, 71%, 45%)" },
-  REJECTED: { label: "Rejected", color: "hsl(0, 84%, 60%)" },
-  PENDING: { label: "Pending", color: "hsl(45, 93%, 47%)" },
-  CANCELLED: { label: "Cancelled", color: "hsl(220, 9%, 46%)" },
-} satisfies ChartConfig;
-
 export function AnalyticsMonthlyTrendChart({ data }: MonthlyTrendChartProps) {
+  const { t } = useTranslation();
+
+  const chartConfig = {
+    APPROVED: { label: t("status.approved"), color: "hsl(142, 71%, 45%)" },
+    REJECTED: { label: t("status.rejected"), color: "hsl(0, 84%, 60%)" },
+    PENDING: { label: t("status.pending"), color: "hsl(45, 93%, 47%)" },
+    CANCELLED: { label: t("status.cancelled"), color: "hsl(220, 9%, 46%)" },
+  } satisfies ChartConfig;
+
   return (
     <ChartContainer config={chartConfig} className="min-h-[300px] w-full">
       <BarChart data={data} accessibilityLayer>

@@ -5,6 +5,8 @@ import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { Eye, FileText, Loader2, Search, X } from "lucide-react";
 
+import { useTranslation } from "@/providers/locale-provider";
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -50,6 +52,7 @@ interface AllRequestsClientProps {
 // ---------------------------------------------------------------------------
 
 export function AllRequestsClient({ initialData }: AllRequestsClientProps) {
+  const { t } = useTranslation();
   // ------ local filter / pagination state ------
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("");
@@ -126,14 +129,14 @@ export function AllRequestsClient({ initialData }: AllRequestsClientProps) {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="font-semibold text-2xl tracking-tight">All Leave Requests</h1>
+          <h1 className="font-semibold text-2xl tracking-tight">{t("leave.allTitle")}</h1>
           <p className="text-muted-foreground text-sm">
-            {totalCount} request{totalCount !== 1 ? "s" : ""} total
+            {totalCount} {t("leave.requestCountLabel")} {t("common.total").toLowerCase()}
           </p>
         </div>
         <div className="flex items-center gap-2">
           <ExportButton csvContent={csvContent} filename="leave-requests.csv" />
-          <ExportCSVButton exportFn={exportLeaveRequestsCSV} filename="leave-requests" label="Export All" />
+          <ExportCSVButton exportFn={exportLeaveRequestsCSV} filename="leave-requests" label={t("common.exportAll")} />
         </div>
       </div>
 
@@ -143,7 +146,7 @@ export function AllRequestsClient({ initialData }: AllRequestsClientProps) {
         <div className="relative flex-1 md:max-w-sm">
           <Search className="text-muted-foreground absolute left-2.5 top-2.5 h-4 w-4" />
           <Input
-            placeholder="Search by name or request #..."
+            placeholder={t("leave.searchPlaceholder")}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="pl-9"
@@ -176,7 +179,7 @@ export function AllRequestsClient({ initialData }: AllRequestsClientProps) {
             className="text-muted-foreground"
           >
             <X className="mr-1 h-3.5 w-3.5" />
-            Clear
+            {t("common.clearFilters")}
           </Button>
         )}
 
@@ -190,11 +193,11 @@ export function AllRequestsClient({ initialData }: AllRequestsClientProps) {
       {requests.length === 0 && !isFetching ? (
         <EmptyState
           icon={FileText}
-          title="No Requests Found"
+          title={t("leave.noRequestsFound")}
           description={
             search || status
-              ? "No leave requests match your current filters. Try adjusting your search or status filter."
-              : "There are no leave requests in the system yet."
+              ? t("leave.noRequestsFilterDescription")
+              : t("leave.noRequestsSystemDescription")
           }
         />
       ) : (
@@ -209,14 +212,14 @@ export function AllRequestsClient({ initialData }: AllRequestsClientProps) {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Request #</TableHead>
-                    <TableHead>Employee</TableHead>
-                    <TableHead>Leave Type</TableHead>
-                    <TableHead>Date Range</TableHead>
-                    <TableHead className="text-right">Days</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Created</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
+                    <TableHead>{t("leave.requestNumber")}</TableHead>
+                    <TableHead>{t("employee.fullName")}</TableHead>
+                    <TableHead>{t("leave.leaveType")}</TableHead>
+                    <TableHead>{t("leave.dateRange")}</TableHead>
+                    <TableHead className="text-right">{t("leave.days")}</TableHead>
+                    <TableHead>{t("common.status")}</TableHead>
+                    <TableHead>{t("leave.created")}</TableHead>
+                    <TableHead className="text-right">{t("common.actions")}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -258,7 +261,7 @@ export function AllRequestsClient({ initialData }: AllRequestsClientProps) {
                         <Button variant="ghost" size="sm" asChild>
                           <Link href={`/dashboard/leave/requests/${r.id}`}>
                             <Eye className="mr-1 h-4 w-4" />
-                            View
+                            {t("common.view")}
                           </Link>
                         </Button>
                       </TableCell>
@@ -273,7 +276,7 @@ export function AllRequestsClient({ initialData }: AllRequestsClientProps) {
           {totalPages > 1 && (
             <div className="flex items-center justify-between border-t px-4 py-3">
               <p className="text-muted-foreground text-xs">
-                Page {page} of {totalPages}
+                {t("common.page")} {page} {t("common.of")} {totalPages}
               </p>
               <div className="flex gap-1">
                 {page > 1 && (
@@ -282,7 +285,7 @@ export function AllRequestsClient({ initialData }: AllRequestsClientProps) {
                     size="sm"
                     onClick={() => setPage((p) => p - 1)}
                   >
-                    Previous
+                    {t("common.previous")}
                   </Button>
                 )}
                 {page < totalPages && (
@@ -291,7 +294,7 @@ export function AllRequestsClient({ initialData }: AllRequestsClientProps) {
                     size="sm"
                     onClick={() => setPage((p) => p + 1)}
                   >
-                    Next
+                    {t("common.next")}
                   </Button>
                 )}
               </div>

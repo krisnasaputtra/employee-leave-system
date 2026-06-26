@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { delegationCreateSchema, type DelegationCreateInput } from "@/lib/delegations/schemas";
+import { useTranslation } from "@/providers/locale-provider";
 
 import { createDelegationAction } from "../actions";
 
@@ -21,6 +22,7 @@ interface DelegationFormProps {
 }
 
 export function DelegationForm({ employees }: DelegationFormProps) {
+  const { t } = useTranslation();
   const [isPending, startTransition] = useTransition();
 
   const {
@@ -55,12 +57,12 @@ export function DelegationForm({ employees }: DelegationFormProps) {
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">
-          <Label htmlFor="delegate_id">Delegate To</Label>
+          <Label htmlFor="delegate_id">{t("delegation.delegateTo")}</Label>
           <Select
             onValueChange={(value) => setValue("delegate_id", value, { shouldValidate: true })}
           >
             <SelectTrigger id="delegate_id" aria-required="true" aria-describedby={errors.delegate_id ? "delegate_id-error" : undefined}>
-              <SelectValue placeholder="Select an employee" />
+              <SelectValue placeholder={t("delegation.selectEmployee")} />
             </SelectTrigger>
             <SelectContent>
               {employees.map((emp) => (
@@ -76,10 +78,10 @@ export function DelegationForm({ employees }: DelegationFormProps) {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="reason">Reason</Label>
+          <Label htmlFor="reason">{t("leave.reason")}</Label>
           <Textarea
             id="reason"
-            placeholder="Why are you delegating approval authority?"
+            placeholder={t("delegation.reasonPlaceholder")}
             rows={1}
             aria-describedby={errors.reason ? "reason-error" : undefined}
             {...register("reason")}
@@ -90,7 +92,7 @@ export function DelegationForm({ employees }: DelegationFormProps) {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="start_date">Start Date</Label>
+          <Label htmlFor="start_date">{t("leave.startDate")}</Label>
           <Input type="date" id="start_date" aria-required="true" aria-describedby={errors.start_date ? "start_date-error" : undefined} {...register("start_date")} />
           {errors.start_date && (
             <p id="start_date-error" role="alert" className="text-sm text-destructive">{errors.start_date.message}</p>
@@ -98,7 +100,7 @@ export function DelegationForm({ employees }: DelegationFormProps) {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="end_date">End Date</Label>
+          <Label htmlFor="end_date">{t("leave.endDate")}</Label>
           <Input type="date" id="end_date" aria-required="true" aria-describedby={errors.end_date ? "end_date-error" : undefined} {...register("end_date")} />
           {errors.end_date && (
             <p id="end_date-error" role="alert" className="text-sm text-destructive">{errors.end_date.message}</p>
@@ -108,7 +110,7 @@ export function DelegationForm({ employees }: DelegationFormProps) {
 
       <Button type="submit" disabled={isPending}>
         {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-        Create Delegation
+        {t("delegation.createDelegation")}
       </Button>
     </form>
   );

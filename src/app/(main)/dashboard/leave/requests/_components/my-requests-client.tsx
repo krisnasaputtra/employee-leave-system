@@ -5,6 +5,8 @@ import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { Eye, FileText, Loader2, Plus } from "lucide-react";
 
+import { useTranslation } from "@/providers/locale-provider";
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -37,6 +39,7 @@ interface MyRequestsClientProps {
 // ---------------------------------------------------------------------------
 
 export function MyRequestsClient({ initialData }: MyRequestsClientProps) {
+  const { t } = useTranslation();
   // ------ pagination state ------
   const [page, setPage] = useState(1);
 
@@ -59,7 +62,7 @@ export function MyRequestsClient({ initialData }: MyRequestsClientProps) {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <h1 className="font-semibold text-2xl tracking-tight">
-            My Leave Requests
+            {t("leave.myTitle")}
           </h1>
           <Badge variant="secondary">{totalCount}</Badge>
           {/* Fetching indicator */}
@@ -70,7 +73,7 @@ export function MyRequestsClient({ initialData }: MyRequestsClientProps) {
         <Button size="sm" asChild>
           <Link href="/dashboard/leave/requests/new">
             <Plus className="mr-2 h-4 w-4" />
-            New Request
+            {t("leave.newRequest")}
           </Link>
         </Button>
       </div>
@@ -79,13 +82,13 @@ export function MyRequestsClient({ initialData }: MyRequestsClientProps) {
       {requests.length === 0 && !isFetching ? (
         <EmptyState
           icon={FileText}
-          title="No leave requests yet"
-          description="You haven't submitted any leave requests yet."
+          title={t("leave.noRequests")}
+          description={t("leave.noRequestsDescription")}
         >
           <Button size="sm" asChild>
             <Link href="/dashboard/leave/requests/new">
               <Plus className="mr-2 h-4 w-4" />
-              Create your first request
+              {t("leave.createFirst")}
             </Link>
           </Button>
         </EmptyState>
@@ -98,13 +101,13 @@ export function MyRequestsClient({ initialData }: MyRequestsClientProps) {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Request #</TableHead>
-                <TableHead>Leave Type</TableHead>
-                <TableHead>Date Range</TableHead>
-                <TableHead className="text-right">Days</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Created</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+                <TableHead>{t("leave.requestNumber")}</TableHead>
+                <TableHead>{t("leave.leaveType")}</TableHead>
+                <TableHead>{t("leave.dateRange")}</TableHead>
+                <TableHead className="text-right">{t("leave.days")}</TableHead>
+                <TableHead>{t("common.status")}</TableHead>
+                <TableHead>{t("leave.created")}</TableHead>
+                <TableHead className="text-right">{t("common.actions")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -153,7 +156,7 @@ export function MyRequestsClient({ initialData }: MyRequestsClientProps) {
                       <Button variant="ghost" size="sm" asChild>
                         <Link href={`/dashboard/leave/requests/${r.id}`}>
                           <Eye className="mr-1 h-4 w-4" />
-                          View
+                          {t("common.view")}
                         </Link>
                       </Button>
                     </TableCell>
@@ -167,7 +170,7 @@ export function MyRequestsClient({ initialData }: MyRequestsClientProps) {
           {totalPages > 1 && (
             <div className="flex items-center justify-between border-t px-4 py-3">
               <p className="text-muted-foreground text-xs">
-                Page {page} of {totalPages}
+                {t("common.page")} {page} {t("common.of")} {totalPages}
               </p>
               <div className="flex gap-1">
                 {page > 1 && (
@@ -176,7 +179,7 @@ export function MyRequestsClient({ initialData }: MyRequestsClientProps) {
                     size="sm"
                     onClick={() => setPage((p) => p - 1)}
                   >
-                    Previous
+                    {t("common.previous")}
                   </Button>
                 )}
                 {page < totalPages && (
@@ -185,7 +188,7 @@ export function MyRequestsClient({ initialData }: MyRequestsClientProps) {
                     size="sm"
                     onClick={() => setPage((p) => p + 1)}
                   >
-                    Next
+                    {t("common.next")}
                   </Button>
                 )}
               </div>

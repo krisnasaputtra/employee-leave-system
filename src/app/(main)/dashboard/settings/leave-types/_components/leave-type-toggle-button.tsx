@@ -1,5 +1,7 @@
 "use client";
 
+import { useTranslation } from "@/providers/locale-provider";
+
 import { useTransition } from "react";
 
 import { toast } from "sonner";
@@ -26,6 +28,7 @@ interface Props {
 }
 
 export function LeaveTypeToggleButton({ leaveTypeId, isActive, name }: Props) {
+  const { t } = useTranslation();
   const [isPending, startTransition] = useTransition();
 
   const handleToggle = () => {
@@ -43,19 +46,19 @@ export function LeaveTypeToggleButton({ leaveTypeId, isActive, name }: Props) {
     <AlertDialog>
       <AlertDialogTrigger asChild>
         <Button variant={isActive ? "outline" : "default"} size="sm" disabled={isPending}>
-          {isActive ? "Deactivate" : "Activate"}
+          {isActive ? t("common.deactivate") : t("common.activate")}
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>{isActive ? "Deactivate" : "Activate"} Leave Type</AlertDialogTitle>
+          <AlertDialogTitle>{isActive ? t("settings.deactivateLeaveType") : t("settings.activateLeaveType")}</AlertDialogTitle>
           <AlertDialogDescription>
-            Are you sure you want to {isActive ? "deactivate" : "activate"} {name}?
+            {`${isActive ? t("common.deactivate") : t("common.activate")} ${name}?`}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction onClick={handleToggle}>{isActive ? "Deactivate" : "Activate"}</AlertDialogAction>
+          <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
+          <AlertDialogAction onClick={handleToggle}>{isActive ? t("common.deactivate") : t("common.activate")}</AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

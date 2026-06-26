@@ -32,6 +32,7 @@ import { Field, FieldContent, FieldError, FieldGroup, FieldLabel } from "@/compo
 import { Textarea } from "@/components/ui/textarea";
 import { useApproveLeaveRequest, useRejectLeaveRequest } from "@/hooks/use-approval-mutations";
 import { type LeaveRejectionInput, leaveRejectionSchema } from "@/lib/approvals/schemas";
+import { useTranslation } from "@/providers/locale-provider";
 
 interface ApprovalActionsProps {
   requestId: string;
@@ -40,6 +41,7 @@ interface ApprovalActionsProps {
 }
 
 export function ApprovalActions({ requestId, requestNumber, employeeName }: ApprovalActionsProps) {
+  const { t } = useTranslation();
   const router = useRouter();
   const [rejectOpen, setRejectOpen] = useState(false);
 
@@ -79,22 +81,21 @@ export function ApprovalActions({ requestId, requestNumber, employeeName }: Appr
         <AlertDialogTrigger asChild>
           <Button variant="default" size="sm">
             <CheckCircle className="mr-1 h-4 w-4" />
-            Approve
+            {t("approval.approve")}
           </Button>
         </AlertDialogTrigger>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Approve Leave Request</AlertDialogTitle>
+            <AlertDialogTitle>{t("approval.approveTitle")}</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to approve <strong>{requestNumber}</strong> for <strong>{employeeName}</strong>?
-              This will deduct from their leave balance.
+              {`${t("approval.approveDescription")} (${requestNumber} - ${employeeName})`}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
             <AlertDialogAction onClick={handleApprove} disabled={approveMutation.isPending}>
               {approveMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Yes, approve
+              {t("approval.yesApprove")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -105,24 +106,24 @@ export function ApprovalActions({ requestId, requestNumber, employeeName }: Appr
         <DialogTrigger asChild>
           <Button variant="destructive" size="sm">
             <XCircle className="mr-1 h-4 w-4" />
-            Reject
+            {t("approval.reject")}
           </Button>
         </DialogTrigger>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Reject Leave Request</DialogTitle>
+            <DialogTitle>{t("approval.rejectTitle")}</DialogTitle>
             <DialogDescription>
-              Rejecting <strong>{requestNumber}</strong> for <strong>{employeeName}</strong>. Please provide a reason.
+              {`${t("approval.rejectDescription")} (${requestNumber} - ${employeeName})`}
             </DialogDescription>
           </DialogHeader>
           <form onSubmit={form.handleSubmit(handleReject)}>
             <FieldGroup>
               <Field>
-                <FieldLabel htmlFor="rejection_reason">Rejection Reason</FieldLabel>
+                <FieldLabel htmlFor="rejection_reason">{t("approval.rejectionReason")}</FieldLabel>
                 <FieldContent>
                   <Textarea
                     id="rejection_reason"
-                    placeholder="Provide a reason for rejecting this request..."
+                    placeholder={t("approval.rejectionReasonPlaceholder")}
                     rows={3}
                     aria-required="true"
                     aria-describedby={form.formState.errors.rejection_reason ? "rejection_reason-error" : undefined}
@@ -134,11 +135,11 @@ export function ApprovalActions({ requestId, requestNumber, employeeName }: Appr
             </FieldGroup>
             <div className="mt-4 flex justify-end gap-2">
               <Button type="button" variant="outline" onClick={() => setRejectOpen(false)}>
-                Cancel
+                {t("common.cancel")}
               </Button>
               <Button type="submit" variant="destructive" disabled={rejectMutation.isPending}>
                 {rejectMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Reject Request
+                {t("approval.rejectRequest")}
               </Button>
             </div>
           </form>

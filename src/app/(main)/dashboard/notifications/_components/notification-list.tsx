@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty";
 import { useMarkAllNotificationsRead, useMarkNotificationRead } from "@/hooks/use-notifications";
+import { useTranslation } from "@/providers/locale-provider";
 
 interface Notification {
   id: string;
@@ -44,6 +45,7 @@ function formatRelativeTime(dateStr: string): string {
 }
 
 export function NotificationList({ notifications: initialNotifications }: NotificationListProps) {
+  const { t } = useTranslation();
   const [notifications, setNotifications] = useState(initialNotifications);
   const router = useRouter();
 
@@ -96,8 +98,8 @@ export function NotificationList({ notifications: initialNotifications }: Notifi
               <EmptyMedia variant="icon">
                 <Inbox />
               </EmptyMedia>
-              <EmptyTitle>No notifications</EmptyTitle>
-              <EmptyDescription>You&apos;re all caught up! Check back later.</EmptyDescription>
+              <EmptyTitle>{t("notification.noNotifications")}</EmptyTitle>
+              <EmptyDescription>{t("notification.noNotificationsDescription")}</EmptyDescription>
             </EmptyHeader>
           </Empty>
         </CardContent>
@@ -111,7 +113,7 @@ export function NotificationList({ notifications: initialNotifications }: Notifi
         <div className="flex justify-end">
           <Button variant="outline" size="sm" onClick={markAllRead} disabled={isPending}>
             <CheckCheck className="mr-2 h-4 w-4" />
-            Mark all as read
+            {t("notification.markAllRead")}
           </Button>
         </div>
       )}
@@ -147,7 +149,7 @@ export function NotificationList({ notifications: initialNotifications }: Notifi
                   <p className="font-medium text-sm">{notification.title}</p>
                   {!notification.is_read && (
                     <Badge variant="default" className="text-[10px]">
-                      New
+                      {t("notification.new")}
                     </Badge>
                   )}
                 </div>

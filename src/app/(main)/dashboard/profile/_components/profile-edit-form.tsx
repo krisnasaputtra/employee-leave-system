@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/card";
 import { Field, FieldContent, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { useTranslation } from "@/providers/locale-provider";
 
 import { updateProfileAction } from "../actions";
 
@@ -23,6 +24,7 @@ interface ProfileEditFormProps {
 }
 
 export function ProfileEditForm({ phoneNumber }: ProfileEditFormProps) {
+  const { t } = useTranslation();
   const [isPending, startTransition] = useTransition();
   const [serverError, setServerError] = useState<string | null>(null);
 
@@ -49,7 +51,7 @@ export function ProfileEditForm({ phoneNumber }: ProfileEditFormProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Edit Phone Number</CardTitle>
+        <CardTitle>{t("profile.editPhone")}</CardTitle>
       </CardHeader>
       <CardContent>
         <form noValidate onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -61,7 +63,7 @@ export function ProfileEditForm({ phoneNumber }: ProfileEditFormProps) {
 
           <FieldGroup>
             <Field>
-              <FieldLabel htmlFor="phone_number">Phone Number</FieldLabel>
+              <FieldLabel htmlFor="phone_number">{t("profile.phone")}</FieldLabel>
               <FieldContent>
                 <Input
                   id="phone_number"
@@ -76,7 +78,7 @@ export function ProfileEditForm({ phoneNumber }: ProfileEditFormProps) {
           <div className="flex">
             <Button type="submit" disabled={isPending}>
               {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Save
+              {t("common.save")}
             </Button>
           </div>
         </form>

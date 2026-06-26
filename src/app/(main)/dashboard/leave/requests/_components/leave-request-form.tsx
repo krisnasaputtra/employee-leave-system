@@ -9,6 +9,8 @@ import { Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
+import { useTranslation } from "@/providers/locale-provider";
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Field, FieldContent, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
@@ -51,6 +53,7 @@ export function LeaveRequestForm({
   requestId,
 }: LeaveRequestFormProps) {
   const router = useRouter();
+  const { t } = useTranslation();
   const [serverError, setServerError] = useState("");
 
   const form = useForm<LeaveRequestCreateInput>({
@@ -140,20 +143,20 @@ export function LeaveRequestForm({
       <div className="lg:col-span-2">
         <Card>
           <CardHeader>
-            <CardTitle>{mode === "create" ? "Request Details" : "Edit Request"}</CardTitle>
+            <CardTitle>{mode === "create" ? t("leave.requestDetails") : t("leave.editRequest")}</CardTitle>
           </CardHeader>
           <CardContent>
             <FieldGroup>
               {/* Leave Type */}
               <Field data-invalid={!!errors.leave_type_id}>
-                <FieldLabel>Leave Type</FieldLabel>
+                <FieldLabel>{t("leave.leaveType")}</FieldLabel>
                 <FieldContent>
                   <Select
                     value={watchedLeaveTypeId}
                     onValueChange={(value) => setValue("leave_type_id", value, { shouldValidate: true })}
                   >
                     <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select leave type" />
+                      <SelectValue placeholder={t("leave.selectLeaveType")} />
                     </SelectTrigger>
                     <SelectContent>
                       {leaveTypes.map((lt) => (
@@ -173,7 +176,7 @@ export function LeaveRequestForm({
               {/* Date Range */}
               <div className="grid gap-5 sm:grid-cols-2">
                 <Field data-invalid={!!errors.start_date}>
-                  <FieldLabel>Start Date</FieldLabel>
+                  <FieldLabel>{t("leave.startDate")}</FieldLabel>
                   <FieldContent>
                     <Input type="date" {...register("start_date")} />
                     <FieldError>{errors.start_date?.message}</FieldError>
@@ -181,7 +184,7 @@ export function LeaveRequestForm({
                 </Field>
 
                 <Field data-invalid={!!errors.end_date}>
-                  <FieldLabel>End Date</FieldLabel>
+                  <FieldLabel>{t("leave.endDate")}</FieldLabel>
                   <FieldContent>
                     <Input type="date" {...register("end_date")} />
                     <FieldError>{errors.end_date?.message}</FieldError>
@@ -191,7 +194,7 @@ export function LeaveRequestForm({
 
               {/* Partial Day */}
               <Field data-invalid={!!errors.partial_day}>
-                <FieldLabel>Partial Day</FieldLabel>
+                <FieldLabel>{t("leave.partialDay")}</FieldLabel>
                 <FieldContent>
                   <Select
                     value={watchedPartialDay}
@@ -200,12 +203,12 @@ export function LeaveRequestForm({
                     }
                   >
                     <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select partial day" />
+                      <SelectValue placeholder={t("leave.selectPartialDay")} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="NONE">None (Full Day)</SelectItem>
-                      <SelectItem value="FIRST_HALF">First Half</SelectItem>
-                      <SelectItem value="SECOND_HALF">Second Half</SelectItem>
+                      <SelectItem value="NONE">{t("leave.partialNone")}</SelectItem>
+                      <SelectItem value="FIRST_HALF">{t("leave.partialFirstHalf")}</SelectItem>
+                      <SelectItem value="SECOND_HALF">{t("leave.partialSecondHalf")}</SelectItem>
                     </SelectContent>
                   </Select>
                   <FieldError>{errors.partial_day?.message}</FieldError>
@@ -214,9 +217,9 @@ export function LeaveRequestForm({
 
               {/* Reason */}
               <Field data-invalid={!!errors.reason}>
-                <FieldLabel>Reason (optional)</FieldLabel>
+                <FieldLabel>{t("leave.reasonOptional")}</FieldLabel>
                 <FieldContent>
-                  <Textarea rows={3} placeholder="Enter reason for your leave request..." {...register("reason")} />
+                  <Textarea rows={3} placeholder={t("leave.reasonPlaceholder")} {...register("reason")} />
                   <FieldError>{errors.reason?.message}</FieldError>
                 </FieldContent>
               </Field>
@@ -231,10 +234,10 @@ export function LeaveRequestForm({
             <div className="mt-6 flex gap-3">
               <Button type="submit" disabled={isSubmitting}>
                 {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                {mode === "create" ? "Submit Request" : "Save Changes"}
+                {mode === "create" ? t("leave.submitRequest") : t("common.save")}
               </Button>
               <Button type="button" variant="outline" onClick={() => router.push("/dashboard/leave/requests")}>
-                Cancel
+                {t("common.cancel")}
               </Button>
             </div>
           </CardContent>
@@ -245,7 +248,7 @@ export function LeaveRequestForm({
       <div className="lg:col-span-1">
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">Preview</CardTitle>
+            <CardTitle className="text-base">{t("leave.preview")}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-3 text-sm">
@@ -261,7 +264,7 @@ export function LeaveRequestForm({
 
               {/* Estimated Days */}
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Estimated days</span>
+                <span className="text-muted-foreground">{t("leave.estimatedDays")}</span>
                 <span className="font-medium">{estimatedDays}</span>
               </div>
 
@@ -270,24 +273,24 @@ export function LeaveRequestForm({
                 <>
                   <Separator />
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Entitled</span>
+                    <span className="text-muted-foreground">{t("leave.entitled")}</span>
                     <span>{balanceSummary.entitled}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Used</span>
+                    <span className="text-muted-foreground">{t("leave.used")}</span>
                     <span>{selectedBalance?.used_days ?? 0}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Pending</span>
+                    <span className="text-muted-foreground">{t("status.pending")}</span>
                     <span>{balanceSummary.pending}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Available</span>
+                    <span className="text-muted-foreground">{t("leave.available")}</span>
                     <span className="font-medium">{balanceSummary.available}</span>
                   </div>
                   <Separator />
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">After this request</span>
+                    <span className="text-muted-foreground">{t("leave.afterRequest")}</span>
                     <span className={balanceSummary.afterRequest < 0 ? "font-medium text-destructive" : "font-medium"}>
                       {balanceSummary.afterRequest}
                     </span>
@@ -296,7 +299,7 @@ export function LeaveRequestForm({
               )}
 
               {!watchedLeaveTypeId && (
-                <p className="text-muted-foreground text-xs">Select a leave type to see balance info.</p>
+                <p className="text-muted-foreground text-xs">{t("leave.selectLeaveTypeHint")}</p>
               )}
             </div>
           </CardContent>

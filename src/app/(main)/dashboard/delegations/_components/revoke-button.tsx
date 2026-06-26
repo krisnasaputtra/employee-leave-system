@@ -17,6 +17,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+import { useTranslation } from "@/providers/locale-provider";
 
 import { revokeDelegationAction } from "../actions";
 
@@ -26,6 +27,7 @@ interface RevokeButtonProps {
 }
 
 export function RevokeButton({ delegationId, delegateName }: RevokeButtonProps) {
+  const { t } = useTranslation();
   const [isPending, startTransition] = useTransition();
 
   function handleRevoke() {
@@ -48,23 +50,21 @@ export function RevokeButton({ delegationId, delegateName }: RevokeButtonProps) 
           ) : (
             <XCircle className="mr-1 h-4 w-4" />
           )}
-          Revoke
+          {t("delegation.revoke")}
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Revoke Delegation</AlertDialogTitle>
+          <AlertDialogTitle>{t("delegation.revokeTitle")}</AlertDialogTitle>
           <AlertDialogDescription>
-            Are you sure you want to revoke the delegation to{" "}
-            <strong>{delegateName}</strong>? They will no longer be able to
-            approve leave requests on your behalf.
+            {`${t("delegation.revokeDescription")} (${delegateName})`}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
           <AlertDialogAction onClick={handleRevoke} disabled={isPending}>
             {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            Yes, revoke
+            {t("delegation.yesRevoke")}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

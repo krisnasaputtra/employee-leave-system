@@ -5,6 +5,7 @@ import { ClipboardCheck, Loader2 } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/ui/empty-state";
+import { useTranslation } from "@/providers/locale-provider";
 
 import {
   fetchApprovals,
@@ -25,6 +26,7 @@ interface ApprovalsPageClientProps {
 // ---------------------------------------------------------------------------
 
 export function ApprovalsPageClient({ initialData }: ApprovalsPageClientProps) {
+  const { t } = useTranslation();
   const { data, isFetching } = useQuery({
     queryKey: ["approvals", "pending"],
     queryFn: () => fetchApprovals(),
@@ -40,7 +42,7 @@ export function ApprovalsPageClient({ initialData }: ApprovalsPageClientProps) {
       {/* Header */}
       <div className="flex items-center gap-3">
         <h1 className="font-semibold text-2xl tracking-tight">
-          Pending Approvals
+          {t("approval.title")}
         </h1>
         <Badge variant="secondary">{requests.length}</Badge>
         {isFetching && (
@@ -52,8 +54,8 @@ export function ApprovalsPageClient({ initialData }: ApprovalsPageClientProps) {
       {requests.length === 0 && !isFetching ? (
         <EmptyState
           icon={ClipboardCheck}
-          title="No Pending Requests"
-          description="There are no leave requests waiting for your approval at this time."
+          title={t("approval.noApprovals")}
+          description={t("approval.noApprovalsDescription")}
         />
       ) : (
         <ApprovalsTable

@@ -1,5 +1,7 @@
 "use client";
 
+import { useTranslation } from "@/providers/locale-provider";
+
 import { useState, useTransition } from "react";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -64,6 +66,7 @@ interface Props {
 // =============================================================
 
 export function CapacityFormDialog({ departmentId, departmentName, employeeCount, rule, trigger }: Props) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [serverError, setServerError] = useState<string | null>(null);
@@ -99,11 +102,11 @@ export function CapacityFormDialog({ departmentId, departmentName, employeeCount
       <DialogTrigger asChild>{trigger}</DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>{rule ? "Edit Capacity Rule" : "Configure Capacity Rule"}</DialogTitle>
+          <DialogTitle>{rule ? t("settings.editCapacityRule") : t("settings.configureCapacityRule")}</DialogTitle>
           <DialogDescription>
             {rule
-              ? `Update the staffing limits for ${departmentName}.`
-              : `Set staffing limits for ${departmentName}.`}
+              ? `${t("settings.editCapacityRule")} — ${departmentName}`
+              : `${t("settings.configureCapacityRule")} — ${departmentName}`}
           </DialogDescription>
         </DialogHeader>
 
@@ -114,7 +117,7 @@ export function CapacityFormDialog({ departmentId, departmentName, employeeCount
 
           <FieldGroup>
             <Field>
-              <FieldLabel>Max Absent Percentage (%)</FieldLabel>
+              <FieldLabel>{t("settings.maxAbsentPercentage")}</FieldLabel>
               <FieldContent>
                 <Input
                   type="number"
@@ -129,7 +132,7 @@ export function CapacityFormDialog({ departmentId, departmentName, employeeCount
             </Field>
 
             <Field>
-              <FieldLabel>Min Staff Count</FieldLabel>
+              <FieldLabel>{t("settings.minStaffCount")}</FieldLabel>
               <FieldContent>
                 <Input
                   type="number"
@@ -152,7 +155,7 @@ export function CapacityFormDialog({ departmentId, departmentName, employeeCount
 
           <Button className="w-full" type="submit" disabled={isPending}>
             {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            {rule ? "Save Changes" : "Configure Rule"}
+            {rule ? t("common.saveChanges") : t("common.configureRule")}
           </Button>
         </form>
       </DialogContent>

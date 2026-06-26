@@ -11,6 +11,7 @@ import { createClient } from "@/lib/supabase/server";
 import { STATUS_BADGE_STYLES } from "@/lib/ui/badge-variants";
 import { formatDate } from "@/lib/utils/format-date";
 
+import { DashboardHeader } from "./_components/dashboard-header";
 import { LeaveBalanceChart } from "./_components/leave-balance-chart";
 import { MonthlyTrendChart } from "./_components/monthly-trend-chart";
 import { StatusDistributionChart } from "./_components/status-distribution-chart";
@@ -427,14 +428,11 @@ export default async function DashboardPage() {
 
   return (
     <div className="@container/main flex flex-col gap-4 md:gap-6">
-      <div className="space-y-2">
-        <h1 className="font-semibold text-2xl tracking-tight">Welcome, {employee.full_name}</h1>
-        <p className="text-muted-foreground text-sm">
-          You are signed in as <span className="font-medium">{employee.role}</span>
-          {" · "}
-          {employee.position}
-        </p>
-      </div>
+      <DashboardHeader
+        fullName={employee.full_name}
+        role={employee.role}
+        position={employee.position}
+      />
 
       {employee.role === "ADMIN" ? (
         <AdminDashboardSection supabase={supabase} />

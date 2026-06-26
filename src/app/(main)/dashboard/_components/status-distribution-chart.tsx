@@ -3,6 +3,7 @@
 import { Cell, Label, Pie, PieChart } from "recharts";
 
 import { type ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
+import { useTranslation } from "@/providers/locale-provider";
 
 interface StatusDistributionItem {
   status: string;
@@ -30,6 +31,7 @@ const chartConfig = {
 } satisfies ChartConfig;
 
 export function StatusDistributionChart({ data, totalRequests }: StatusDistributionChartProps) {
+  const { t } = useTranslation();
   const chartData = data.map((item) => ({
     ...item,
     fill: STATUS_COLORS[item.status] ?? "hsl(220, 9%, 46%)",
@@ -52,7 +54,7 @@ export function StatusDistributionChart({ data, totalRequests }: StatusDistribut
                       {totalRequests}
                     </tspan>
                     <tspan x={viewBox.cx} y={(viewBox.cy ?? 0) + 24} className="fill-muted-foreground text-sm">
-                      Requests
+                      {t("dashboard.requests")}
                     </tspan>
                   </text>
                 );

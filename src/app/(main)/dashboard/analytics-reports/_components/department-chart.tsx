@@ -2,6 +2,8 @@
 
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
 
+import { useTranslation } from "@/providers/locale-provider";
+
 import {
   type ChartConfig,
   ChartContainer,
@@ -26,8 +28,9 @@ const chartConfig = {
 } satisfies ChartConfig;
 
 export function DepartmentUtilizationChart({ data }: DepartmentChartProps) {
+  const { t } = useTranslation();
   if (data.length === 0) {
-    return <p className="py-4 text-center text-muted-foreground text-sm">No department data available.</p>;
+    return <p className="py-4 text-center text-muted-foreground text-sm">{t("analytics.noDepartmentData")}</p>;
   }
 
   return (
