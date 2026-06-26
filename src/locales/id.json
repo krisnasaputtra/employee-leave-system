@@ -147,7 +147,12 @@
     "loginGrantedDesc": "Kata sandi sementara telah dibuat. Bagikan secara aman kepada karyawan.",
     "tempPassword": "Kata Sandi Sementara",
     "tempPasswordWarning": "Simpan kata sandi ini sekarang — tidak dapat dilihat lagi nanti. Karyawan wajib mengubahnya saat login pertama.",
-    "passwordCopied": "Kata sandi disalin!"
+    "passwordCopied": "Kata sandi disalin!",
+    "resetPassword": "Reset Password",
+    "resetPasswordTitle": "Reset Password Karyawan",
+    "resetPasswordDesc": "Buat kata sandi sementara baru untuk",
+    "passwordResetSuccess": "Password berhasil direset!",
+    "passwordResetTitle": "Password Berhasil Direset"
   },
   "leave": {
     "title": "Pengajuan Cuti",

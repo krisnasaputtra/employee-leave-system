@@ -28,6 +28,7 @@ import type { Database } from "@/types/database.types";
 
 import { activateEmployeeAction, deactivateEmployeeAction, updateEmployeeAction } from "../../actions";
 import { GrantLoginButton } from "../grant-login-button";
+import { ResetPasswordButton } from "../reset-password-button";
 
 type Employee = Database["public"]["Tables"]["employees"]["Row"];
 
@@ -232,6 +233,9 @@ export function EmployeeEditForm({ employee, departments, employees }: Props) {
         </Button>
         {employee.status === "ACTIVE" && !employee.auth_user_id && (
           <GrantLoginButton employeeId={employee.id} employeeName={employee.full_name} />
+        )}
+        {employee.auth_user_id && (
+          <ResetPasswordButton employeeId={employee.id} employeeName={employee.full_name} />
         )}
         {employee.status === "ACTIVE" && (
           <AlertDialog>

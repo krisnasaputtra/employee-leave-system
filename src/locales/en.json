@@ -147,7 +147,12 @@
     "loginGrantedDesc": "A temporary password has been generated. Share it securely with the employee.",
     "tempPassword": "Temporary Password",
     "tempPasswordWarning": "Save this password now — it cannot be retrieved later. The employee will be required to change it on first login.",
-    "passwordCopied": "Password copied to clipboard!"
+    "passwordCopied": "Password copied to clipboard!",
+    "resetPassword": "Reset Password",
+    "resetPasswordTitle": "Reset Employee Password",
+    "resetPasswordDesc": "Generate a new temporary password for",
+    "passwordResetSuccess": "Password has been reset successfully!",
+    "passwordResetTitle": "Password Reset Complete"
   },
   "leave": {
     "title": "Leave Requests",

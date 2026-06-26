@@ -9,17 +9,17 @@ import { createAdminClient } from "@/lib/supabase/admin";
 
 import { generateTempPassword } from "./password-utils";
 
-interface GrantLoginResult {
+interface ResetPasswordResult {
   success: boolean;
   temporaryPassword?: string;
   error?: string;
 }
 
 /**
- * Grant login access to an existing employee who doesn't have an auth account.
- * Creates a Supabase Auth user, links it to the employee, and returns a temporary password.
+ * Reset an employee's password to a new temporary password.
+ * Only works for employees that already have an auth account.
  */
-export async function grantLoginAccessAction(employeeId: string): Promise<GrantLoginResult> {
+export async function resetPasswordAction(employeeId: string): Promise<ResetPasswordResult> {
   try {
     const { employee: actor } = await getAuthenticatedUser();
 
@@ -29,10 +29,9 @@ export async function grantLoginAccessAction(employeeId: string): Promise<GrantL
 
     const admin = createAdminClient();
 
-    // Load the employee
     const { data: employee, error: loadError } = await admin
       .from("employees")
-      .select("id, work_email, full_name, auth_user_id, status")
+      .select("id, auth_user_id, full_name, work_email")
       .eq("id", employeeId)
       .single();
 
@@ -40,61 +39,42 @@ export async function grantLoginAccessAction(employeeId: string): Promise<GrantL
       return { success: false, error: "Employee not found." };
     }
 
-    if (employee.auth_user_id) {
-      return { success: false, error: "This employee already has login access." };
-    }
-
-    if (employee.status !== "ACTIVE") {
-      return { success: false, error: "Cannot grant login to an inactive employee." };
+    if (!employee.auth_user_id) {
+      return { success: false, error: "This employee does not have a login account." };
     }
 
     const temporaryPassword = generateTempPassword();
 
-    // Create Supabase Auth user
-    const { data: authData, error: authError } = await admin.auth.admin.createUser({
-      email: employee.work_email,
+    // Update the auth user's password
+    const { error: updateError } = await admin.auth.admin.updateUserById(employee.auth_user_id, {
       password: temporaryPassword,
-      email_confirm: true,
     });
 
-    if (authError) {
-      return { success: false, error: `Failed to create auth account: ${authError.message}` };
-    }
-
-    // Link auth user to employee
-    const { error: updateError } = await admin
-      .from("employees")
-      .update({
-        auth_user_id: authData.user.id,
-        must_change_password: true,
-      })
-      .eq("id", employeeId);
-
     if (updateError) {
-      // Compensation: delete the auth user
-      await admin.auth.admin.deleteUser(authData.user.id);
-      return { success: false, error: `Failed to link account: ${updateError.message}` };
+      return { success: false, error: `Failed to reset password: ${updateError.message}` };
     }
+
+    // Set must_change_password flag
+    await admin.from("employees").update({ must_change_password: true }).eq("id", employeeId);
 
     // Audit log
     await admin.from("audit_logs").insert({
       actor_employee_id: actor.id,
-      action: "LOGIN_ACCESS_GRANTED",
+      action: "PASSWORD_RESET",
       entity_type: "employee",
       entity_id: employeeId,
       metadata: {
         employee_name: employee.full_name,
-        employee_email: employee.work_email,
+        reset_by: actor.id,
       },
     });
 
     revalidatePath(`/dashboard/employees/${employeeId}`);
-    revalidatePath("/dashboard/employees");
 
     return { success: true, temporaryPassword };
   } catch (error) {
     if (isNextInternalError(error)) throw error;
-    console.error("grantLoginAccessAction failed:", error);
+    console.error("resetPasswordAction failed:", error);
     return { success: false, error: "An unexpected error occurred. Please try again." };
   }
 }
