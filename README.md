@@ -50,16 +50,19 @@ LRM (Leave Request Management) is a comprehensive, production-ready employee lea
 ### 👨‍💼 Manager Features
 - **Approval Dashboard** — Review and process pending leave requests
 - **Bulk Approve/Reject** — Multi-select and batch action for efficiency
-- **Team Overview** — View direct reports' leave balances and usage
-- **Delegation** — Delegate approval authority within same department during absence
+- **Team Overview** — View all team members' leave balances and usage
+- **Delegation** — Delegate approval authority within same team during absence
 - **Analytics & Reports** — Charts and insights on team leave patterns
 
 ### 🔧 Admin Features
 - **Employee Management** — CRUD employees with Supabase Auth integration
-- **Department & Leave Type Configuration** — Manage organizational settings
+- **Grant Login Access** — Grant login to employees created without auth account
+- **Reset Password** — Generate new temporary password for any employee
+- **Auto Manager Assignment** — Employees are automatically assigned to their team's manager
+- **Team & Leave Type Configuration** — Manage organizational settings
 - **Holiday Management** — Configure public holidays (shown on calendar)
 - **Leave Policy Engine** — Configurable rules per leave type
-- **Capacity Rules** — Department-level capacity constraints
+- **Capacity Rules** — Team-level capacity constraints
 - **Balance Management** — View, adjust, and bulk-manage all employee balances
 - **All Requests View** — Global view of every leave request with filters
 - **Audit Logs** — Complete audit trail of all system actions
@@ -86,7 +89,7 @@ LRM (Leave Request Management) is a comprehensive, production-ready employee lea
 
 ### 🔒 Security
 - **Content Security Policy (CSP)** + 5 security headers
-- **Rate Limiting** — 10 req/min on auth routes (login, change password, signout)
+- **Rate Limiting** — 60 req/min on auth routes (login, change password, signout)
 - **Row-Level Security (RLS)** on all Supabase tables
 - Server-side authentication & authorization on every action
 - **Zod validation** on all inputs
@@ -148,7 +151,7 @@ src/
 │   │   ├── analytics-reports/     # Charts & analytics
 │   │   ├── team/                  # Manager team view
 │   │   ├── profile/               # Self-edit profile
-│   │   ├── settings/              # Departments, Leave Types, Holidays,
+│   │   ├── settings/              # Teams, Leave Types, Holidays,
 │   │   │                          # Leave Policies, Capacity Rules
 │   │   ├── audit-logs/            # Audit trail
 │   │   └── notifications/         # In-app notifications
@@ -170,11 +173,11 @@ src/
 └── types/                         # Generated Supabase types
 
 supabase/
-├── migrations/                    # 12 SQL migration files
+├── migrations/                    # 17 SQL migration files
 ├── tests/                         # pgTAP integration tests
 └── seed.sql                       # Demo data seeder
 
-e2e/                               # Playwright E2E tests (36 tests)
+e2e/                               # Playwright E2E tests (39 tests)
 ```
 
 ---
@@ -264,7 +267,7 @@ npm run test:e2e:headed   # With browser visible
 npm run test:e2e:ui       # Interactive UI mode
 ```
 
-**Coverage:** 36 E2E tests across critical flows:
+**Coverage:** 39 E2E tests across critical flows:
 1. Authentication (login, redirect, invalid credentials)
 2. Dashboard navigation (7 pages)
 3. Employee management (list, search, add)
@@ -297,7 +300,7 @@ The project includes a comprehensive code review page at `/code-review` with:
 ## 🗄️ Database Schema
 
 ```
-employees ──────── departments
+employees ──────── departments (teams)
     │
     ├── leave_requests ──── leave_types
     │       │
@@ -312,7 +315,7 @@ employees ──────── departments
 
 holidays (standalone)
 leave_policies ──── leave_types
-capacity_rules ──── departments
+capacity_rules ──── departments (teams)
 ```
 
 Key RPC functions:
