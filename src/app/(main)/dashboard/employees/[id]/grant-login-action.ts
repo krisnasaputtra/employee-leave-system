@@ -46,8 +46,19 @@ export async function grantLoginAccessAction(employeeId: string): Promise<GrantL
       return { success: false, error: "Cannot grant login to an inactive employee." };
     }
 
-    // Generate a temporary password
-    const temporaryPassword = `Temp${Math.random().toString(36).slice(2, 8)}!${Math.floor(Math.random() * 90 + 10)}`;
+    // Generate a strong temporary password (uppercase + lowercase + digits + special)
+    const upper = "ABCDEFGHJKLMNPQRSTUVWXYZ";
+    const lower = "abcdefghjkmnpqrstuvwxyz";
+    const digits = "23456789";
+    const special = "!@#$%";
+    const pick = (s: string) => s[Math.floor(Math.random() * s.length)];
+    // Guarantee at least one of each category
+    const required = [pick(upper), pick(lower), pick(lower), pick(digits), pick(digits), pick(special)];
+    // Add 4 more random chars from all
+    const all = upper + lower + digits + special;
+    for (let i = 0; i < 4; i++) required.push(pick(all));
+    // Shuffle
+    const temporaryPassword = required.sort(() => Math.random() - 0.5).join("");
 
     // Create Supabase Auth user
     const { data: authData, error: authError } = await admin.auth.admin.createUser({
