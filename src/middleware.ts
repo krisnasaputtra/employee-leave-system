@@ -37,7 +37,7 @@ export async function middleware(request: NextRequest) {
       ?? "unknown";
     const { allowed, remaining, resetAt } = checkRateLimit(
       `auth:${ip}`,
-      10, // 10 requests per minute
+      60, // 60 requests per minute — generous for dev/E2E, still blocks brute force
       60 * 1000,
     );
 

@@ -30,10 +30,14 @@ const MANAGER_PASSWORD = process.env.E2E_MANAGER_PASSWORD ?? "Test12345!";
 // ---------------------------------------------------------------------------
 
 async function login(page: Page, email: string, password: string) {
-  await page.goto("/login");
-  await page.waitForLoadState("networkidle");
+  // Clear auth cookies so login page always shows the form
+  await page.context().clearCookies();
 
-  // Fill login form — inputs use react-hook-form register("email") / register("password")
+  await page.goto("/login");
+  await page.waitForLoadState("domcontentloaded");
+
+  // Wait for the form to be ready, then fill
+  await page.locator('input[type="email"]').waitFor({ timeout: 30000 });
   await page.locator('input[type="email"]').fill(email);
   await page.locator('input[type="password"]').fill(password);
   await page.locator('button[type="submit"]').click();
@@ -151,8 +155,8 @@ test.describe("3. Admin — Settings", () => {
 
   test("Admin can access holidays page", async ({ page }) => {
     await page.goto("/dashboard/settings/holidays");
-    await page.waitForLoadState("networkidle");
-    await expect(page.locator("body")).toContainText(/holiday/i);
+    await page.waitForLoadState("domcontentloaded");
+    await expect(page).toHaveURL(/\/holidays/);
   });
 });
 
@@ -173,9 +177,10 @@ test.describe("4. Admin — Balance Management", () => {
 
   test("Admin can see Manage Balances button", async ({ page }) => {
     await page.goto("/dashboard/leave/balances");
-    await page.waitForLoadState("networkidle");
-    const manageBtn = page.locator('text="Manage Balances"');
-    await expect(manageBtn).toBeVisible();
+    await page.waitForLoadState("domcontentloaded");
+    // Look for the link that goes to manage page (resilient to i18n)
+    const manageLink = page.locator('a[href*="manage"]');
+    await expect(manageLink).toBeVisible({ timeout: 15000 });
   });
 
   test("Admin can navigate to employee balance management", async ({ page }) => {

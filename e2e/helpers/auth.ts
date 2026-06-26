@@ -5,12 +5,20 @@ import { type Page } from "@playwright/test";
  * Waits for redirect to dashboard.
  */
 export async function login(page: Page, email: string, password: string) {
+  // Clear auth cookies so login page always shows the form
+  await page.context().clearCookies();
+
   await page.goto("/login");
-  await page.getByLabel("Email").fill(email);
-  await page.getByLabel("Password").fill(password);
-  await page.getByRole("button", { name: /sign in/i }).click();
-  // Wait for navigation to dashboard
-  await page.waitForURL(/\/dashboard/, { timeout: 15000 });
+  await page.waitForLoadState("domcontentloaded");
+
+  // Use CSS selectors (resilient to i18n label changes)
+  await page.locator('input[type="email"]').waitFor({ timeout: 30000 });
+  await page.locator('input[type="email"]').fill(email);
+  await page.locator('input[type="password"]').fill(password);
+  await page.locator('button[type="submit"]').click();
+
+  // Wait for navigation to dashboard (longer timeout for cold start)
+  await page.waitForURL(/\/dashboard/, { timeout: 30000 });
 }
 
 /**
@@ -18,13 +26,13 @@ export async function login(page: Page, email: string, password: string) {
  * Adjust these if the test database uses different credentials.
  */
 export async function loginAsAdmin(page: Page) {
-  await login(page, "admin@company.com", "admin123");
+  await login(page, "admin@company.com", "Admin123!");
 }
 
 export async function loginAsManager(page: Page) {
-  await login(page, "manager@company.com", "manager123");
+  await login(page, "manager@test.com", "Test12345!");
 }
 
 export async function loginAsEmployee(page: Page) {
-  await login(page, "employee@company.com", "employee123");
+  await login(page, "employee@test.com", "employee123");
 }

@@ -1,6 +1,10 @@
 import { test, expect } from "@playwright/test";
 
 test.describe("Authentication", () => {
+  test.beforeEach(async ({ page }) => {
+    await page.context().clearCookies();
+  });
+
   test("shows login page", async ({ page }) => {
     await page.goto("/login");
     await expect(
