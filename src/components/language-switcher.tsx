@@ -1,6 +1,6 @@
 "use client";
 
-import { Globe } from "lucide-react";
+import { Check, Globe } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -18,25 +18,42 @@ const LANGUAGES: { code: Locale; label: string; flag: string }[] = [
 
 export function LanguageSwitcher() {
   const { locale, setLocale } = useLocale();
+  const currentLang = LANGUAGES.find((l) => l.code === locale);
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" aria-label="Change language">
+        <Button
+          variant="ghost"
+          size="sm"
+          className="gap-1.5 px-2 font-medium"
+          aria-label="Change language"
+        >
           <Globe className="h-4 w-4" />
+          <span className="text-xs font-semibold uppercase tracking-wide">
+            {currentLang?.code ?? "en"}
+          </span>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        {LANGUAGES.map((lang) => (
-          <DropdownMenuItem
-            key={lang.code}
-            onClick={() => setLocale(lang.code)}
-            className={locale === lang.code ? "bg-accent" : ""}
-          >
-            <span className="mr-2">{lang.flag}</span>
-            {lang.label}
-          </DropdownMenuItem>
-        ))}
+      <DropdownMenuContent align="end" className="min-w-[180px]">
+        {LANGUAGES.map((lang) => {
+          const isActive = locale === lang.code;
+          return (
+            <DropdownMenuItem
+              key={lang.code}
+              onClick={() => setLocale(lang.code)}
+              className={
+                isActive
+                  ? "bg-primary/10 text-primary font-semibold"
+                  : ""
+              }
+            >
+              <span className="text-base mr-2.5">{lang.flag}</span>
+              <span className="flex-1">{lang.label}</span>
+              {isActive && <Check className="h-4 w-4 text-primary" />}
+            </DropdownMenuItem>
+          );
+        })}
       </DropdownMenuContent>
     </DropdownMenu>
   );
