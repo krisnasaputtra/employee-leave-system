@@ -138,7 +138,16 @@
     "statusTerminated": "Diberhentikan",
     "employeeCountLabel": "karyawan",
     "employee": "Karyawan",
-    "code": "Kode"
+    "code": "Kode",
+    "grantLogin": "Berikan Akses Login",
+    "grantLoginTitle": "Berikan Akses Login",
+    "grantLoginDesc": "Buat akun login untuk",
+    "loginGranted": "Akses login berhasil diberikan!",
+    "loginGrantedTitle": "Akses Login Dibuat",
+    "loginGrantedDesc": "Kata sandi sementara telah dibuat. Bagikan secara aman kepada karyawan.",
+    "tempPassword": "Kata Sandi Sementara",
+    "tempPasswordWarning": "Simpan kata sandi ini sekarang — tidak dapat dilihat lagi nanti. Karyawan wajib mengubahnya saat login pertama.",
+    "passwordCopied": "Kata sandi disalin!"
   },
   "leave": {
     "title": "Pengajuan Cuti",

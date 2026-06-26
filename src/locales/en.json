@@ -138,7 +138,16 @@
     "statusTerminated": "Terminated",
     "employeeCountLabel": "employee(s)",
     "employee": "Employee",
-    "code": "Code"
+    "code": "Code",
+    "grantLogin": "Grant Login",
+    "grantLoginTitle": "Grant Login Access",
+    "grantLoginDesc": "Create a login account for",
+    "loginGranted": "Login access granted successfully!",
+    "loginGrantedTitle": "Login Access Created",
+    "loginGrantedDesc": "A temporary password has been generated. Share it securely with the employee.",
+    "tempPassword": "Temporary Password",
+    "tempPasswordWarning": "Save this password now — it cannot be retrieved later. The employee will be required to change it on first login.",
+    "passwordCopied": "Password copied to clipboard!"
   },
   "leave": {
     "title": "Leave Requests",
