@@ -124,7 +124,7 @@ export function NavMain({ items }: NavMainProps) {
               >
                 <Link href="/dashboard/leave/requests/new">
                   <PlusCircleIcon />
-                  <span>{quickCreateLabel}</span>
+                  <span suppressHydrationWarning>{quickCreateLabel}</span>
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
@@ -144,7 +144,7 @@ function NavGroupSection({ group, isItemActive, isSubItemActive, isSubmenuOpen }
   return (
     <SidebarGroup>
       {group.label && (
-        <SidebarGroupLabel className="group-data-[collapsible=icon]:pointer-events-none">
+        <SidebarGroupLabel className="group-data-[collapsible=icon]:pointer-events-none" suppressHydrationWarning>
           {translatedLabel}
         </SidebarGroupLabel>
       )}
@@ -201,7 +201,7 @@ function NavLinkItem({ item, isActive, showIconFallback }: NavLinkItemProps) {
           rel={item.newTab ? "noreferrer" : undefined}
         >
           {Icon ? <Icon /> : showIconFallback ? <CollapsedIconFallback title={translatedTitle} /> : null}
-          <span>{translatedTitle}</span>
+          <span suppressHydrationWarning>{translatedTitle}</span>
         </Link>
       </SidebarMenuButton>
       <NavItemBadge badge={item.badge} />
@@ -219,7 +219,7 @@ function NavDropdownItem({ item, isActive, isSubItemActive }: NavDropdownItemPro
         <DropdownMenuTrigger asChild>
           <SidebarMenuButton tooltip={translatedTitle} isActive={isActive} disabled={item.disabled}>
             {Icon ? <Icon /> : <CollapsedIconFallback title={translatedTitle} />}
-            <span>{translatedTitle}</span>
+            <span suppressHydrationWarning>{translatedTitle}</span>
           </SidebarMenuButton>
         </DropdownMenuTrigger>
 
@@ -250,7 +250,7 @@ function NavDropdownSubItem({ subItem, isSubItemActive }: { subItem: NavMainPare
         className="flex items-center gap-2"
       >
         {SubIcon && <SubIcon />}
-        <span>{translatedTitle}</span>
+        <span suppressHydrationWarning>{translatedTitle}</span>
       </Link>
     </DropdownMenuItem>
   );
@@ -266,7 +266,7 @@ function NavCollapsibleItem({ item, isActive, defaultOpen, isSubItemActive }: Na
         <CollapsibleTrigger asChild>
           <SidebarMenuButton tooltip={translatedTitle} isActive={isActive} disabled={item.disabled}>
             {Icon && <Icon />}
-            <span>{translatedTitle}</span>
+            <span suppressHydrationWarning>{translatedTitle}</span>
             <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
           </SidebarMenuButton>
         </CollapsibleTrigger>
@@ -302,7 +302,7 @@ function NavCollapsibleSubItem({ subItem, isSubItemActive }: { subItem: NavMainP
           rel={subItem.newTab ? "noreferrer" : undefined}
         >
           {SubIcon && <SubIcon />}
-          <span>{translatedTitle}</span>
+          <span suppressHydrationWarning>{translatedTitle}</span>
         </Link>
       </SidebarMenuSubButton>
     </SidebarMenuSubItem>
