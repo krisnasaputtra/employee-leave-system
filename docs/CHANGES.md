@@ -237,87 +237,89 @@ page.tsx (Server Component) → fetchXxx() SSR
 
 ---
 
+## 2026-06-29 — Bug Fixes, UX Improvements & Delegation Enhancement
+
+### `a109895` fix: Hydration mismatch + request number collision
+- **Request number collision:** `generate_request_number()` sekarang menggunakan retry loop + timestamp fallback untuk mencegah `duplicate key value violates unique constraint "leave_requests_request_number_unique"`
+- **Hydration mismatch:** `suppressHydrationWarning` pada semua sidebar translated spans
+
+### `53c3d49` fix: Hydration mismatches and script tag warning
+- **Root cause fix:** `LocaleProvider` sekarang start dengan `"en"` (match server render), lalu baca localStorage via `useEffect` setelah hydration — eliminasi SEMUA i18n hydration mismatch secara global
+- **Script tag warning:** `theme-boot.tsx` sekarang menggunakan `next/script` dengan `strategy="beforeInteractive"`
+- **NotificationBell:** `suppressHydrationWarning` pada translated `aria-label`
+- **LanguageSwitcher:** `suppressHydrationWarning` pada locale code span
+
+### `ff30b7b` feat: Manage Balances interactive search/filter + fix request number collision
+**Files baru:**
+- `src/app/(main)/dashboard/leave/balances/manage/_components/manage-balances-client.tsx` — Client component dengan TanStack Query, debounced search, department filter, pagination
+- `src/app/(main)/dashboard/leave/balances/manage/fetch-balances.ts` — Server action untuk data fetching
+- `supabase/migrations/20240629_fix_request_number_collision.sql` — Reset sequence + retry loop + timestamp fallback
+
+**Files diubah:**
+- `src/app/(main)/dashboard/leave/balances/manage/page.tsx` — Refactored ke thin server component
+
+### `ac88fd3` fix: Stale data on account switch
+**Problem:** Setelah pindah akun (logout → login akun lain), data user lama masih tampil di table/list karena TanStack Query cache + Next.js router cache persist.
+
+**Fix:**
+- **Logout:** `queryClient.clear()` + `window.location.href` (full page reload) menggantikan `router.push`
+- **Login:** `window.location.href` menggantikan `router.push` — memastikan zero stale data dari user sebelumnya
+
+**Files diubah:**
+- `src/app/(main)/dashboard/_components/sidebar/nav-user.tsx`
+- `src/app/(auth)/login/login-form.tsx`
+
+### `7c88774` feat: Approvals badge + team RLS fix
+**Approvals badge:**
+- Sidebar menu "Approvals" sekarang menampilkan red badge dengan jumlah pending approval
+- Menggunakan shared `header-counts` TanStack Query (no extra API call)
+- Auto-refresh setiap 60 detik
+
+**Team page RLS fix:**
+- Buat policy `employees_select_same_department` — employee bisa lihat rekan satu tim di halaman Team
+- Menggunakan `SECURITY DEFINER` function `current_employee_department_id()` untuk bypass circular RLS
+
+**Files baru:**
+- `supabase/migrations/20240629_fix_employee_team_rls.sql`
+
+**Files diubah:**
+- `src/app/(main)/dashboard/_components/sidebar/nav-main.tsx`
+
+### `6b759e3` fix: Leave request refresh + approvals for delegated employees
+**Leave request tidak refresh setelah create:**
+- `queryClient.invalidateQueries` untuk `my-leave-requests` dan `header-counts`
+- `router.refresh()` sebelum `router.push` untuk invalidasi Next.js router cache
+
+**Approvals page blocked untuk delegated employee:**
+- Removed hard `EMPLOYEE` role redirect dari `fetchApprovals`
+- Logic baru: ADMIN sees all, MANAGER sees their reports, EMPLOYEE sees delegated only
+- Menu Approvals + Delegations sekarang visible untuk semua role
+
+**Header badge counts delegated approvals:**
+- `fetchHeaderCounts` sekarang include delegated approval count
+- Employee dengan delegation aktif akan melihat badge number
+
+**Files diubah:**
+- `src/app/(main)/dashboard/leave/requests/_components/leave-request-form.tsx`
+- `src/app/(main)/dashboard/approvals/fetch-approvals.ts`
+- `src/app/(main)/dashboard/fetch-header-counts.ts`
+- `src/navigation/sidebar/sidebar-items.ts`
+
+---
+
 ## Summary Statistics
 
 | Metric | Value |
 |--------|-------|
-| Total commits | 22 |
-| Total files in project | 322 |
-| Files changed (vs initial) | 393 |
-| Lines added | 30,082 |
-| Lines removed | 23,679 |
-| Net new lines | +6,403 |
+| Total commits | 28+ |
+| Total files in project | 330+ |
 | Code review items | 425/425 (100%) |
 | E2E test count | 36 |
-| Supabase migrations | 12 |
+| Supabase migrations | 19 |
 | Supported languages | 2 (EN, ID) |
 | Theme presets | 3 (Brutalist, Soft Pop, Tangerine) |
 | Security headers | 6 |
 | Loading skeletons | 18 |
-
-### `3f5e920` docs: Add comprehensive CHANGES.md
-- Changelog lengkap seluruh 22 commits
-
-### `6a66b3f` perf: Critical performance fix — React cache() deduplication
-**Problem:** Setiap page navigation memicu 3 sequential Supabase round-trip:
-1. Middleware: `supabase.auth.getUser()` (~200-500ms)
-2. Layout: `getAuthenticatedUser()` → `getUser()` + employees query (~200-500ms)
-3. Page: `getAuthenticatedUser()` LAGI (~200-500ms)
-
-**Total delay: 800-2000ms per navigasi!**
-
-**Fix:**
-- `src/lib/auth/get-authenticated-user.ts` — wrap dengan `React.cache()` → deduplicate calls dalam 1 request
-- `src/lib/supabase/server.ts` — wrap `createClient()` dengan `React.cache()` → reuse client instance
-
-**Before:** 3x `getUser()` + 3x `createClient()` per navigasi
-**After:** 1x `getUser()` + 1x `createClient()` per navigasi
-**Estimated improvement:** ~400-800ms lebih cepat per page navigation
-
-### `d65b5b4` perf: Move blocking queries out of layout — instant navigation
-**Problem:** Dashboard `layout.tsx` menjalankan 2 Supabase query (notification count + approval count) pada **setiap** navigasi halaman. Ini terlihat jelas di Network tab sebagai `_rsc` fetch yang memakan 1-2s per request.
-
-**Root cause dari screenshot Network tab:**
-| Request | Time |
-|---------|------|
-| `employees?_rsc=` | 2.14s |
-| `delegations?_rsc=` | 1.77s |
-| `manage?_rsc=` | 1.92s |
-| `departments?_rsc=` | 1.96s |
-
-**Fix:**
-- Buat `src/app/(main)/dashboard/fetch-header-counts.ts` — server action untuk async badge loading
-- Buat `src/app/(main)/dashboard/_components/notification-bell.tsx` — client component dengan TanStack Query (`staleTime: 30s`, `refetchInterval: 60s`)
-- Hapus semua Supabase query dari `layout.tsx` — layout sekarang hanya auth check + read cookies
-- Hapus prop `pendingApprovalCount` dari `AppSidebar`
-
-**Before:** Layout blocks pada 2 DB queries → 1-2s per navigasi
-**After:** Layout render instant → badges load async di background
-
-**Layout sekarang hanya:**
-1. `getAuthenticatedUser()` — cached via `React.cache()`
-2. Read cookies — zero latency
-3. Read preferences — cookies
-
-### `b177306` perf: Set Vercel region to syd1 (Sydney)
-**Problem:** Vercel default region `iad1` (US East), Supabase di `ap-southeast-2` (Sydney). Setiap DB query = cross-continent round-trip ~300-400ms.
-
-**Kenapa local kenceng, deploy lemot:**
-- Local: PC (Jakarta) → Supabase (Sydney) = ~100ms
-- Deploy: Browser → Vercel (US) → Supabase (Sydney) → Vercel → Browser = ~700ms per query
-
-**Fix:** Buat `vercel.json` dengan `regions: ["syd1"]` — Vercel functions sekarang di Sydney, same region dengan Supabase.
-
-**Files baru:**
-- `vercel.json`
-
-### `8ac0249` fix: Restrict delegation to same department only
-**Bug:** Manager Finance bisa delegate approval ke Employee001 (tim Engineering). Seharusnya hanya bisa delegate ke anggota tim sendiri.
-
-**Fix:**
-- `src/app/(main)/dashboard/delegations/page.tsx` — Filter employee dropdown `.eq("department_id", actor.department_id)` (UI)
-- `src/app/(main)/dashboard/delegations/actions.ts` — Server-side validasi `delegate.department_id !== actor.department_id` → reject (mencegah manipulasi API)
-- Admin tetap bisa delegate cross-department (exception)
 
 ---
 

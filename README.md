@@ -45,10 +45,12 @@ LRM (Leave Request Management) is a comprehensive, production-ready employee lea
 - **Edit Profile** — Update personal information
 - **Calendar View** — Visual calendar with approved leaves and holidays
 - **Notifications** — In-app notifications for status changes
+- **Team Page** — View colleagues in same team, who's on leave today
+- **Approval (Delegated)** — Approve/reject requests when delegated by manager
 - **Export CSV** — Download leave data for personal records
 
 ### 👨‍💼 Manager Features
-- **Approval Dashboard** — Review and process pending leave requests
+- **Approval Dashboard** — Review and process pending leave requests with badge count
 - **Bulk Approve/Reject** — Multi-select and batch action for efficiency
 - **Team Overview** — View all team members' leave balances and usage
 - **Delegation** — Delegate approval authority within same team during absence
@@ -173,7 +175,7 @@ src/
 └── types/                         # Generated Supabase types
 
 supabase/
-├── migrations/                    # 17 SQL migration files
+├── migrations/                    # 19 SQL migration files
 ├── tests/                         # pgTAP integration tests
 └── seed.sql                       # Demo data seeder
 
