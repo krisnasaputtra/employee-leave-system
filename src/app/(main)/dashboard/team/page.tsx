@@ -90,7 +90,7 @@ export default async function TeamPage() {
       <div className="@container/main flex flex-col gap-4 md:gap-6">
         <div>
           <h1 className="font-semibold text-2xl tracking-tight">
-            {isAdmin ? "All Employees" : isEmployee ? "My Department" : "My Team"}
+            {isAdmin ? "All Employees" : isEmployee ? "My Team" : "My Team"}
           </h1>
         </div>
         <div className="flex flex-col items-center justify-center gap-2 py-20">
@@ -189,7 +189,7 @@ export default async function TeamPage() {
       <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="font-semibold text-2xl tracking-tight">
-            {isAdmin ? "All Employees" : isEmployee ? "My Department" : "My Team"}
+            {isAdmin ? "All Employees" : isEmployee ? "My Team" : "My Team"}
           </h1>
           <p className="text-muted-foreground text-sm">
             {members.length} {isAdmin ? "employee" : isEmployee ? "colleague" : "direct report"}
@@ -292,7 +292,7 @@ export default async function TeamPage() {
                 isAdmin
                   ? "No employees found in the system."
                   : isEmployee
-                    ? "No colleagues found in your department."
+                    ? "No colleagues found in your team."
                     : "You don't have any team members assigned to you yet. Contact an administrator to assign employees to your team."
               }
             />
@@ -302,12 +302,12 @@ export default async function TeamPage() {
         /* Team Member Table */
         <Card>
           <CardHeader>
-            <CardTitle>{isEmployee ? "Department Colleagues" : "Team Members"}</CardTitle>
+            <CardTitle>{isEmployee ? "Team Colleagues" : "Team Members"}</CardTitle>
             <CardDescription>
               {isAdmin
                 ? "Overview of all employees with leave balances"
                 : isEmployee
-                  ? "Colleagues in your department — who's on leave today"
+                  ? "Colleagues in your team — who's on leave today"
                   : "Your direct reports with leave balance summary"}
             </CardDescription>
           </CardHeader>
@@ -316,7 +316,7 @@ export default async function TeamPage() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Employee</TableHead>
-                  <TableHead>Department</TableHead>
+                  <TableHead>Team</TableHead>
                   <TableHead>Position</TableHead>
                   <TableHead>Status</TableHead>
                   {!isEmployee && (

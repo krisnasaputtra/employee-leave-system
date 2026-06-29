@@ -36,7 +36,7 @@ export function DepartmentToggleButton({ departmentId, isActive, name }: Props) 
       if (!result.success) {
         toast.error(result.error ?? "Operation failed.");
       } else {
-        toast.success(`Department ${isActive ? "deactivated" : "activated"}.`);
+        toast.success(`Team ${isActive ? "deactivated" : "activated"}.`);
       }
     });
   };

@@ -167,15 +167,18 @@ export function EmployeeCreateForm({ departments }: Props) {
                   name="department_id"
                   render={({ field }) => (
                     <Combobox
-                      value={field.value}
-                      onValueChange={(val) => field.onChange(val as string)}
+                      value={departments.find((d) => d.id === field.value)?.name ?? ""}
+                      onValueChange={(val) => {
+                        const match = departments.find((d) => d.name === val);
+                        field.onChange(match?.id ?? "");
+                      }}
                     >
                       <ComboboxInput showClear placeholder="Search team..." />
                       <ComboboxContent>
                         <ComboboxList>
                           <ComboboxEmpty>No team found.</ComboboxEmpty>
                           {departments.map((d) => (
-                            <ComboboxItem key={d.id} value={d.id}>
+                            <ComboboxItem key={d.id} value={d.name}>
                               {d.name}
                             </ComboboxItem>
                           ))}

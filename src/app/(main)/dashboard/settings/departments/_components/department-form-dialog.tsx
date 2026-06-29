@@ -70,7 +70,7 @@ export function DepartmentFormDialog({ mode, department, employees, trigger }: P
       if (!result.success) {
         setServerError(result.error ?? "Operation failed.");
       } else {
-        toast.success(mode === "create" ? "Department created." : "Department updated.");
+        toast.success(mode === "create" ? "Team created." : "Team updated.");
         setOpen(false);
         form.reset();
       }
@@ -105,7 +105,7 @@ export function DepartmentFormDialog({ mode, department, employees, trigger }: P
             <Field>
               <FieldLabel>{t("settings.name")}</FieldLabel>
               <FieldContent>
-                <Input placeholder="Department name" {...form.register("name")} />
+                <Input placeholder="Team name" {...form.register("name")} />
               </FieldContent>
               <FieldError>{form.formState.errors.name?.message}</FieldError>
             </Field>

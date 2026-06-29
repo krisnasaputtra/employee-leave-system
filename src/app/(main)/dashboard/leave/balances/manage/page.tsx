@@ -182,7 +182,7 @@ export default async function ManageBalancesPage({
           defaultValue={params.department ?? ""}
           className="flex h-9 rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
         >
-          <option value="">All Departments</option>
+          <option value="">All Teams</option>
           {(departments ?? []).map((dept) => (
             <option key={dept.id} value={dept.id}>
               {dept.name}
@@ -209,7 +209,7 @@ export default async function ManageBalancesPage({
                 <TableRow>
                   <TableHead>Employee</TableHead>
                   <TableHead>Code</TableHead>
-                  <TableHead className="hidden md:table-cell">Department</TableHead>
+                  <TableHead className="hidden md:table-cell">Team</TableHead>
                   <TableHead className="text-right">Entitled</TableHead>
                   <TableHead className="text-right">Used</TableHead>
                   <TableHead className="text-right hidden sm:table-cell">Pending</TableHead>

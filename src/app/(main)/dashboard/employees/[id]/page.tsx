@@ -196,7 +196,7 @@ export default async function EmployeeDetailPage({ params }: { params: Promise<{
               <div className="flex items-center gap-3">
                 <Building2 className="h-4 w-4 text-muted-foreground shrink-0" />
                 <div>
-                  <dt className="text-muted-foreground text-xs">Department</dt>
+                  <dt className="text-muted-foreground text-xs">Team</dt>
                   <dd>{departmentName ?? "—"}</dd>
                 </div>
               </div>

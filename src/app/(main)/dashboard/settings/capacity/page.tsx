@@ -51,13 +51,13 @@ export default async function CapacityPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="font-semibold text-2xl tracking-tight">Capacity Rules</h1>
-          <p className="text-muted-foreground text-sm">Set department-level staffing limits</p>
+          <p className="text-muted-foreground text-sm">Set team-level staffing limits</p>
         </div>
       </div>
 
       {!departments || departments.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-lg border bg-card py-20">
-          <p className="text-muted-foreground text-sm">No active departments found.</p>
+          <p className="text-muted-foreground text-sm">No active teams found.</p>
         </div>
       ) : (
         <Card>
@@ -65,7 +65,7 @@ export default async function CapacityPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Department</TableHead>
+                  <TableHead>Team</TableHead>
                   <TableHead>Max Absent %</TableHead>
                   <TableHead className="hidden md:table-cell">Min Staff</TableHead>
                   <TableHead className="hidden md:table-cell">Current Employees</TableHead>

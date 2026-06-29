@@ -46,8 +46,8 @@ export default async function DepartmentsPage() {
     <div className="@container/main flex flex-col gap-4 md:gap-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="font-semibold text-2xl tracking-tight">Departments</h1>
-          <p className="text-muted-foreground text-sm">Manage organization departments</p>
+          <h1 className="font-semibold text-2xl tracking-tight">Teams</h1>
+          <p className="text-muted-foreground text-sm">Manage organization teams</p>
         </div>
         <DepartmentFormDialog
           mode="create"
@@ -55,7 +55,7 @@ export default async function DepartmentsPage() {
           trigger={
             <Button>
               <Plus className="mr-2 h-4 w-4" />
-              Add Department
+              Add Team
             </Button>
           }
         />
@@ -63,7 +63,7 @@ export default async function DepartmentsPage() {
 
       {!departments || departments.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-lg border bg-card py-20">
-          <p className="text-muted-foreground text-sm">No departments found.</p>
+          <p className="text-muted-foreground text-sm">No teams found.</p>
         </div>
       ) : (
         <Card>

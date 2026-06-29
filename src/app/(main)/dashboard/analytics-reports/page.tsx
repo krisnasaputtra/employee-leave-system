@@ -236,7 +236,7 @@ export default async function AnalyticsReportsPage() {
   const topLeaveTakersCsv = generateCsv(
     [
       { key: "employeeName", label: "Employee Name" },
-      { key: "department", label: "Department" },
+      { key: "department", label: "Team" },
       { key: "totalDays", label: "Total Days" },
       { key: "requestCount", label: "Requests" },
     ],
@@ -335,8 +335,8 @@ export default async function AnalyticsReportsPage() {
       {/* Department Utilization */}
       <Card>
         <CardHeader>
-          <CardTitle>Department Utilization</CardTitle>
-          <CardDescription>Total approved leave days per department – Year {currentYear}</CardDescription>
+          <CardTitle>Team Utilization</CardTitle>
+          <CardDescription>Total approved leave days per team – Year {currentYear}</CardDescription>
         </CardHeader>
         <CardContent>
           <DepartmentUtilizationChart data={departmentData} />
@@ -357,7 +357,7 @@ export default async function AnalyticsReportsPage() {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Employee</TableHead>
-                    <TableHead>Department</TableHead>
+                    <TableHead>Team</TableHead>
                     <TableHead className="text-right">Days</TableHead>
                     <TableHead className="text-right">Requests</TableHead>
                   </TableRow>
