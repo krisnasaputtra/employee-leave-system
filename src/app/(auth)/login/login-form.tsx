@@ -39,7 +39,8 @@ export function LoginForm() {
       if (result?.error) {
         setServerError(result.error);
       } else if (result?.redirectTo) {
-        router.push(result.redirectTo);
+        // Full page load to clear any stale client-side caches from previous user
+        window.location.href = result.redirectTo;
       }
     });
   };

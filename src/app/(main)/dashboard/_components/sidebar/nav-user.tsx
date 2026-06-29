@@ -2,6 +2,8 @@
 
 import { useRouter } from "next/navigation";
 
+import { useQueryClient } from "@tanstack/react-query";
+
 import { CircleUser, EllipsisVertical, KeyRound, LogOut } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -31,10 +33,15 @@ export function NavUser({
   const router = useRouter();
   const { t } = useTranslation();
 
+  const queryClient = useQueryClient();
+
   const handleLogout = async () => {
+    // Clear all cached query data so the next user sees fresh data
+    queryClient.clear();
     // Use the signout route handler (POST)
     await fetch("/auth/signout", { method: "POST" });
-    router.push("/login");
+    // Full page load to ensure completely clean state (no stale caches)
+    window.location.href = "/login";
   };
 
   return (
