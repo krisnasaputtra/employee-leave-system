@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 
 import enMessages from "@/locales/en.json";
 import idMessages from "@/locales/id.json";
@@ -37,19 +37,20 @@ function getNestedValue(obj: Record<string, unknown>, path: string): string {
 }
 
 export function LocaleProvider({ children }: { children: ReactNode }) {
-  const [locale, setLocaleState] = useState<Locale>(() => {
-    if (typeof window !== "undefined") {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved === "en" || saved === "id") return saved;
+  // Always start with "en" to match server render and avoid hydration mismatch.
+  // After hydration, useEffect reads the stored preference from localStorage.
+  const [locale, setLocaleState] = useState<Locale>("en");
+
+  useEffect(() => {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved === "en" || saved === "id") {
+      setLocaleState(saved);
     }
-    return "en";
-  });
+  }, []);
 
   const setLocale = useCallback((newLocale: Locale) => {
     setLocaleState(newLocale);
-    if (typeof window !== "undefined") {
-      localStorage.setItem(STORAGE_KEY, newLocale);
-    }
+    localStorage.setItem(STORAGE_KEY, newLocale);
   }, []);
 
   const t = useCallback(

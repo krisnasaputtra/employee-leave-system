@@ -27,7 +27,7 @@ export function NotificationBell() {
 
   return (
     <Button variant="ghost" size="icon" asChild className="relative">
-      <Link href="/dashboard/notifications" aria-label={t("notification.title")}>
+      <Link href="/dashboard/notifications" aria-label={t("notification.title")} suppressHydrationWarning>
         <Bell className="h-4 w-4" />
         {unreadCount > 0 && (
           <Badge

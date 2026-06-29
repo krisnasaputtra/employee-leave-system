@@ -30,7 +30,7 @@ export function LanguageSwitcher() {
           aria-label="Change language"
         >
           <Globe className="h-4 w-4" />
-          <span className="text-xs font-semibold uppercase tracking-wide">
+          <span className="text-xs font-semibold uppercase tracking-wide" suppressHydrationWarning>
             {currentLang?.code ?? "en"}
           </span>
         </Button>
