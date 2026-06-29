@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
 
 import { ChevronRight, PlusCircleIcon } from "lucide-react";
 
@@ -37,6 +38,7 @@ import type {
 } from "@/navigation/sidebar/sidebar-items";
 import { SIDEBAR_I18N_MAP } from "@/navigation/sidebar/sidebar-items";
 import { useTranslation } from "@/providers/locale-provider";
+import { fetchHeaderCounts } from "../../fetch-header-counts";
 
 interface NavMainProps {
   readonly items: readonly NavGroup[];
@@ -111,6 +113,26 @@ export function NavMain({ items }: NavMainProps) {
 
   const quickCreateLabel = t("nav.quickCreate");
 
+  // Fetch pending approvals count for badge (shares cache with NotificationBell)
+  const { data: headerCounts } = useQuery({
+    queryKey: ["header-counts"],
+    queryFn: () => fetchHeaderCounts(),
+    staleTime: 30 * 1000,
+    refetchInterval: 60 * 1000,
+  });
+  const pendingApprovals = headerCounts?.pendingApprovals ?? 0;
+
+  // Inject badge into the approvals nav item dynamically
+  const itemsWithBadges = items.map((group) => ({
+    ...group,
+    items: group.items.map((item) => {
+      if (item.id === "approvals" && pendingApprovals > 0) {
+        return { ...item, badge: pendingApprovals as NavBadge };
+      }
+      return item;
+    }),
+  }));
+
   return (
     <>
       <SidebarGroup>
@@ -131,7 +153,7 @@ export function NavMain({ items }: NavMainProps) {
           </SidebarMenu>
         </SidebarGroupContent>
       </SidebarGroup>
-      {items.map((group) => (
+      {itemsWithBadges.map((group) => (
         <NavGroupSection key={group.id} group={group} isItemActive={isItemActive} isSubItemActive={isSubItemActive} isSubmenuOpen={isSubmenuOpen} />
       ))}
     </>
