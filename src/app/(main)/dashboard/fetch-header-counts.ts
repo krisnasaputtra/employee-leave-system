@@ -14,7 +14,9 @@ export async function fetchHeaderCounts(): Promise<{
 }> {
   const { employee } = await getAuthenticatedUser();
   const supabase = await createClient();
+  const today = new Date().toISOString().split("T")[0];
 
+  // Direct approval count (ADMIN/MANAGER only)
   const approvalQuery =
     employee.role === "ADMIN"
       ? supabase
@@ -38,8 +40,38 @@ export async function fetchHeaderCounts(): Promise<{
     approvalQuery ?? Promise.resolve({ count: 0 }),
   ]);
 
+  let directCount = approvalResult.count ?? 0;
+
+  // Also count delegated approvals (for any role)
+  let delegatedCount = 0;
+  const { data: activeDelegations } = await supabase
+    .from("approval_delegations")
+    .select("delegator_id")
+    .eq("delegate_id", employee.id)
+    .eq("is_active", true)
+    .lte("start_date", today)
+    .gte("end_date", today);
+
+  if (activeDelegations && activeDelegations.length > 0) {
+    const delegatorIds = activeDelegations.map((d) => d.delegator_id);
+    const { data: delegatedEmployees } = await supabase
+      .from("employees")
+      .select("id")
+      .in("manager_id", delegatorIds);
+
+    const delegatedEmployeeIds = (delegatedEmployees ?? []).map((e) => e.id);
+    if (delegatedEmployeeIds.length > 0) {
+      const { count } = await supabase
+        .from("leave_requests")
+        .select("*", { count: "exact", head: true })
+        .eq("status", "PENDING")
+        .in("employee_id", delegatedEmployeeIds);
+      delegatedCount = count ?? 0;
+    }
+  }
+
   return {
     unreadNotifications: notifResult.count ?? 0,
-    pendingApprovals: approvalResult.count ?? 0,
+    pendingApprovals: directCount + delegatedCount,
   };
 }

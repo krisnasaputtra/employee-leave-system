@@ -137,14 +137,12 @@ export const sidebarItems: NavGroup[] = [
         title: "Approvals",
         url: "/dashboard/approvals",
         icon: CheckSquare,
-        roles: ["ADMIN", "MANAGER"],
       },
       {
         id: "delegations",
         title: "Delegations",
         url: "/dashboard/delegations",
         icon: ArrowLeftRight,
-        roles: ["ADMIN", "MANAGER"],
       },
       {
         id: "team",

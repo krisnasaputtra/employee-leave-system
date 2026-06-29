@@ -4,6 +4,8 @@ import { useMemo, useState } from "react";
 
 import { useRouter } from "next/navigation";
 
+import { useQueryClient } from "@tanstack/react-query";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
@@ -53,6 +55,7 @@ export function LeaveRequestForm({
   requestId,
 }: LeaveRequestFormProps) {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const { t } = useTranslation();
   const [serverError, setServerError] = useState("");
 
@@ -134,6 +137,10 @@ export function LeaveRequestForm({
       toast.success("Leave request updated successfully.");
     }
 
+    // Invalidate cached data so lists show fresh results
+    queryClient.invalidateQueries({ queryKey: ["my-leave-requests"] });
+    queryClient.invalidateQueries({ queryKey: ["header-counts"] });
+    router.refresh();
     router.push("/dashboard/leave/requests");
   }
 

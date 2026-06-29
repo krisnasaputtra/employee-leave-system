@@ -1,6 +1,6 @@
 "use server";
 
-import { redirect } from "next/navigation";
+
 
 import { getAuthenticatedUser } from "@/lib/auth/get-authenticated-user";
 import { createClient } from "@/lib/supabase/server";
@@ -38,22 +38,43 @@ export interface FetchApprovalsResult {
 export async function fetchApprovals(): Promise<FetchApprovalsResult> {
   const { employee: actor } = await getAuthenticatedUser();
 
-  // Role guard — only MANAGER / ADMIN may access
-  if (actor.role === "EMPLOYEE") {
-    redirect("/dashboard");
-  }
-
   const supabase = await createClient();
   const today = new Date().toISOString().split("T")[0];
 
-  // ---- Direct pending requests ----
-  const { data: requests } = await supabase
-    .from("leave_requests")
-    .select(
-      "*, leave_types(name, color, code), employees!leave_requests_employee_id_fk(id, full_name, employee_code, department_id)",
-    )
-    .eq("status", "PENDING")
-    .order("created_at", { ascending: true });
+  // ---- Direct pending requests based on role ----
+  let directRequests: ApprovalRequest[] = [];
+
+  if (actor.role === "ADMIN") {
+    // Admin sees ALL pending requests
+    const { data } = await supabase
+      .from("leave_requests")
+      .select(
+        "*, leave_types(name, color, code), employees!leave_requests_employee_id_fk(id, full_name, employee_code, department_id)",
+      )
+      .eq("status", "PENDING")
+      .order("created_at", { ascending: true });
+    directRequests = (data ?? []) as ApprovalRequest[];
+  } else if (actor.role === "MANAGER") {
+    // Manager sees requests from their direct reports
+    const { data: reportIds } = await supabase
+      .from("employees")
+      .select("id")
+      .eq("manager_id", actor.id);
+
+    const ids = (reportIds ?? []).map((e) => e.id);
+    if (ids.length > 0) {
+      const { data } = await supabase
+        .from("leave_requests")
+        .select(
+          "*, leave_types(name, color, code), employees!leave_requests_employee_id_fk(id, full_name, employee_code, department_id)",
+        )
+        .eq("status", "PENDING")
+        .in("employee_id", ids)
+        .order("created_at", { ascending: true });
+      directRequests = (data ?? []) as ApprovalRequest[];
+    }
+  }
+  // EMPLOYEE role: no direct requests (only delegation below)
 
   // ---- Delegation: find active delegations TO the current user ----
   const { data: activeDelegations } = await supabase
@@ -67,7 +88,7 @@ export async function fetchApprovals(): Promise<FetchApprovalsResult> {
   const delegatorIds = (activeDelegations ?? []).map((d) => d.delegator_id);
 
   // Fetch pending leave requests from employees managed by delegators
-  let delegatedRequests: typeof requests = [];
+  let delegatedRequests: ApprovalRequest[] = [];
   if (delegatorIds.length > 0) {
     const { data: delegatedEmployees } = await supabase
       .from("employees")
@@ -86,12 +107,12 @@ export async function fetchApprovals(): Promise<FetchApprovalsResult> {
         .in("employee_id", delegatedEmployeeIds)
         .order("created_at", { ascending: true });
 
-      delegatedRequests = dRequests;
+      delegatedRequests = (dRequests ?? []) as ApprovalRequest[];
     }
   }
 
   // ---- Merge & deduplicate ----
-  const allRequests = [...(requests ?? []), ...(delegatedRequests ?? [])];
+  const allRequests = [...directRequests, ...delegatedRequests];
   const uniqueRequestMap = new Map(allRequests.map((r) => [r.id, r]));
   const mergedRequests = Array.from(uniqueRequestMap.values());
 
