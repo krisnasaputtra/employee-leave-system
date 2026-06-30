@@ -4,6 +4,7 @@ import { useState } from "react";
 
 import { useRouter } from "next/navigation";
 
+import { useQueryClient } from "@tanstack/react-query";
 import { Loader2, X } from "lucide-react";
 import { toast } from "sonner";
 
@@ -29,6 +30,7 @@ interface CancelRequestButtonProps {
 
 export function CancelRequestButton({ requestId, requestNumber }: CancelRequestButtonProps) {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const [isPending, setIsPending] = useState(false);
 
   async function handleCancel() {
@@ -42,6 +44,8 @@ export function CancelRequestButton({ requestId, requestNumber }: CancelRequestB
     }
 
     toast.success(`Leave request ${requestNumber} has been cancelled.`);
+    queryClient.invalidateQueries({ queryKey: ["my-leave-requests"] });
+    queryClient.invalidateQueries({ queryKey: ["header-counts"] });
     router.push("/dashboard/leave/requests");
   }
 

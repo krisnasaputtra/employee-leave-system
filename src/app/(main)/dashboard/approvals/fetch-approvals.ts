@@ -3,7 +3,7 @@
 
 
 import { getAuthenticatedUser } from "@/lib/auth/get-authenticated-user";
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -38,7 +38,7 @@ export interface FetchApprovalsResult {
 export async function fetchApprovals(): Promise<FetchApprovalsResult> {
   const { employee: actor } = await getAuthenticatedUser();
 
-  const supabase = await createClient();
+  const supabase = createAdminClient();
   const today = new Date().toISOString().split("T")[0];
 
   // ---- Direct pending requests based on role ----

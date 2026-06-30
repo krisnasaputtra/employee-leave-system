@@ -1,7 +1,7 @@
 "use server";
 
 import { getAuthenticatedUser } from "@/lib/auth/get-authenticated-user";
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 /**
  * Fetch notification + approval counts for the header badges.
@@ -13,7 +13,7 @@ export async function fetchHeaderCounts(): Promise<{
   pendingApprovals: number;
 }> {
   const { employee } = await getAuthenticatedUser();
-  const supabase = await createClient();
+  const supabase = createAdminClient();
   const today = new Date().toISOString().split("T")[0];
 
   // Direct approval count (ADMIN/MANAGER only)
