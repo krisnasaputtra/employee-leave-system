@@ -34,5 +34,5 @@ export async function loginAsManager(page: Page) {
 }
 
 export async function loginAsEmployee(page: Page) {
-  await login(page, "employee@test.com", "employee123");
+  await login(page, "employee@test.com", "Test12345!");
 }
