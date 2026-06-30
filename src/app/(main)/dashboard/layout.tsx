@@ -11,7 +11,7 @@ import { SIDEBAR_COLLAPSIBLE_VALUES, SIDEBAR_VARIANT_VALUES } from "@/lib/prefer
 import { cn } from "@/lib/utils";
 import { getPreference } from "@/server/server-actions";
 
-import { LanguageSwitcher } from "@/components/language-switcher";
+// import { LanguageSwitcher } from "@/components/language-switcher"; // Moved to feature-i18n branch
 
 import { NotificationBell } from "./_components/notification-bell";
 import { LayoutControls } from "./_components/sidebar/layout-controls";
@@ -85,7 +85,7 @@ export default async function Layout({ children }: Readonly<{ children: ReactNod
             </div>
             <div className="flex items-center gap-2">
               <NotificationBell />
-              <LanguageSwitcher />
+              {/* <LanguageSwitcher /> — Moved to feature-i18n branch */}
               <LayoutControls />
               <ThemeSwitcher />
             </div>

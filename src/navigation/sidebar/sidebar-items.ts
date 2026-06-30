@@ -143,6 +143,7 @@ export const sidebarItems: NavGroup[] = [
         title: "Delegations",
         url: "/dashboard/delegations",
         icon: ArrowLeftRight,
+        roles: ["ADMIN", "MANAGER"],
       },
       {
         id: "team",
