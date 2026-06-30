@@ -17,7 +17,7 @@ value: brutalist
   --muted-foreground: oklch(0.3211 0 0);
   --accent: oklch(0.5635 0.2408 260.8178);
   --accent-foreground: oklch(1 0 0);
-  --destructive: oklch(0 0 0);
+  --destructive: oklch(0.5768 0.2462 27.3241);
   --border: oklch(0 0 0);
   --input: oklch(0 0 0);
   --ring: oklch(0.6489 0.237 26.9728);
@@ -61,7 +61,7 @@ value: brutalist
   --muted-foreground: oklch(0.8452 0 0);
   --accent: oklch(0.6755 0.1765 252.2592);
   --accent-foreground: oklch(0 0 0);
-  --destructive: oklch(1 0 0);
+  --destructive: oklch(0.7106 0.1661 22.2162);
   --border: oklch(1 0 0);
   --input: oklch(1 0 0);
   --ring: oklch(0.7044 0.1872 23.1858);

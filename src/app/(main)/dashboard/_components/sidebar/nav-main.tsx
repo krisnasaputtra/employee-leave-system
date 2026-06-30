@@ -113,7 +113,7 @@ export function NavMain({ items }: NavMainProps) {
 
   const quickCreateLabel = t("nav.quickCreate");
 
-  // Fetch pending approvals count for badge (shares cache with NotificationBell)
+  // Fetch pending approvals + notification counts for badges (shares cache with NotificationBell)
   const { data: headerCounts } = useQuery({
     queryKey: ["header-counts"],
     queryFn: () => fetchHeaderCounts(),
@@ -121,13 +121,17 @@ export function NavMain({ items }: NavMainProps) {
     refetchInterval: 60 * 1000,
   });
   const pendingApprovals = headerCounts?.pendingApprovals ?? 0;
+  const unreadNotifications = headerCounts?.unreadNotifications ?? 0;
 
-  // Inject badge into the approvals nav item dynamically
+  // Inject badges into nav items dynamically
   const itemsWithBadges = items.map((group) => ({
     ...group,
     items: group.items.map((item) => {
       if (item.id === "approvals" && pendingApprovals > 0) {
         return { ...item, badge: pendingApprovals as NavBadge };
+      }
+      if (item.id === "notifications" && unreadNotifications > 0) {
+        return { ...item, badge: unreadNotifications as NavBadge };
       }
       return item;
     }),

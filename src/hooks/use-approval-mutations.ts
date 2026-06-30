@@ -20,6 +20,7 @@ export function useApproveLeaveRequest() {
     onSuccess: (result) => {
       toast.success(`Request ${result.request_number ?? ""} approved.`);
       queryClient.invalidateQueries({ queryKey: APPROVAL_KEYS.all });
+      queryClient.invalidateQueries({ queryKey: ["header-counts"] });
     },
     onError: (error: Error) => {
       toast.error(error.message);
@@ -39,6 +40,7 @@ export function useRejectLeaveRequest() {
     onSuccess: (result) => {
       toast.success(`Request ${result.request_number ?? ""} rejected.`);
       queryClient.invalidateQueries({ queryKey: APPROVAL_KEYS.all });
+      queryClient.invalidateQueries({ queryKey: ["header-counts"] });
     },
     onError: (error: Error) => {
       toast.error(error.message);
@@ -57,6 +59,7 @@ export function useBulkApprove() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: APPROVAL_KEYS.all });
+      queryClient.invalidateQueries({ queryKey: ["header-counts"] });
     },
     onError: (error: Error) => {
       toast.error(error.message);
@@ -75,6 +78,7 @@ export function useBulkReject() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: APPROVAL_KEYS.all });
+      queryClient.invalidateQueries({ queryKey: ["header-counts"] });
     },
     onError: (error: Error) => {
       toast.error(error.message);

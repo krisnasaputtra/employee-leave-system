@@ -14,6 +14,13 @@ export const leaveRequestCreateSchema = z
     partial_day: z.enum(["NONE", "FIRST_HALF", "SECOND_HALF"]),
     reason: z.string().max(1000, "Reason must be at most 1000 characters.").optional().or(z.literal("")),
   })
+  .refine((data) => {
+    const today = new Date().toISOString().split("T")[0];
+    return data.start_date >= today;
+  }, {
+    message: "Start date cannot be in the past.",
+    path: ["start_date"],
+  })
   .refine((data) => data.start_date <= data.end_date, {
     message: "End date cannot be before start date.",
     path: ["end_date"],

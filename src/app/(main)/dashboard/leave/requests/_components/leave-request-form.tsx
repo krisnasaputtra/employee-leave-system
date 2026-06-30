@@ -140,7 +140,6 @@ export function LeaveRequestForm({
     // Invalidate cached data so lists show fresh results
     queryClient.invalidateQueries({ queryKey: ["my-leave-requests"] });
     queryClient.invalidateQueries({ queryKey: ["header-counts"] });
-    router.refresh();
     router.push("/dashboard/leave/requests");
   }
 

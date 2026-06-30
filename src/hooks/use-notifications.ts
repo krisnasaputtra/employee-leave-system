@@ -19,6 +19,7 @@ export function useMarkNotificationRead() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: NOTIFICATION_KEYS.all });
+      queryClient.invalidateQueries({ queryKey: ["header-counts"] });
     },
   });
 }
@@ -34,6 +35,7 @@ export function useMarkAllNotificationsRead() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: NOTIFICATION_KEYS.all });
+      queryClient.invalidateQueries({ queryKey: ["header-counts"] });
     },
   });
 }
