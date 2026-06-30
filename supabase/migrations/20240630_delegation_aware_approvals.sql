@@ -128,7 +128,7 @@ begin
     from public.leave_balances
     where employee_id = v_request.employee_id
       and leave_type_id = v_request.leave_type_id
-      and year = extract(year from v_request.start_date)::integer
+      and balance_year = extract(year from v_request.start_date)::integer
     for update;
 
     if v_balance.id is null then
@@ -316,7 +316,7 @@ begin
     from public.leave_balances
     where employee_id = v_request.employee_id
       and leave_type_id = v_request.leave_type_id
-      and year = extract(year from v_request.start_date)::integer
+      and balance_year = extract(year from v_request.start_date)::integer
     for update;
 
     if v_balance.id is not null then
