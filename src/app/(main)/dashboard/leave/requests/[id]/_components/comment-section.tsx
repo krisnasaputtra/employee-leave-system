@@ -124,18 +124,24 @@ export function CommentSection({ requestId, events }: CommentSectionProps) {
       <CardContent className="space-y-4">
         {/* Timeline */}
         {events.length > 0 ? (
-          <div className="relative space-y-0 border-l-2 border-border pl-6">
-            {events.map((event) => {
+          <div className="relative space-y-0 pl-6">
+            {events.map((event, index) => {
               const actorName =
                 (event.metadata?.actor_name as string) ?? "System";
               const isComment = event.action === "COMMENT_ADDED";
               const commentText = isComment
                 ? (event.metadata?.comment as string)
                 : null;
+              const isLast = index === events.length - 1;
 
               return (
                 <div key={event.id} className="relative pb-6 last:pb-0">
-                  {/* Dot on the timeline line */}
+                  {/* Connector line to next item (not on last) */}
+                  {!isLast && (
+                    <span className="absolute -left-[calc(1.5rem-4px)] top-5 bottom-0 w-0.5 bg-border" />
+                  )}
+
+                  {/* Dot on the timeline */}
                   <span className="absolute -left-[calc(1.5rem+5px)] flex h-5 w-5 items-center justify-center rounded-full bg-background ring-2 ring-border">
                     {getEventIcon(event.action)}
                   </span>

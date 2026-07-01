@@ -7,7 +7,7 @@ import { z } from "zod";
 import { isNextInternalError } from "@/lib/utils/server-action-utils";
 
 import { getAuthenticatedUser } from "@/lib/auth/get-authenticated-user";
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 const commentSchema = z.object({
   request_id: z.string().uuid(),
@@ -29,7 +29,7 @@ export async function addCommentAction(input: Record<string, unknown>) {
       };
     }
 
-    const supabase = await createClient();
+    const supabase = createAdminClient();
 
     // Store comment as an audit log entry
     const { error } = await supabase.from("audit_logs").insert({
