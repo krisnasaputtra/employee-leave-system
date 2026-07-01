@@ -10,7 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { getAuthenticatedUser } from "@/lib/auth/get-authenticated-user";
 import { canApproveLeaveRequest } from "@/lib/permissions";
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { STATUS_BADGE_STYLES } from "@/lib/ui/badge-variants";
 import { formatDate } from "@/lib/utils/format-date";
 
@@ -26,7 +26,7 @@ interface PageProps {
 export default async function LeaveRequestDetailPage({ params }: PageProps) {
   const { id } = await params;
   const { employee: actor } = await getAuthenticatedUser();
-  const supabase = await createClient();
+  const supabase = createAdminClient();
 
   const { data: request, error } = await supabase
     .from("leave_requests")
@@ -57,12 +57,29 @@ export default async function LeaveRequestDetailPage({ params }: PageProps) {
 
   const isOwner = request.employee_id === actor.id;
   const isPending = request.status === "PENDING";
-  const canApprove = canApproveLeaveRequest(
+  let canApprove = canApproveLeaveRequest(
     actor.role,
     actor.id,
     request.employee_id,
     requesterEmployee?.manager_id ?? null,
   );
+
+  // Also check delegation: if the actor has an active delegation from the requester's manager
+  if (!canApprove && !isOwner && requesterEmployee?.manager_id) {
+    const today = new Date().toISOString().split("T")[0];
+    const { data: delegation } = await supabase
+      .from("approval_delegations")
+      .select("id")
+      .eq("delegate_id", actor.id)
+      .eq("delegator_id", requesterEmployee.manager_id)
+      .eq("is_active", true)
+      .lte("start_date", today)
+      .gte("end_date", today)
+      .limit(1);
+    if (delegation && delegation.length > 0) {
+      canApprove = true;
+    }
+  }
 
   // Fetch attachments (RLS-scoped: owner, manager, admin)
   const { data: attachments } = await supabase
