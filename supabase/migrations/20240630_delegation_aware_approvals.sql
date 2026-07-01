@@ -166,10 +166,9 @@ begin
   -- 8. Update request
   update public.leave_requests set
     status = 'APPROVED',
-    approved_by = v_actor_id,
-    approved_at = now(),
-    requested_days = v_recalculated_days,
-    updated_at = now()
+    approver_employee_id = v_actor_id,
+    decided_at = now(),
+    requested_days = v_recalculated_days
   where id = p_request_id;
 
   -- 9. Notification
@@ -181,12 +180,9 @@ begin
   );
 
   -- 10. Audit log
-  insert into public.audit_logs (action, actor_id, target_type, target_id, metadata)
+  insert into public.audit_logs (actor_employee_id, action, entity_type, entity_id, metadata)
   values (
-    'APPROVE_LEAVE',
-    v_actor_id,
-    'leave_request',
-    p_request_id,
+    v_actor_id, 'LEAVE_REQUEST_APPROVED', 'leave_request', p_request_id,
     jsonb_build_object(
       'request_number', v_request.request_number,
       'employee_id', v_request.employee_id,
@@ -302,10 +298,9 @@ begin
   -- 5. Update request status
   update public.leave_requests set
     status = 'REJECTED',
-    rejection_reason = p_rejection_reason,
-    approved_by = v_actor_id,
-    approved_at = now(),
-    updated_at = now()
+    approver_employee_id = v_actor_id,
+    decided_at = now(),
+    rejection_reason = trim(p_rejection_reason)
   where id = p_request_id;
 
   -- 6. Release pending balance
@@ -348,12 +343,9 @@ begin
   );
 
   -- 8. Audit log
-  insert into public.audit_logs (action, actor_id, target_type, target_id, metadata)
+  insert into public.audit_logs (actor_employee_id, action, entity_type, entity_id, metadata)
   values (
-    'REJECT_LEAVE',
-    v_actor_id,
-    'leave_request',
-    p_request_id,
+    v_actor_id, 'LEAVE_REQUEST_REJECTED', 'leave_request', p_request_id,
     jsonb_build_object(
       'request_number', v_request.request_number,
       'employee_id', v_request.employee_id,
