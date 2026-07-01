@@ -16,19 +16,21 @@ export async function fetchHeaderCounts(): Promise<{
   const supabase = createAdminClient();
   const today = new Date().toISOString().split("T")[0];
 
-  // Direct approval count (ADMIN/MANAGER only)
+  // Direct approval count (ADMIN/MANAGER only) — exclude self-requests
   const approvalQuery =
     employee.role === "ADMIN"
       ? supabase
           .from("leave_requests")
           .select("*", { count: "exact", head: true })
           .eq("status", "PENDING")
+          .neq("employee_id", employee.id)
       : employee.role === "MANAGER"
         ? supabase
             .from("leave_requests")
             .select("*, employees!inner(manager_id)", { count: "exact", head: true })
             .eq("status", "PENDING")
             .eq("employees.manager_id", employee.id)
+            .neq("employee_id", employee.id)
         : null;
 
   const [notifResult, approvalResult] = await Promise.all([
@@ -42,7 +44,7 @@ export async function fetchHeaderCounts(): Promise<{
 
   let directCount = approvalResult.count ?? 0;
 
-  // Also count delegated approvals (for any role)
+  // Also count delegated approvals (for any role) — exclude self-requests
   let delegatedCount = 0;
   const { data: activeDelegations } = await supabase
     .from("approval_delegations")
@@ -59,7 +61,10 @@ export async function fetchHeaderCounts(): Promise<{
       .select("id")
       .in("manager_id", delegatorIds);
 
-    const delegatedEmployeeIds = (delegatedEmployees ?? []).map((e) => e.id);
+    const delegatedEmployeeIds = (delegatedEmployees ?? [])
+      .map((e) => e.id)
+      .filter((id) => id !== employee.id); // exclude self
+
     if (delegatedEmployeeIds.length > 0) {
       const { count } = await supabase
         .from("leave_requests")
