@@ -135,7 +135,7 @@ begin
       raise exception 'No leave balance found for this employee and leave type';
     end if;
 
-    v_available := v_balance.entitled_days + v_balance.carried_over_days
+    v_available := v_balance.entitled_days + v_balance.adjustment_days
                    - v_balance.used_days - v_balance.pending_days
                    + v_request.requested_days;
 
