@@ -96,6 +96,40 @@ export default async function LeaveRequestDetailPage({ params }: PageProps) {
     .eq("entity_id", id)
     .order("created_at", { ascending: true });
 
+  // Resolve actor names for the activity timeline
+  const actorIds = [
+    ...new Set(
+      (auditEvents ?? [])
+        .map((e) => e.actor_employee_id)
+        .filter(Boolean) as string[]
+    ),
+  ];
+  let actorNameMap: Record<string, string> = {};
+  if (actorIds.length > 0) {
+    const { data: actors } = await supabase
+      .from("employees")
+      .select("id, full_name")
+      .in("id", actorIds);
+    actorNameMap = Object.fromEntries(
+      (actors ?? []).map((a) => [a.id, a.full_name])
+    );
+  }
+
+  // Enrich events with actor names
+  const enrichedEvents = (auditEvents ?? []).map((e) => ({
+    id: e.id,
+    action: e.action,
+    created_at: e.created_at,
+    actor_employee_id: e.actor_employee_id,
+    metadata: {
+      ...(e.metadata as Record<string, unknown> | null),
+      actor_name:
+        (e.metadata as Record<string, unknown> | null)?.actor_name ??
+        (e.actor_employee_id ? actorNameMap[e.actor_employee_id] : null) ??
+        "System",
+    },
+  }));
+
   const canUpload = isOwner && isPending;
   const canRemove = (isOwner && isPending) || actor.role === "ADMIN";
 
@@ -280,13 +314,7 @@ export default async function LeaveRequestDetailPage({ params }: PageProps) {
       {/* Comments & Activity */}
       <CommentSection
         requestId={id}
-        events={(auditEvents ?? []).map((e) => ({
-          id: e.id,
-          action: e.action,
-          created_at: e.created_at,
-          metadata: e.metadata as Record<string, unknown> | null,
-          actor_employee_id: e.actor_employee_id,
-        }))}
+        events={enrichedEvents}
       />
     </div>
   );
