@@ -153,10 +153,12 @@ begin
 
     -- Ledger entry
     insert into public.leave_balance_transactions (
-      leave_balance_id, transaction_type, days, description, performed_by
+      leave_balance_id, leave_request_id, transaction_type,
+      days, reason, actor_employee_id
     ) values (
-      v_balance.id, 'APPROVED', v_recalculated_days,
-      'Leave request ' || coalesce(v_request.request_number, p_request_id::text) || ' approved',
+      v_balance.id, p_request_id, 'USE',
+      v_recalculated_days,
+      'Approved: request ' || coalesce(v_request.request_number, p_request_id::text),
       v_actor_id
     );
   end if;
@@ -326,10 +328,12 @@ begin
       where id = v_balance.id;
 
       insert into public.leave_balance_transactions (
-        leave_balance_id, transaction_type, days, description, performed_by
+        leave_balance_id, leave_request_id, transaction_type,
+        days, reason, actor_employee_id
       ) values (
-        v_balance.id, 'REJECTED', v_request.requested_days,
-        'Leave request ' || coalesce(v_request.request_number, p_request_id::text) || ' rejected',
+        v_balance.id, p_request_id, 'RELEASE',
+        v_request.requested_days,
+        'Rejected: request ' || coalesce(v_request.request_number, p_request_id::text),
         v_actor_id
       );
     end if;
