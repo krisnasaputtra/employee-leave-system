@@ -2,6 +2,8 @@ import { type NextRequest, NextResponse } from "next/server";
 
 import { createServerClient } from "@supabase/ssr";
 
+import { getClientEnv } from "@/lib/client-env";
+
 /**
  * Supabase auth-refresh middleware helper.
  *
@@ -17,24 +19,21 @@ export async function updateSession(request: NextRequest) {
   const supabaseResponse = NextResponse.next({
     request,
   });
+  const env = getClientEnv();
 
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL ?? "",
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "",
-    {
-      cookies: {
-        getAll() {
-          return request.cookies.getAll();
-        },
-        setAll(cookiesToSet) {
-          for (const { name, value, options } of cookiesToSet) {
-            request.cookies.set(name, value);
-            supabaseResponse.cookies.set(name, value, options);
-          }
-        },
+  const supabase = createServerClient(env.NEXT_PUBLIC_SUPABASE_URL, env.NEXT_PUBLIC_SUPABASE_ANON_KEY, {
+    cookies: {
+      getAll() {
+        return request.cookies.getAll();
+      },
+      setAll(cookiesToSet) {
+        for (const { name, value, options } of cookiesToSet) {
+          request.cookies.set(name, value);
+          supabaseResponse.cookies.set(name, value, options);
+        }
       },
     },
-  );
+  });
 
   // IMPORTANT: Do NOT use getSession() alone for authorization.
   // getUser() sends a request to the Supabase Auth server to revalidate

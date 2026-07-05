@@ -4,17 +4,13 @@ import { revalidatePath } from "next/cache";
 
 import { z } from "zod";
 
-import { isNextInternalError } from "@/lib/utils/server-action-utils";
-
 import { getAuthenticatedUser } from "@/lib/auth/get-authenticated-user";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { isNextInternalError } from "@/lib/utils/server-action-utils";
 
 const commentSchema = z.object({
   request_id: z.string().uuid(),
-  comment: z
-    .string()
-    .min(1, "Comment cannot be empty.")
-    .max(500, "Comment must be at most 500 characters."),
+  comment: z.string().min(1, "Comment cannot be empty.").max(500, "Comment must be at most 500 characters."),
 });
 
 export async function addCommentAction(input: Record<string, unknown>) {

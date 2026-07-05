@@ -1,37 +1,28 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+
 import Link from "next/link";
+
 import { useQuery } from "@tanstack/react-query";
 import { Eye, FileText, Loader2, Search, X } from "lucide-react";
 
-import { useTranslation } from "@/providers/locale-provider";
-
+import { ExportCSVButton } from "@/components/export-csv-button";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
-import { Input } from "@/components/ui/input";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { ExportButton } from "@/components/ui/export-button";
-import { ExportCSVButton } from "@/components/export-csv-button";
-import { STATUS_BADGE_STYLES } from "@/lib/ui/badge-variants";
-import { formatDate } from "@/lib/utils/format-date";
-import { generateCsv } from "@/lib/utils/export-csv";
+import { Input } from "@/components/ui/input";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useDebounce } from "@/hooks/use-debounce";
+import { STATUS_BADGE_STYLES } from "@/lib/ui/badge-variants";
+import { generateCsv } from "@/lib/utils/export-csv";
+import { formatDate } from "@/lib/utils/format-date";
+import { useTranslation } from "@/providers/locale-provider";
 
-import {
-  fetchAllRequests,
-  type FetchAllRequestsResult,
-} from "../fetch-all-requests";
 import { exportLeaveRequestsCSV } from "../../../employees/export-action";
+import { type FetchAllRequestsResult, fetchAllRequests } from "../fetch-all-requests";
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -62,6 +53,8 @@ export function AllRequestsClient({ initialData }: AllRequestsClientProps) {
 
   // Reset to page 1 whenever any filter changes
   useEffect(() => {
+    void debouncedSearch;
+    void status;
     setPage(1);
   }, [debouncedSearch, status]);
 
@@ -144,7 +137,7 @@ export function AllRequestsClient({ initialData }: AllRequestsClientProps) {
       <div className="flex flex-wrap items-center gap-2">
         {/* Search input — plain input, no <form>, no browser refresh */}
         <div className="relative flex-1 md:max-w-sm">
-          <Search className="text-muted-foreground absolute left-2.5 top-2.5 h-4 w-4" />
+          <Search className="absolute top-2.5 left-2.5 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder={t("leave.searchPlaceholder")}
             value={search}
@@ -172,21 +165,14 @@ export function AllRequestsClient({ initialData }: AllRequestsClientProps) {
 
         {/* Clear filters */}
         {hasActiveFilters && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={clearFilters}
-            className="text-muted-foreground"
-          >
+          <Button variant="ghost" size="sm" onClick={clearFilters} className="text-muted-foreground">
             <X className="mr-1 h-3.5 w-3.5" />
             {t("common.clearFilters")}
           </Button>
         )}
 
         {/* Fetching indicator */}
-        {isFetching && (
-          <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
-        )}
+        {isFetching && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
       </div>
 
       {/* Empty state */}
@@ -195,20 +181,14 @@ export function AllRequestsClient({ initialData }: AllRequestsClientProps) {
           icon={FileText}
           title={t("leave.noRequestsFound")}
           description={
-            search || status
-              ? t("leave.noRequestsFilterDescription")
-              : t("leave.noRequestsSystemDescription")
+            search || status ? t("leave.noRequestsFilterDescription") : t("leave.noRequestsSystemDescription")
           }
         />
       ) : (
         /* Data table */
         <Card>
           <CardContent className="p-0">
-            <div
-              className={`transition-opacity duration-150 ${
-                isFetching ? "opacity-60" : "opacity-100"
-              }`}
-            >
+            <div className={`transition-opacity duration-150 ${isFetching ? "opacity-60" : "opacity-100"}`}>
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -228,9 +208,7 @@ export function AllRequestsClient({ initialData }: AllRequestsClientProps) {
                       <TableCell className="font-medium">{r.request_number ?? "—"}</TableCell>
                       <TableCell>
                         <div className="font-medium">{r.employees?.full_name ?? "Unknown"}</div>
-                        <div className="text-muted-foreground text-sm">
-                          {r.employees?.employee_code ?? ""}
-                        </div>
+                        <div className="text-muted-foreground text-sm">{r.employees?.employee_code ?? ""}</div>
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">
@@ -280,20 +258,12 @@ export function AllRequestsClient({ initialData }: AllRequestsClientProps) {
               </p>
               <div className="flex gap-1">
                 {page > 1 && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setPage((p) => p - 1)}
-                  >
+                  <Button variant="outline" size="sm" onClick={() => setPage((p) => p - 1)}>
                     {t("common.previous")}
                   </Button>
                 )}
                 {page < totalPages && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setPage((p) => p + 1)}
-                  >
+                  <Button variant="outline" size="sm" onClick={() => setPage((p) => p + 1)}>
                     {t("common.next")}
                   </Button>
                 )}

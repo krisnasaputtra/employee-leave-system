@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { delegationCreateSchema, type DelegationCreateInput } from "@/lib/delegations/schemas";
+import { type DelegationCreateInput, delegationCreateSchema } from "@/lib/delegations/schemas";
 import { useTranslation } from "@/providers/locale-provider";
 
 import { createDelegationAction } from "../actions";
@@ -58,10 +58,12 @@ export function DelegationForm({ employees }: DelegationFormProps) {
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">
           <Label htmlFor="delegate_id">{t("delegation.delegateTo")}</Label>
-          <Select
-            onValueChange={(value) => setValue("delegate_id", value, { shouldValidate: true })}
-          >
-            <SelectTrigger id="delegate_id" aria-required="true" aria-describedby={errors.delegate_id ? "delegate_id-error" : undefined}>
+          <Select onValueChange={(value) => setValue("delegate_id", value, { shouldValidate: true })}>
+            <SelectTrigger
+              id="delegate_id"
+              aria-required="true"
+              aria-describedby={errors.delegate_id ? "delegate_id-error" : undefined}
+            >
               <SelectValue placeholder={t("delegation.selectEmployee")} />
             </SelectTrigger>
             <SelectContent>
@@ -73,7 +75,9 @@ export function DelegationForm({ employees }: DelegationFormProps) {
             </SelectContent>
           </Select>
           {errors.delegate_id && (
-            <p id="delegate_id-error" role="alert" className="text-sm text-destructive">{errors.delegate_id.message}</p>
+            <p id="delegate_id-error" role="alert" className="text-destructive text-sm">
+              {errors.delegate_id.message}
+            </p>
           )}
         </div>
 
@@ -87,23 +91,41 @@ export function DelegationForm({ employees }: DelegationFormProps) {
             {...register("reason")}
           />
           {errors.reason && (
-            <p id="reason-error" role="alert" className="text-sm text-destructive">{errors.reason.message}</p>
+            <p id="reason-error" role="alert" className="text-destructive text-sm">
+              {errors.reason.message}
+            </p>
           )}
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="start_date">{t("leave.startDate")}</Label>
-          <Input type="date" id="start_date" aria-required="true" aria-describedby={errors.start_date ? "start_date-error" : undefined} {...register("start_date")} />
+          <Input
+            type="date"
+            id="start_date"
+            aria-required="true"
+            aria-describedby={errors.start_date ? "start_date-error" : undefined}
+            {...register("start_date")}
+          />
           {errors.start_date && (
-            <p id="start_date-error" role="alert" className="text-sm text-destructive">{errors.start_date.message}</p>
+            <p id="start_date-error" role="alert" className="text-destructive text-sm">
+              {errors.start_date.message}
+            </p>
           )}
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="end_date">{t("leave.endDate")}</Label>
-          <Input type="date" id="end_date" aria-required="true" aria-describedby={errors.end_date ? "end_date-error" : undefined} {...register("end_date")} />
+          <Input
+            type="date"
+            id="end_date"
+            aria-required="true"
+            aria-describedby={errors.end_date ? "end_date-error" : undefined}
+            {...register("end_date")}
+          />
           {errors.end_date && (
-            <p id="end_date-error" role="alert" className="text-sm text-destructive">{errors.end_date.message}</p>
+            <p id="end_date-error" role="alert" className="text-destructive text-sm">
+              {errors.end_date.message}
+            </p>
           )}
         </div>
       </div>

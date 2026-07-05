@@ -41,9 +41,7 @@ export interface FetchBalancesResult {
 // Server action
 // ---------------------------------------------------------------------------
 
-export async function fetchBalances(
-  params: FetchBalancesParams = {},
-): Promise<FetchBalancesResult> {
+export async function fetchBalances(params: FetchBalancesParams = {}): Promise<FetchBalancesResult> {
   await getAuthenticatedUser(); // ensure authenticated
   const supabase = await createClient();
 
@@ -55,18 +53,15 @@ export async function fetchBalances(
   // ---------- Query employees ----------
   let query = supabase
     .from("employees")
-    .select(
-      "id, employee_code, full_name, department_id, departments!employees_department_id_fk(name)",
-      { count: "exact" },
-    )
+    .select("id, employee_code, full_name, department_id, departments!employees_department_id_fk(name)", {
+      count: "exact",
+    })
     .eq("status", "ACTIVE");
 
   if (params.search) {
     const safeSearch = sanitizeSearch(params.search);
     if (safeSearch) {
-      query = query.or(
-        `full_name.ilike.%${safeSearch}%,employee_code.ilike.%${safeSearch}%`,
-      );
+      query = query.or(`full_name.ilike.%${safeSearch}%,employee_code.ilike.%${safeSearch}%`);
     }
   }
 
@@ -83,17 +78,12 @@ export async function fetchBalances(
   // ---------- Fetch balances for displayed employees ----------
   const employeeIds = (employees ?? []).map((e) => e.id);
 
-  const balancesMap: Record<
-    string,
-    { entitled: number; used: number; pending: number; remaining: number }
-  > = {};
+  const balancesMap: Record<string, { entitled: number; used: number; pending: number; remaining: number }> = {};
 
   if (employeeIds.length > 0) {
     const { data: balances } = await supabase
       .from("leave_balances")
-      .select(
-        "employee_id, entitled_days, adjustment_days, used_days, pending_days",
-      )
+      .select("employee_id, entitled_days, adjustment_days, used_days, pending_days")
       .in("employee_id", employeeIds)
       .eq("balance_year", currentYear);
 

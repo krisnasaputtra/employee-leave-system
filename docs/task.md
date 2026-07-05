@@ -1455,3 +1455,39 @@
 - [x] TanStack Query Integration — QueryProvider, mutation hooks, refactored notifications + approvals (0dbe9e7)
 
 ## 🎉 ALL 18/18 PLANNED FEATURES COMPLETE
+
+---
+
+# Post-Phase 18 - Release/Stabilization Closure
+
+## 1. Linked Supabase Migration History
+- [x] Renamed duplicate-date migration files to unique timestamp versions
+- [x] Repaired linked Supabase migration history (`20240626` legacy entry reverted, `20240626000000` recorded as applied)
+- [x] Applied pending linked Supabase migrations through `20260702000300_phase2_pending_leave_policy_guard.sql`
+- [x] Verified `npx supabase db push --linked --dry-run` reports remote database is up to date
+- [ ] `npm run test:db` - skipped by request because Docker is not available in this environment
+- [x] Added SQL Editor mitigation guide at `docs/DB_SQL_EDITOR_VERIFICATION.md`
+- [x] Updated `supabase/tests/cloud_sql_editor.test.sql` to provide ASCII PASS/FAIL output for SQL Editor evidence
+
+## 2. Runtime Stabilization
+- [x] Fixed scoped approval/header RPC calls by binding `supabase.rpc` to the request-scoped server client
+- [x] Added dashboard sidebar navigation landmark for accessibility and E2E stability
+- [x] Stabilized E2E login helper by waiting for dashboard load and visible main content before follow-up navigation
+- [x] Updated smoke logout flow to open the user menu before selecting Log out
+- [x] Renamed Next.js entrypoint from `src/middleware.ts` to `src/proxy.ts` to remove the Next 16 middleware convention warning
+- [x] Fixed auth logo sizing classes so Next Image no longer warns during smoke tests
+- [x] Removed resolver `as any` escape hatches from policy and capacity settings forms
+
+## 3. Verification Evidence
+- [x] `npm run check` - passed with no diagnostics after warning cleanup
+- [x] `npm run test` - 7 files passed, 93 tests passed
+- [x] `npx tsc --noEmit` - passed
+- [x] `npm run build` - failed in sandbox due blocked Google Fonts network fetch, then passed with network escalation
+- [x] `npx playwright test e2e/smoke.spec.ts --reporter=list` - 23 passed
+- [x] `npx playwright test e2e/team-delegation.spec.ts --reporter=list` - 13 passed
+- [x] `npm run test:e2e -- --reporter=list` - 113 passed
+
+## 4. Warning Cleanup
+- [x] Replaced index-based React keys in loading skeletons with stable static keys
+- [x] Replaced index-based React keys in dashboard/code-review lists with stable domain/content keys
+- [x] Sorted Tailwind classes in the language switcher to satisfy Biome nursery lint

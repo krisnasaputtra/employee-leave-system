@@ -1,4 +1,4 @@
-import { type Page } from "@playwright/test";
+import type { Page } from "@playwright/test";
 
 /**
  * Login helper — fills the login form and submits.
@@ -17,8 +17,12 @@ export async function login(page: Page, email: string, password: string) {
   await page.locator('input[type="password"]').fill(password);
   await page.locator('button[type="submit"]').click();
 
-  // Wait for navigation to dashboard (longer timeout for cold start)
-  await page.waitForURL(/\/dashboard/, { timeout: 30000 });
+  // Wait for the dashboard navigation to finish before tests navigate again.
+  await page.waitForURL(/\/dashboard(?:\?.*)?$/, {
+    timeout: 30000,
+    waitUntil: "load",
+  });
+  await page.locator("main").waitFor({ state: "visible", timeout: 30000 });
 }
 
 /**

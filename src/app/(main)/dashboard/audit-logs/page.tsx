@@ -1,4 +1,5 @@
-import React from "react";
+import type React from "react";
+
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
@@ -7,32 +8,13 @@ import { ScrollText, Search, ShieldAlert } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
+import { ExportButton } from "@/components/ui/export-button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { getAuthenticatedUser } from "@/lib/auth/get-authenticated-user";
 import { createClient } from "@/lib/supabase/server";
-import { sanitizeSearch } from "@/lib/utils/sanitize-search";
-import { ExportButton } from "@/components/ui/export-button";
 import { generateCsv } from "@/lib/utils/export-csv";
-
-const ACTION_OPTIONS = [
-  "ALL",
-  "EMPLOYEE_CREATED",
-  "EMPLOYEE_UPDATED",
-  "EMPLOYEE_DEACTIVATED",
-  "DEPARTMENT_CREATED",
-  "DEPARTMENT_UPDATED",
-  "DEPARTMENT_TOGGLED",
-  "LEAVE_TYPE_CREATED",
-  "LEAVE_TYPE_UPDATED",
-  "LEAVE_TYPE_TOGGLED",
-  "HOLIDAY_CREATED",
-  "HOLIDAY_UPDATED",
-  "HOLIDAY_TOGGLED",
-  "ATTACHMENT_UPLOADED",
-  "ATTACHMENT_REMOVED",
-  "ATTACHMENT_ACCESSED",
-] as const;
+import { sanitizeSearch } from "@/lib/utils/sanitize-search";
 
 function renderMetadata(value: unknown): React.ReactNode {
   if (value === null || value === undefined) return <span className="text-muted-foreground">—</span>;
@@ -40,17 +22,16 @@ function renderMetadata(value: unknown): React.ReactNode {
     const entries = Object.entries(value as Record<string, unknown>);
     if (entries.length === 0) return <span className="text-muted-foreground">—</span>;
     return (
-      <div className="text-xs text-muted-foreground space-y-0.5">
+      <div className="space-y-0.5 text-muted-foreground text-xs">
         {entries.map(([key, val]) => (
           <div key={key}>
-            <span className="font-medium">{key.replace(/_/g, " ")}:</span>{" "}
-            <span>{String(val)}</span>
+            <span className="font-medium">{key.replace(/_/g, " ")}:</span> <span>{String(val)}</span>
           </div>
         ))}
       </div>
     );
   }
-  return <span className="text-xs text-muted-foreground">{String(value)}</span>;
+  return <span className="text-muted-foreground text-xs">{String(value)}</span>;
 }
 
 export default async function AuditLogsPage({
@@ -158,7 +139,7 @@ export default async function AuditLogsPage({
       <div className="flex flex-wrap items-center gap-2">
         <form className="relative flex-1 md:max-w-sm" action="/dashboard/audit-logs" method="GET">
           {actionFilter && <input type="hidden" name="action" value={actionFilter} />}
-          <Search className="text-muted-foreground absolute left-2.5 top-2.5 h-4 w-4" />
+          <Search className="absolute top-2.5 left-2.5 h-4 w-4 text-muted-foreground" />
           <Input
             name="search"
             placeholder="Search by actor name..."
@@ -169,17 +150,28 @@ export default async function AuditLogsPage({
         </form>
 
         <div className="flex flex-wrap gap-1">
-          {(["ALL", "EMPLOYEE_CREATED", "EMPLOYEE_UPDATED", "DEPARTMENT_CREATED", "LEAVE_TYPE_CREATED", "HOLIDAY_CREATED", "ATTACHMENT_UPLOADED"] as const).map((s) => {
+          {(
+            [
+              "ALL",
+              "EMPLOYEE_CREATED",
+              "EMPLOYEE_UPDATED",
+              "DEPARTMENT_CREATED",
+              "LEAVE_TYPE_CREATED",
+              "HOLIDAY_CREATED",
+              "ATTACHMENT_UPLOADED",
+            ] as const
+          ).map((s) => {
             const isActive = s === "ALL" ? !actionFilter : actionFilter === s;
             return (
-              <Button
-                key={s}
-                variant={isActive ? "default" : "outline"}
-                size="sm"
-                asChild
-              >
+              <Button key={s} variant={isActive ? "default" : "outline"} size="sm" asChild>
                 <Link href={buildUrl({ action: s === "ALL" ? undefined : s, page: undefined })}>
-                  {s === "ALL" ? "All" : s.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()).toLowerCase().replace(/^\w/, (c) => c.toUpperCase())}
+                  {s === "ALL"
+                    ? "All"
+                    : s
+                        .replace(/_/g, " ")
+                        .replace(/\b\w/g, (c) => c.toUpperCase())
+                        .toLowerCase()
+                        .replace(/^\w/, (c) => c.toUpperCase())}
                 </Link>
               </Button>
             );
@@ -191,7 +183,9 @@ export default async function AuditLogsPage({
       {error ? (
         <div className="flex flex-col items-center justify-center gap-2 py-20">
           <p className="text-destructive text-sm">Failed to load audit logs.</p>
-          <p className="text-muted-foreground text-xs">Something went wrong while loading data. Please try again later.</p>
+          <p className="text-muted-foreground text-xs">
+            Something went wrong while loading data. Please try again later.
+          </p>
         </div>
       ) : items.length === 0 ? (
         /* Empty state */
@@ -236,9 +230,7 @@ export default async function AuditLogsPage({
                       <Badge variant="outline">{log.action}</Badge>
                     </TableCell>
                     <TableCell>{log.entity_type}</TableCell>
-                    <TableCell className="max-w-xs">
-                      {renderMetadata(log.metadata)}
-                    </TableCell>
+                    <TableCell className="max-w-xs">{renderMetadata(log.metadata)}</TableCell>
                   </TableRow>
                 );
               })}

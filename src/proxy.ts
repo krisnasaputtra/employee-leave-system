@@ -1,7 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server";
 
-import { updateSession } from "@/lib/supabase/middleware";
 import { checkRateLimit } from "@/lib/security/rate-limit";
+import { updateSession } from "@/lib/supabase/middleware";
 
 /** Public paths that don't require authentication. */
 const PUBLIC_PATHS = ["/login", "/auth/signout", "/code-review"];
@@ -18,7 +18,7 @@ function isRateLimitedPath(pathname: string): boolean {
 }
 
 /**
- * Next.js middleware.
+ * Next.js proxy.
  *
  * 1. Refreshes the Supabase auth session on every matched request.
  * 2. Redirects unauthenticated users to /login for protected routes.
@@ -27,14 +27,13 @@ function isRateLimitedPath(pathname: string): boolean {
  * This is a COARSE guard only — every protected Server Component,
  * query, and Server Action must still authorize independently.
  */
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Rate limit auth routes
   if (isRateLimitedPath(pathname)) {
-    const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim()
-      ?? request.headers.get("x-real-ip")
-      ?? "unknown";
+    const ip =
+      request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? request.headers.get("x-real-ip") ?? "unknown";
     const { allowed, remaining, resetAt } = checkRateLimit(
       `auth:${ip}`,
       60, // 60 requests per minute — generous for dev/E2E, still blocks brute force
@@ -95,4 +94,3 @@ export const config = {
     "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };
-

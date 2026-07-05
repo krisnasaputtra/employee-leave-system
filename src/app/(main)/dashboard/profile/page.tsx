@@ -1,21 +1,10 @@
 import { redirect } from "next/navigation";
 
-import {
-  Briefcase,
-  Building2,
-  Hash,
-  Mail,
-  Shield,
-} from "lucide-react";
+import { Briefcase, Building2, Hash, Mail, Shield } from "lucide-react";
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getAuthenticatedUser } from "@/lib/auth/get-authenticated-user";
 import { createClient } from "@/lib/supabase/server";
 import { ROLE_BADGE_STYLES } from "@/lib/ui/badge-variants";
@@ -58,9 +47,7 @@ export default async function ProfilePage() {
       {/* Header */}
       <div className="flex items-center gap-4">
         <Avatar className="h-16 w-16 border-2 border-primary">
-          <AvatarFallback className="text-lg font-bold bg-primary/10">
-            {initials}
-          </AvatarFallback>
+          <AvatarFallback className="bg-primary/10 font-bold text-lg">{initials}</AvatarFallback>
         </Avatar>
         <div className="flex-1">
           <h1 className="font-semibold text-2xl tracking-tight">{employee.full_name}</h1>
@@ -77,14 +64,14 @@ export default async function ProfilePage() {
           <CardContent>
             <dl className="grid gap-4 text-sm">
               <div className="flex items-center gap-3">
-                <Hash className="h-4 w-4 text-muted-foreground shrink-0" />
+                <Hash className="h-4 w-4 shrink-0 text-muted-foreground" />
                 <div>
                   <dt className="text-muted-foreground text-xs">Employee Code</dt>
                   <dd className="font-mono">{employee.employee_code}</dd>
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                <Mail className="h-4 w-4 text-muted-foreground shrink-0" />
+                <Mail className="h-4 w-4 shrink-0 text-muted-foreground" />
                 <div>
                   <dt className="text-muted-foreground text-xs">Work Email</dt>
                   <dd>{employee.work_email}</dd>
@@ -101,25 +88,27 @@ export default async function ProfilePage() {
           <CardContent>
             <dl className="grid gap-4 text-sm">
               <div className="flex items-center gap-3">
-                <Building2 className="h-4 w-4 text-muted-foreground shrink-0" />
+                <Building2 className="h-4 w-4 shrink-0 text-muted-foreground" />
                 <div>
                   <dt className="text-muted-foreground text-xs">Team</dt>
                   <dd>{departmentName}</dd>
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                <Briefcase className="h-4 w-4 text-muted-foreground shrink-0" />
+                <Briefcase className="h-4 w-4 shrink-0 text-muted-foreground" />
                 <div>
                   <dt className="text-muted-foreground text-xs">Position</dt>
                   <dd>{employee.position}</dd>
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                <Shield className="h-4 w-4 text-muted-foreground shrink-0" />
+                <Shield className="h-4 w-4 shrink-0 text-muted-foreground" />
                 <div>
                   <dt className="text-muted-foreground text-xs">Role</dt>
                   <dd>
-                    <Badge variant="outline" className={ROLE_BADGE_STYLES[employee.role]?.className}>{employee.role}</Badge>
+                    <Badge variant="outline" className={ROLE_BADGE_STYLES[employee.role]?.className}>
+                      {employee.role}
+                    </Badge>
                   </dd>
                 </div>
               </div>

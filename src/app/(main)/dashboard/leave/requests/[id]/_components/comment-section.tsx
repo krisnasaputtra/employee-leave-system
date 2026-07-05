@@ -2,14 +2,7 @@
 
 import { useRef, useTransition } from "react";
 
-import {
-  CheckCircle,
-  Clock,
-  Loader2,
-  MessageSquare,
-  Send,
-  XCircle,
-} from "lucide-react";
+import { CheckCircle, Clock, Loader2, MessageSquare, Send, XCircle } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -126,20 +119,15 @@ export function CommentSection({ requestId, events }: CommentSectionProps) {
         {events.length > 0 ? (
           <div className="relative space-y-0 pl-6">
             {events.map((event, index) => {
-              const actorName =
-                (event.metadata?.actor_name as string) ?? "System";
+              const actorName = (event.metadata?.actor_name as string) ?? "System";
               const isComment = event.action === "COMMENT_ADDED";
-              const commentText = isComment
-                ? (event.metadata?.comment as string)
-                : null;
+              const commentText = isComment ? (event.metadata?.comment as string) : null;
               const isLast = index === events.length - 1;
 
               return (
                 <div key={event.id} className="relative pb-6 last:pb-0">
                   {/* Connector line to next item (not on last) */}
-                  {!isLast && (
-                    <span className="absolute -left-[calc(1.5rem-4px)] top-5 bottom-0 w-0.5 bg-border" />
-                  )}
+                  {!isLast && <span className="absolute top-5 bottom-0 -left-[calc(1.5rem-4px)] w-0.5 bg-border" />}
 
                   {/* Dot on the timeline */}
                   <span className="absolute -left-[calc(1.5rem+5px)] flex h-5 w-5 items-center justify-center rounded-full bg-background ring-2 ring-border">
@@ -150,44 +138,33 @@ export function CommentSection({ requestId, events }: CommentSectionProps) {
                   <div className="space-y-1">
                     <p className="text-sm leading-snug">
                       <span className="font-medium">{actorName}</span>{" "}
-                      <span className="text-muted-foreground">
-                        {getEventLabel(event.action)}
-                      </span>
+                      <span className="text-muted-foreground">{getEventLabel(event.action)}</span>
                     </p>
 
                     {commentText && (
-                      <div className="rounded-md bg-muted p-3 text-sm whitespace-pre-wrap">
-                        {commentText}
+                      <div className="whitespace-pre-wrap rounded-md bg-muted p-3 text-sm">{commentText}</div>
+                    )}
+
+                    {event.action === "LEAVE_REQUEST_REJECTED" && Boolean(event.metadata?.rejection_reason) && (
+                      <div className="rounded-md bg-destructive/10 p-3 text-destructive text-sm">
+                        {String(event.metadata?.rejection_reason)}
                       </div>
                     )}
 
-                    {event.action === "LEAVE_REQUEST_REJECTED" &&
-                      Boolean(event.metadata?.rejection_reason) && (
-                        <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive">
-                          {String(event.metadata?.rejection_reason)}
-                        </div>
-                      )}
-
-                    <p className="text-xs text-muted-foreground">
-                      {formatTimestamp(event.created_at)}
-                    </p>
+                    <p className="text-muted-foreground text-xs">{formatTimestamp(event.created_at)}</p>
                   </div>
                 </div>
               );
             })}
           </div>
         ) : (
-          <p className="text-sm text-muted-foreground">No activity yet.</p>
+          <p className="text-muted-foreground text-sm">No activity yet.</p>
         )}
 
         <Separator />
 
         {/* Comment Form */}
-        <form
-          ref={formRef}
-          onSubmit={handleSubmit}
-          className="space-y-3"
-        >
+        <form ref={formRef} onSubmit={handleSubmit} className="space-y-3">
           <Textarea
             name="comment"
             placeholder="Add a comment…"
@@ -198,11 +175,7 @@ export function CommentSection({ requestId, events }: CommentSectionProps) {
           />
           <div className="flex justify-end">
             <Button type="submit" size="sm" disabled={isPending}>
-              {isPending ? (
-                <Loader2 className="mr-1 h-4 w-4 animate-spin" />
-              ) : (
-                <Send className="mr-1 h-4 w-4" />
-              )}
+              {isPending ? <Loader2 className="mr-1 h-4 w-4 animate-spin" /> : <Send className="mr-1 h-4 w-4" />}
               Comment
             </Button>
           </div>

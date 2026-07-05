@@ -66,7 +66,7 @@ export async function upsertCapacityRuleAction(input: Record<string, unknown>): 
       .eq("department_id", parsed.data.department_id)
       .maybeSingle();
 
-    let error;
+    let error: { message?: string } | null = null;
 
     if (existing) {
       // Update existing rule

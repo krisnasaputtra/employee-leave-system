@@ -13,7 +13,13 @@ export const employeeCreateSchema = z.object({
     .max(100, "Full name must be at most 100 characters."),
   work_email: z.string().email("Please enter a valid email address."),
   phone_number: z.string().max(20).optional().or(z.literal("")),
-  department_id: z.string().min(1, "Please select a department.").regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "Invalid department selected."),
+  department_id: z
+    .string()
+    .min(1, "Please select a department.")
+    .regex(
+      /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/,
+      "Invalid department selected.",
+    ),
   position: z.string().min(1, "Position is required.").max(100),
   manager_id: z.string().regex(UUID_RE).optional().or(z.literal("")),
   join_date: z.string().min(1, "Join date is required."),

@@ -45,20 +45,14 @@ export function RevokeButton({ delegationId, delegateName }: RevokeButtonProps) 
     <AlertDialog>
       <AlertDialogTrigger asChild>
         <Button variant="destructive" size="sm" disabled={isPending}>
-          {isPending ? (
-            <Loader2 className="mr-1 h-4 w-4 animate-spin" />
-          ) : (
-            <XCircle className="mr-1 h-4 w-4" />
-          )}
+          {isPending ? <Loader2 className="mr-1 h-4 w-4 animate-spin" /> : <XCircle className="mr-1 h-4 w-4" />}
           {t("delegation.revoke")}
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>{t("delegation.revokeTitle")}</AlertDialogTitle>
-          <AlertDialogDescription>
-            {`${t("delegation.revokeDescription")} (${delegateName})`}
-          </AlertDialogDescription>
+          <AlertDialogDescription>{`${t("delegation.revokeDescription")} (${delegateName})`}</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>

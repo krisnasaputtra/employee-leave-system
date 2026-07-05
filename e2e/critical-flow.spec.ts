@@ -1,4 +1,4 @@
-import { expect, test, type Page } from "@playwright/test";
+import { expect, type Page, test } from "@playwright/test";
 
 /**
  * LRM — E2E Smoke Tests
@@ -44,11 +44,6 @@ async function login(page: Page, email: string, password: string) {
 
   // Wait for redirect to dashboard (longer timeout for cold start)
   await page.waitForURL(/\/dashboard/, { timeout: 30000 });
-}
-
-async function logout(page: Page) {
-  await page.goto("/login");
-  await page.waitForLoadState("networkidle");
 }
 
 // ---------------------------------------------------------------------------

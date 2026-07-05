@@ -2,8 +2,6 @@
 
 import { Cell, Label, Pie, PieChart } from "recharts";
 
-import { useTranslation } from "@/providers/locale-provider";
-
 import {
   type ChartConfig,
   ChartContainer,
@@ -12,6 +10,7 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
+import { useTranslation } from "@/providers/locale-provider";
 
 export interface LeaveTypeChartItem {
   name: string;
@@ -27,10 +26,13 @@ interface LeaveTypeChartProps {
 
 export function LeaveTypeDistributionChart({ data, totalRequests }: LeaveTypeChartProps) {
   const { t } = useTranslation();
-  const chartConfig = data.reduce<ChartConfig>((acc, item) => {
-    acc[item.name] = { label: item.name, color: item.color };
-    return acc;
-  }, { count: { label: "Requests" } });
+  const chartConfig = data.reduce<ChartConfig>(
+    (acc, item) => {
+      acc[item.name] = { label: item.name, color: item.color };
+      return acc;
+    },
+    { count: { label: "Requests" } },
+  );
 
   return (
     <ChartContainer config={chartConfig} className="mx-auto aspect-square max-h-[320px]">

@@ -1,5 +1,18 @@
 import { Skeleton } from "@/components/ui/skeleton";
 
+const ROW_SKELETON_KEYS = [
+  "audit-row-1",
+  "audit-row-2",
+  "audit-row-3",
+  "audit-row-4",
+  "audit-row-5",
+  "audit-row-6",
+  "audit-row-7",
+  "audit-row-8",
+  "audit-row-9",
+  "audit-row-10",
+];
+
 export default function AuditLogsLoading() {
   return (
     <div className="flex flex-1 flex-col gap-4 p-4">
@@ -11,8 +24,8 @@ export default function AuditLogsLoading() {
         <Skeleton className="h-9 w-32" />
       </div>
       <div className="space-y-2">
-        {Array.from({ length: 10 }).map((_, i) => (
-          <Skeleton key={i} className="h-12 w-full" />
+        {ROW_SKELETON_KEYS.map((key) => (
+          <Skeleton key={key} className="h-12 w-full" />
         ))}
       </div>
       <div className="flex justify-end">

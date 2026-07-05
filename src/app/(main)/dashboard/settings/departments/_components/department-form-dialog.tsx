@@ -20,8 +20,8 @@ import { Field, FieldContent, FieldError, FieldGroup, FieldLabel } from "@/compo
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { type DepartmentCreateInput, departmentCreateSchema } from "@/lib/settings/schemas";
-import type { Database } from "@/types/database.types";
 import { useTranslation } from "@/providers/locale-provider";
+import type { Database } from "@/types/database.types";
 
 import { createDepartmentAction, updateDepartmentAction } from "../../actions";
 
@@ -90,7 +90,9 @@ export function DepartmentFormDialog({ mode, department, employees, trigger }: P
 
         <form noValidate onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           {serverError && (
-            <div role="alert" className="rounded-md bg-destructive/10 p-3 text-center text-destructive text-sm">{serverError}</div>
+            <div role="alert" className="rounded-md bg-destructive/10 p-3 text-center text-destructive text-sm">
+              {serverError}
+            </div>
           )}
 
           <FieldGroup>

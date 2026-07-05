@@ -48,9 +48,7 @@ export default function RootLayout({ children }: Readonly<{ children: ReactNode 
             font={font}
           >
             <LocaleProvider>
-              <QueryProvider>
-                {children}
-              </QueryProvider>
+              <QueryProvider>{children}</QueryProvider>
             </LocaleProvider>
             <Toaster />
           </PreferencesStoreProvider>

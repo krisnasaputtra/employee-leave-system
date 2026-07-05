@@ -2,14 +2,14 @@
 
 import { revalidatePath } from "next/cache";
 
-import { isNextInternalError } from "@/lib/utils/server-action-utils";
-
 import { getAuthenticatedUser } from "@/lib/auth/get-authenticated-user";
-import { leaveRequestCreateSchema, leaveRequestUpdateSchema } from "@/lib/leave-requests/schemas";
-import { createClient } from "@/lib/supabase/server";
-import { createAdminClient } from "@/lib/supabase/admin";
 import { sendEmail } from "@/lib/email/send";
 import { leaveSubmittedTemplate } from "@/lib/email/templates";
+import { leaveRequestCreateSchema, leaveRequestIdSchema, leaveRequestUpdateSchema } from "@/lib/leave-requests/schemas";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { createClient } from "@/lib/supabase/server";
+import { sanitizeDbError } from "@/lib/utils/sanitize-error";
+import { isNextInternalError } from "@/lib/utils/server-action-utils";
 
 interface ActionResult {
   success: boolean;
@@ -47,9 +47,7 @@ export async function createLeaveRequestAction(input: Record<string, unknown>): 
     });
 
     if (error) {
-      // Extract user-friendly message from PostgreSQL error
-      const msg = error.message?.replace(/^.*?:\s*/, "") ?? "Failed to create leave request.";
-      return { success: false, error: msg };
+      return { success: false, error: sanitizeDbError(error, "Failed to create leave request.") };
     }
 
     const result = data as Record<string, unknown> | null;
@@ -63,7 +61,8 @@ export async function createLeaveRequestAction(input: Record<string, unknown>): 
     const requestNumber = (result?.request_number as string) ?? "";
     const requestedDays = (result?.requested_days as number) ?? 0;
 
-    if (employee.manager_id && requestId) {
+    const managerId = employee.manager_id;
+    if (managerId && requestId) {
       void (async () => {
         try {
           const admin = createAdminClient();
@@ -72,7 +71,7 @@ export async function createLeaveRequestAction(input: Record<string, unknown>): 
           const { data: manager } = await admin
             .from("employees")
             .select("work_email, full_name")
-            .eq("id", employee.manager_id!)
+            .eq("id", managerId)
             .single();
 
           // Fetch leave type name
@@ -108,8 +107,8 @@ export async function createLeaveRequestAction(input: Record<string, unknown>): 
     };
   } catch (error) {
     if (isNextInternalError(error)) throw error;
-    console.error('createLeaveRequestAction failed:', error);
-    return { success: false, error: 'An unexpected error occurred. Please try again.' };
+    console.error("createLeaveRequestAction failed:", error);
+    return { success: false, error: "An unexpected error occurred. Please try again." };
   }
 }
 
@@ -119,6 +118,11 @@ export async function updateLeaveRequestAction(
 ): Promise<ActionResult> {
   try {
     await getAuthenticatedUser();
+
+    const parsedId = leaveRequestIdSchema.safeParse(requestId);
+    if (!parsedId.success) {
+      return { success: false, error: parsedId.error.issues[0]?.message ?? "Validation failed." };
+    }
 
     const parsed = leaveRequestUpdateSchema.safeParse(input);
     if (!parsed.success) {
@@ -131,7 +135,7 @@ export async function updateLeaveRequestAction(
     const supabase = await createClient();
 
     const { data, error } = await supabase.rpc("update_pending_leave_request", {
-      p_request_id: requestId,
+      p_request_id: parsedId.data,
       p_leave_type_id: parsed.data.leave_type_id,
       p_start_date: parsed.data.start_date,
       p_end_date: parsed.data.end_date,
@@ -140,25 +144,24 @@ export async function updateLeaveRequestAction(
     });
 
     if (error) {
-      const msg = error.message?.replace(/^.*?:\s*/, "") ?? "Failed to update leave request.";
-      return { success: false, error: msg };
+      return { success: false, error: sanitizeDbError(error, "Failed to update leave request.") };
     }
 
     const result = data as Record<string, unknown> | null;
 
     revalidatePath("/dashboard/leave/requests");
     revalidatePath("/dashboard/leave/balances");
-    revalidatePath(`/dashboard/leave/requests/${requestId}`);
+    revalidatePath(`/dashboard/leave/requests/${parsedId.data}`);
 
     return {
       success: true,
-      request_id: requestId,
+      request_id: parsedId.data,
       requested_days: (result?.requested_days as number) ?? 0,
     };
   } catch (error) {
     if (isNextInternalError(error)) throw error;
-    console.error('updateLeaveRequestAction failed:', error);
-    return { success: false, error: 'An unexpected error occurred. Please try again.' };
+    console.error("updateLeaveRequestAction failed:", error);
+    return { success: false, error: "An unexpected error occurred. Please try again." };
   }
 }
 
@@ -166,26 +169,29 @@ export async function cancelLeaveRequestAction(requestId: string): Promise<Actio
   try {
     await getAuthenticatedUser();
 
+    const parsedId = leaveRequestIdSchema.safeParse(requestId);
+    if (!parsedId.success) {
+      return { success: false, error: parsedId.error.issues[0]?.message ?? "Validation failed." };
+    }
+
     const supabase = await createClient();
 
     const { error } = await supabase.rpc("cancel_leave_request", {
-      p_request_id: requestId,
+      p_request_id: parsedId.data,
     });
 
     if (error) {
-      const msg = error.message?.replace(/^.*?:\s*/, "") ?? "Failed to cancel leave request.";
-      return { success: false, error: msg };
+      return { success: false, error: sanitizeDbError(error, "Failed to cancel leave request.") };
     }
 
     revalidatePath("/dashboard/leave/requests");
     revalidatePath("/dashboard/leave/balances");
-    revalidatePath(`/dashboard/leave/requests/${requestId}`);
+    revalidatePath(`/dashboard/leave/requests/${parsedId.data}`);
 
-    return { success: true, request_id: requestId };
+    return { success: true, request_id: parsedId.data };
   } catch (error) {
     if (isNextInternalError(error)) throw error;
-    console.error('cancelLeaveRequestAction failed:', error);
-    return { success: false, error: 'An unexpected error occurred. Please try again.' };
+    console.error("cancelLeaveRequestAction failed:", error);
+    return { success: false, error: "An unexpected error occurred. Please try again." };
   }
 }
-

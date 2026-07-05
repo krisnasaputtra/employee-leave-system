@@ -1,4 +1,5 @@
-import { test, expect } from "@playwright/test";
+import { expect, test } from "@playwright/test";
+
 import { loginAsAdmin } from "./helpers/auth";
 
 test.describe("Employee Management", () => {
@@ -8,9 +9,7 @@ test.describe("Employee Management", () => {
 
   test("employee list loads with data", async ({ page }) => {
     await page.goto("/dashboard/employees");
-    await expect(
-      page.getByRole("heading", { name: /employees/i }),
-    ).toBeVisible();
+    await expect(page.getByRole("heading", { name: /employees/i })).toBeVisible();
     // Should have a table with employee data
     await expect(page.locator("table")).toBeVisible();
   });
@@ -32,8 +31,6 @@ test.describe("Employee Management", () => {
     await page.goto("/dashboard/employees");
     await page.getByRole("link", { name: /add employee/i }).click();
     await expect(page).toHaveURL(/\/employees\/new/);
-    await expect(
-      page.getByRole("heading", { name: /new employee|add employee/i }),
-    ).toBeVisible();
+    await expect(page.getByRole("heading", { name: /new employee|add employee/i })).toBeVisible();
   });
 });

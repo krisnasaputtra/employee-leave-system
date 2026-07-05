@@ -59,7 +59,9 @@ export default async function EmployeeBalancesPage({ params }: { params: Promise
   // Get balances
   const { data: balances } = await supabase
     .from("leave_balances")
-    .select("id, entitled_days, adjustment_days, used_days, pending_days, leave_type_id, leave_types(code, name, color, allow_negative_balance)")
+    .select(
+      "id, entitled_days, adjustment_days, used_days, pending_days, leave_type_id, leave_types(code, name, color, allow_negative_balance)",
+    )
     .eq("employee_id", employeeId)
     .eq("balance_year", currentYear)
     .order("leave_type_id");
@@ -67,7 +69,9 @@ export default async function EmployeeBalancesPage({ params }: { params: Promise
   // Get transactions
   const { data: transactions } = await supabase
     .from("leave_balance_transactions")
-    .select("id, created_at, transaction_type, days, reason, leave_balances!inner(employee_id, leave_type_id, balance_year, leave_types(name))")
+    .select(
+      "id, created_at, transaction_type, days, reason, leave_balances!inner(employee_id, leave_type_id, balance_year, leave_types(name))",
+    )
     .eq("leave_balances.employee_id", employeeId)
     .order("created_at", { ascending: false })
     .limit(50);
@@ -89,7 +93,7 @@ export default async function EmployeeBalancesPage({ params }: { params: Promise
       {!balances || balances.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-lg border bg-card py-20">
           <p className="text-muted-foreground text-sm">No leave balances found for {currentYear}.</p>
-          <p className="text-muted-foreground mt-1 text-xs">Click &quot;Initialize Balances&quot; to create them.</p>
+          <p className="mt-1 text-muted-foreground text-xs">Click &quot;Initialize Balances&quot; to create them.</p>
         </div>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

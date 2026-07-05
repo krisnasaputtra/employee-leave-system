@@ -2,10 +2,9 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+
 import { useQuery } from "@tanstack/react-query";
-
 import { ChevronRight, PlusCircleIcon } from "lucide-react";
-
 
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import {
@@ -38,6 +37,7 @@ import type {
 } from "@/navigation/sidebar/sidebar-items";
 import { SIDEBAR_I18N_MAP } from "@/navigation/sidebar/sidebar-items";
 import { useTranslation } from "@/providers/locale-provider";
+
 import { fetchHeaderCounts } from "../../fetch-header-counts";
 
 interface NavMainProps {
@@ -158,13 +158,29 @@ export function NavMain({ items }: NavMainProps) {
         </SidebarGroupContent>
       </SidebarGroup>
       {itemsWithBadges.map((group) => (
-        <NavGroupSection key={group.id} group={group} isItemActive={isItemActive} isSubItemActive={isSubItemActive} isSubmenuOpen={isSubmenuOpen} />
+        <NavGroupSection
+          key={group.id}
+          group={group}
+          isItemActive={isItemActive}
+          isSubItemActive={isSubItemActive}
+          isSubmenuOpen={isSubmenuOpen}
+        />
       ))}
     </>
   );
 }
 
-function NavGroupSection({ group, isItemActive, isSubItemActive, isSubmenuOpen }: { group: NavGroup; isItemActive: (item: NavMainItem) => boolean; isSubItemActive: (url: string) => boolean; isSubmenuOpen: (item: NavMainParentItem) => boolean }) {
+function NavGroupSection({
+  group,
+  isItemActive,
+  isSubItemActive,
+  isSubmenuOpen,
+}: {
+  group: NavGroup;
+  isItemActive: (item: NavMainItem) => boolean;
+  isSubItemActive: (url: string) => boolean;
+  isSubmenuOpen: (item: NavMainParentItem) => boolean;
+}) {
   const translatedLabel = useItemTitle(group.label ?? "", group.label ?? "");
 
   return (
@@ -261,7 +277,13 @@ function NavDropdownItem({ item, isActive, isSubItemActive }: NavDropdownItemPro
   );
 }
 
-function NavDropdownSubItem({ subItem, isSubItemActive }: { subItem: NavMainParentItem["subItems"][number]; isSubItemActive: (url: string) => boolean }) {
+function NavDropdownSubItem({
+  subItem,
+  isSubItemActive,
+}: {
+  subItem: NavMainParentItem["subItems"][number];
+  isSubItemActive: (url: string) => boolean;
+}) {
   const SubIcon = subItem.icon;
   const translatedTitle = useItemTitle(subItem.id, subItem.title);
 
@@ -310,17 +332,19 @@ function NavCollapsibleItem({ item, isActive, defaultOpen, isSubItemActive }: Na
   );
 }
 
-function NavCollapsibleSubItem({ subItem, isSubItemActive }: { subItem: NavMainParentItem["subItems"][number]; isSubItemActive: (url: string) => boolean }) {
+function NavCollapsibleSubItem({
+  subItem,
+  isSubItemActive,
+}: {
+  subItem: NavMainParentItem["subItems"][number];
+  isSubItemActive: (url: string) => boolean;
+}) {
   const SubIcon = subItem.icon;
   const translatedTitle = useItemTitle(subItem.id, subItem.title);
 
   return (
     <SidebarMenuSubItem>
-      <SidebarMenuSubButton
-        asChild
-        aria-disabled={subItem.disabled}
-        isActive={isSubItemActive(subItem.url)}
-      >
+      <SidebarMenuSubButton asChild aria-disabled={subItem.disabled} isActive={isSubItemActive(subItem.url)}>
         <Link
           prefetch={false}
           href={subItem.url}
@@ -343,7 +367,7 @@ function NavItemBadge({ badge }: { badge?: NavBadge }) {
   if (typeof badge === "number") {
     if (badge <= 0) return null;
     return (
-      <SidebarMenuBadge className="bg-red-500 text-white text-xs font-bold min-w-[20px] h-5 flex items-center justify-center">
+      <SidebarMenuBadge className="flex h-5 min-w-[20px] items-center justify-center bg-red-500 font-bold text-white text-xs">
         {badge > 99 ? "99+" : badge}
       </SidebarMenuBadge>
     );

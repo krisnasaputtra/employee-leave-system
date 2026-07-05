@@ -29,6 +29,7 @@ export async function createEmployeeWithAccount(
 ): Promise<CreateEmployeeResult> {
   const admin = createAdminClient();
   let authUserId: string | null = null;
+  let employeeId: string | null = null;
 
   try {
     // Step 1: Check unique constraints
@@ -106,13 +107,24 @@ export async function createEmployeeWithAccount(
         error: `Failed to create employee: ${employeeError?.message ?? "Unknown error"}`,
       };
     }
+    employeeId = employee.id;
 
     // Step 4: Initialize current-year leave balances via RPC
     // This creates balance rows AND ENTITLEMENT ledger entries for audit trail
-    await admin.rpc("initialize_employee_balances", {
+    const { error: balanceError } = await admin.rpc("initialize_employee_balances", {
       p_employee_id: employee.id,
       p_year: new Date().getFullYear(),
     });
+    if (balanceError) {
+      if (authUserId) {
+        await admin.auth.admin.deleteUser(authUserId);
+      }
+      await admin.from("employees").delete().eq("id", employee.id);
+      return {
+        success: false,
+        error: "Failed to initialize leave balances for the employee.",
+      };
+    }
 
     // Step 5: Write audit log
     await admin.from("audit_logs").insert({
@@ -136,6 +148,9 @@ export async function createEmployeeWithAccount(
     };
   } catch (error) {
     // Compensation: delete the Auth user if it was created
+    if (employeeId) {
+      await admin.from("employees").delete().eq("id", employeeId);
+    }
     if (authUserId) {
       try {
         await admin.auth.admin.deleteUser(authUserId);

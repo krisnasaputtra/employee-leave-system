@@ -7,10 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/ui/empty-state";
 import { useTranslation } from "@/providers/locale-provider";
 
-import {
-  fetchApprovals,
-  type FetchApprovalsResult,
-} from "../fetch-approvals";
+import { type FetchApprovalsResult, fetchApprovals } from "../fetch-approvals";
 import { ApprovalsTable } from "./approvals-table";
 
 // ---------------------------------------------------------------------------
@@ -41,13 +38,9 @@ export function ApprovalsPageClient({ initialData }: ApprovalsPageClientProps) {
     <div className="@container/main flex flex-col gap-4 md:gap-6">
       {/* Header */}
       <div className="flex items-center gap-3">
-        <h1 className="font-semibold text-2xl tracking-tight">
-          {t("approval.title")}
-        </h1>
+        <h1 className="font-semibold text-2xl tracking-tight">{t("approval.title")}</h1>
         <Badge variant="secondary">{requests.length}</Badge>
-        {isFetching && (
-          <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
-        )}
+        {isFetching && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
       </div>
 
       {/* Content */}
@@ -58,10 +51,7 @@ export function ApprovalsPageClient({ initialData }: ApprovalsPageClientProps) {
           description={t("approval.noApprovalsDescription")}
         />
       ) : (
-        <ApprovalsTable
-          requests={requests}
-          capacityWarnings={capacityWarnings}
-        />
+        <ApprovalsTable requests={requests} capacityWarnings={capacityWarnings} />
       )}
     </div>
   );

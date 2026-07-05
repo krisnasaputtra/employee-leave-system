@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+
 import { loginAsAdmin, loginAsEmployee } from "./helpers/auth";
 
 /**
@@ -26,15 +27,11 @@ test.describe("Leave Request — Employee creates a new request", () => {
     await page.waitForLoadState("networkidle");
 
     // Leave type — either a <select>, a combobox trigger, or a shadcn Select
-    const leaveTypeSelect = page.locator(
-      'select, [role="combobox"], [data-slot="select-trigger"]',
-    );
+    const leaveTypeSelect = page.locator('select, [role="combobox"], [data-slot="select-trigger"]');
     await expect(leaveTypeSelect.first()).toBeVisible({ timeout: 15000 });
 
     // Date pickers — native date inputs or date-picker buttons
-    const datePickers = page.locator(
-      'input[type="date"], button[data-slot="calendar-trigger"], [data-testid*="date"]',
-    );
+    const datePickers = page.locator('input[type="date"], button[data-slot="calendar-trigger"], [data-testid*="date"]');
     await expect(datePickers.first()).toBeVisible({ timeout: 10000 });
 
     // Reason textarea
@@ -53,26 +50,16 @@ test.describe("Leave Request — Employee creates a new request", () => {
 
     if (await shadcnSelect.isVisible({ timeout: 5000 }).catch(() => false)) {
       await shadcnSelect.click();
-      await page
-        .locator('[data-slot="select-item"]')
-        .first()
-        .click({ timeout: 10000 });
-    } else if (
-      await nativeSelect.isVisible({ timeout: 3000 }).catch(() => false)
-    ) {
+      await page.locator('[data-slot="select-item"]').first().click({ timeout: 10000 });
+    } else if (await nativeSelect.isVisible({ timeout: 3000 }).catch(() => false)) {
       const options = nativeSelect.locator("option:not([value=''])");
       const firstValue = await options.first().getAttribute("value");
       if (firstValue) {
         await nativeSelect.selectOption(firstValue);
       }
-    } else if (
-      await combobox.isVisible({ timeout: 3000 }).catch(() => false)
-    ) {
+    } else if (await combobox.isVisible({ timeout: 3000 }).catch(() => false)) {
       await combobox.click();
-      await page
-        .getByRole("option")
-        .first()
-        .click({ timeout: 10000 });
+      await page.getByRole("option").first().click({ timeout: 10000 });
     }
 
     // --- Fill dates (next week) ---
@@ -90,9 +77,7 @@ test.describe("Leave Request — Employee creates a new request", () => {
       await dateInputs.nth(1).fill(endISO);
     } else {
       // Fallback: try date-picker buttons / any input with "date" in name
-      const altDateInputs = page.locator(
-        'input[name*="date"], input[placeholder*="date" i]',
-      );
+      const altDateInputs = page.locator('input[name*="date"], input[placeholder*="date" i]');
       if ((await altDateInputs.count()) >= 2) {
         await altDateInputs.first().fill(startISO);
         await altDateInputs.nth(1).fill(endISO);
@@ -102,9 +87,7 @@ test.describe("Leave Request — Employee creates a new request", () => {
     // --- Fill reason ---
     const textarea = page.locator("textarea");
     if (await textarea.isVisible({ timeout: 5000 }).catch(() => false)) {
-      await textarea.fill(
-        "E2E Playwright automated test — leave request submission",
-      );
+      await textarea.fill("E2E Playwright automated test — leave request submission");
     }
 
     // --- Submit ---
@@ -117,9 +100,7 @@ test.describe("Leave Request — Employee creates a new request", () => {
     await expect(page).toHaveURL(/\/dashboard\/leave\/requests/);
   });
 
-  test("newly submitted request appears in the requests list", async ({
-    page,
-  }) => {
+  test("newly submitted request appears in the requests list", async ({ page }) => {
     // First submit a request so we have data
     await page.goto("/dashboard/leave/requests/new");
     await page.waitForLoadState("networkidle");
@@ -158,10 +139,7 @@ test.describe("Leave Request — Employee creates a new request", () => {
     // Verify the new request appears
     await page.waitForLoadState("networkidle");
     const body = await page.locator("body").textContent();
-    const hasRequest =
-      body?.includes(uniqueReason) ||
-      body?.includes("Pending") ||
-      body?.includes("pending");
+    const hasRequest = body?.includes(uniqueReason) || body?.includes("Pending") || body?.includes("pending");
     expect(hasRequest).toBeTruthy();
   });
 });
@@ -175,17 +153,13 @@ test.describe("Leave Request — Employee views requests list", () => {
     await loginAsEmployee(page);
   });
 
-  test("requests page loads and shows table or empty state", async ({
-    page,
-  }) => {
+  test("requests page loads and shows table or empty state", async ({ page }) => {
     await page.goto("/dashboard/leave/requests");
     await page.waitForLoadState("networkidle");
 
     // Page should contain either a table with requests or an empty-state message
     const table = page.locator("table");
-    const emptyState = page.locator(
-      'text=/no.*request|no.*data|empty|not found/i',
-    );
+    const emptyState = page.locator("text=/no.*request|no.*data|empty|not found/i");
 
     const hasTable = await table.isVisible({ timeout: 15000 }).catch(() => false);
     const hasEmptyState = await emptyState
@@ -241,9 +215,7 @@ test.describe("Leave Request — Admin views all requests", () => {
 
     // Should have a table or grid of all requests
     const table = page.locator("table, [role='grid']");
-    const emptyState = page.locator(
-      'text=/no.*request|no.*data|empty/i',
-    );
+    const emptyState = page.locator("text=/no.*request|no.*data|empty/i");
 
     const hasTable = await table
       .first()
@@ -257,9 +229,7 @@ test.describe("Leave Request — Admin views all requests", () => {
     expect(hasTable || hasEmptyState).toBeTruthy();
   });
 
-  test("admin all-requests page has search functionality", async ({
-    page,
-  }) => {
+  test("admin all-requests page has search functionality", async ({ page }) => {
     await page.goto("/dashboard/leave/all");
     await page.waitForLoadState("networkidle");
 
@@ -268,7 +238,12 @@ test.describe("Leave Request — Admin views all requests", () => {
       'input[type="search"], input[placeholder*="search" i], input[placeholder*="filter" i], input[name*="search" i]',
     );
 
-    if (await searchInput.first().isVisible({ timeout: 10000 }).catch(() => false)) {
+    if (
+      await searchInput
+        .first()
+        .isVisible({ timeout: 10000 })
+        .catch(() => false)
+    ) {
       // Type a search query
       await searchInput.first().fill("test");
       await page.waitForTimeout(1000); // debounce

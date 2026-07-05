@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
-import { approveLeaveRequestAction, rejectLeaveRequestAction, bulkApproveAction, bulkRejectAction } from "@/app/(main)/dashboard/approvals/actions";
+import { approveLeaveRequestAction, rejectLeaveRequestAction } from "@/app/(main)/dashboard/approvals/actions";
 
 export const APPROVAL_KEYS = {
   all: ["approvals"] as const,
@@ -39,44 +39,6 @@ export function useRejectLeaveRequest() {
     },
     onSuccess: (result) => {
       toast.success(`Request ${result.request_number ?? ""} rejected.`);
-      queryClient.invalidateQueries({ queryKey: APPROVAL_KEYS.all });
-      queryClient.invalidateQueries({ queryKey: ["header-counts"] });
-    },
-    onError: (error: Error) => {
-      toast.error(error.message);
-    },
-  });
-}
-
-export function useBulkApprove() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async (requestIds: string[]) => {
-      const result = await bulkApproveAction(requestIds);
-      if (!result.success) throw new Error(result.error);
-      return result;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: APPROVAL_KEYS.all });
-      queryClient.invalidateQueries({ queryKey: ["header-counts"] });
-    },
-    onError: (error: Error) => {
-      toast.error(error.message);
-    },
-  });
-}
-
-export function useBulkReject() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async ({ requestIds, reason }: { requestIds: string[]; reason: string }) => {
-      const result = await bulkRejectAction(requestIds, reason);
-      if (!result.success) throw new Error(result.error);
-      return result;
-    },
-    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: APPROVAL_KEYS.all });
       queryClient.invalidateQueries({ queryKey: ["header-counts"] });
     },

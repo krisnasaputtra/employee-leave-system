@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Copy, KeyRound, Loader2, RotateCcw } from "lucide-react";
+
+import { Copy, Loader2, RotateCcw } from "lucide-react";
 import { toast } from "sonner";
 
 import {
@@ -68,15 +69,13 @@ export function ResetPasswordButton({ employeeId, employeeName }: ResetPasswordB
           <>
             <AlertDialogHeader>
               <AlertDialogTitle>{t("employee.passwordResetTitle")}</AlertDialogTitle>
-              <AlertDialogDescription>
-                {t("employee.loginGrantedDesc")}
-              </AlertDialogDescription>
+              <AlertDialogDescription>{t("employee.loginGrantedDesc")}</AlertDialogDescription>
             </AlertDialogHeader>
             <div className="space-y-3 py-2">
-              <div className="rounded-lg border bg-muted/50 p-4 space-y-2">
-                <p className="text-sm text-muted-foreground">{t("employee.tempPassword")}</p>
+              <div className="space-y-2 rounded-lg border bg-muted/50 p-4">
+                <p className="text-muted-foreground text-sm">{t("employee.tempPassword")}</p>
                 <div className="flex items-center gap-2">
-                  <code className="flex-1 rounded bg-background px-3 py-2 font-mono text-sm font-semibold tracking-wide">
+                  <code className="flex-1 rounded bg-background px-3 py-2 font-mono font-semibold text-sm tracking-wide">
                     {tempPassword}
                   </code>
                   <Button variant="outline" size="icon" onClick={copyPassword} aria-label="Copy password">
@@ -84,9 +83,7 @@ export function ResetPasswordButton({ employeeId, employeeName }: ResetPasswordB
                   </Button>
                 </div>
               </div>
-              <p className="text-xs text-destructive font-medium">
-                ⚠️ {t("employee.tempPasswordWarning")}
-              </p>
+              <p className="font-medium text-destructive text-xs">⚠️ {t("employee.tempPasswordWarning")}</p>
             </div>
             <AlertDialogFooter>
               <Button onClick={handleClose}>{t("common.close")}</Button>
@@ -96,9 +93,7 @@ export function ResetPasswordButton({ employeeId, employeeName }: ResetPasswordB
           <>
             <AlertDialogHeader>
               <AlertDialogTitle>{t("employee.resetPasswordTitle")}</AlertDialogTitle>
-              <AlertDialogDescription>
-                {`${t("employee.resetPasswordDesc")} ${employeeName}?`}
-              </AlertDialogDescription>
+              <AlertDialogDescription>{`${t("employee.resetPasswordDesc")} ${employeeName}?`}</AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>

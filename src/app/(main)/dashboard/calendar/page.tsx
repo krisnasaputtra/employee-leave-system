@@ -29,11 +29,5 @@ export default async function CalendarPage() {
       .order("holiday_date"),
   ]);
 
-  return (
-    <LeaveCalendar
-      departments={departments ?? []}
-      leaveTypes={leaveTypes ?? []}
-      holidays={holidays ?? []}
-    />
-  );
+  return <LeaveCalendar departments={departments ?? []} leaveTypes={leaveTypes ?? []} holidays={holidays ?? []} />;
 }

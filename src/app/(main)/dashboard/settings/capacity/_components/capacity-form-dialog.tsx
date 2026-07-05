@@ -1,12 +1,10 @@
 "use client";
 
-import { useTranslation } from "@/providers/locale-provider";
-
 import { useState, useTransition } from "react";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
-import { useForm } from "react-hook-form";
+import { type Resolver, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 
@@ -21,6 +19,7 @@ import {
 } from "@/components/ui/dialog";
 import { Field, FieldContent, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { useTranslation } from "@/providers/locale-provider";
 
 import { upsertCapacityRuleAction } from "../actions";
 
@@ -72,12 +71,11 @@ export function CapacityFormDialog({ departmentId, departmentName, employeeCount
   const [serverError, setServerError] = useState<string | null>(null);
 
   const form = useForm<CapacityFormInput>({
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    resolver: zodResolver(capacityFormSchema) as any,
+    resolver: zodResolver(capacityFormSchema) as unknown as Resolver<CapacityFormInput>,
     defaultValues: {
       department_id: departmentId,
-      max_absent_percentage: rule?.max_absent_percentage ?? 25,
-      min_staff_count: rule?.min_staff_count ?? undefined,
+      max_absent_percentage: rule ? rule.max_absent_percentage : 25,
+      min_staff_count: rule ? rule.min_staff_count : undefined,
     },
   });
 
@@ -112,7 +110,9 @@ export function CapacityFormDialog({ departmentId, departmentName, employeeCount
 
         <form noValidate onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           {serverError && (
-            <div role="alert" className="rounded-md bg-destructive/10 p-3 text-center text-destructive text-sm">{serverError}</div>
+            <div role="alert" className="rounded-md bg-destructive/10 p-3 text-center text-destructive text-sm">
+              {serverError}
+            </div>
           )}
 
           <FieldGroup>
@@ -146,7 +146,8 @@ export function CapacityFormDialog({ departmentId, departmentName, employeeCount
 
             {employeeCount > 0 && (
               <div className="rounded-md bg-muted/50 p-3 text-muted-foreground text-sm">
-                With <span className="font-medium text-foreground">{employeeCount}</span> employee{employeeCount !== 1 ? "s" : ""}, max{" "}
+                With <span className="font-medium text-foreground">{employeeCount}</span> employee
+                {employeeCount !== 1 ? "s" : ""}, max{" "}
                 <span className="font-medium text-foreground">{maxAbsentCount}</span> can be absent at{" "}
                 {maxAbsentPct ?? 0}%.
               </div>

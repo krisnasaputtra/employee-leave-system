@@ -13,18 +13,8 @@ export default async function EmployeesPage() {
   // Prefetch initial data + departments for filters
   const [initialData, { data: departments }] = await Promise.all([
     fetchEmployees({ page: 1 }),
-    supabase
-      .from("departments")
-      .select("id, name")
-      .eq("is_active", true)
-      .order("name"),
+    supabase.from("departments").select("id, name").eq("is_active", true).order("name"),
   ]);
 
-  return (
-    <EmployeeListClient
-      initialData={initialData}
-      isAdmin={isAdmin}
-      departments={departments ?? []}
-    />
-  );
+  return <EmployeeListClient initialData={initialData} isAdmin={isAdmin} departments={departments ?? []} />;
 }

@@ -67,7 +67,7 @@ export async function upsertPolicyAction(input: Record<string, unknown>): Promis
       .eq("leave_type_id", parsed.data.leave_type_id)
       .maybeSingle();
 
-    let error;
+    let error: { message?: string } | null = null;
 
     if (existing) {
       // Update existing policy

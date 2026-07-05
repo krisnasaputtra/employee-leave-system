@@ -1,5 +1,18 @@
 import { Skeleton } from "@/components/ui/skeleton";
 
+const ROW_SKELETON_KEYS = [
+  "manage-balance-row-1",
+  "manage-balance-row-2",
+  "manage-balance-row-3",
+  "manage-balance-row-4",
+  "manage-balance-row-5",
+  "manage-balance-row-6",
+  "manage-balance-row-7",
+  "manage-balance-row-8",
+  "manage-balance-row-9",
+  "manage-balance-row-10",
+];
+
 export default function ManageBalancesLoading() {
   return (
     <div className="flex flex-1 flex-col gap-4 p-4">
@@ -19,8 +32,8 @@ export default function ManageBalancesLoading() {
       {/* Table rows */}
       <div className="space-y-2">
         <Skeleton className="h-10 w-full" />
-        {Array.from({ length: 10 }).map((_, i) => (
-          <Skeleton key={i} className="h-12 w-full" />
+        {ROW_SKELETON_KEYS.map((key) => (
+          <Skeleton key={key} className="h-12 w-full" />
         ))}
       </div>
       {/* Pagination */}

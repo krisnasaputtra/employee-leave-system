@@ -1,12 +1,10 @@
 "use client";
 
-import { useTranslation } from "@/providers/locale-provider";
-
 import { useState, useTransition } from "react";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
-import { useForm } from "react-hook-form";
+import { type Resolver, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 
@@ -22,6 +20,7 @@ import {
 import { Field, FieldContent, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
+import { useTranslation } from "@/providers/locale-provider";
 
 import { upsertPolicyAction } from "../actions";
 
@@ -74,13 +73,12 @@ export function PolicyFormDialog({ leaveTypeId, leaveTypeName, policy, trigger }
   const [serverError, setServerError] = useState<string | null>(null);
 
   const form = useForm<PolicyFormInput>({
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    resolver: zodResolver(policyFormSchema) as any,
+    resolver: zodResolver(policyFormSchema) as unknown as Resolver<PolicyFormInput>,
     defaultValues: {
       leave_type_id: leaveTypeId,
-      notice_period_days: policy?.notice_period_days ?? 0,
-      max_consecutive_days: policy?.max_consecutive_days ?? undefined,
-      requires_attachment: policy?.requires_attachment ?? false,
+      notice_period_days: policy ? policy.notice_period_days : 0,
+      max_consecutive_days: policy ? policy.max_consecutive_days : undefined,
+      requires_attachment: policy ? policy.requires_attachment : false,
     },
   });
 
@@ -104,13 +102,17 @@ export function PolicyFormDialog({ leaveTypeId, leaveTypeName, policy, trigger }
         <DialogHeader>
           <DialogTitle>{policy ? t("settings.editPolicy") : t("settings.configurePolicy")}</DialogTitle>
           <DialogDescription>
-            {policy ? `${t("settings.editPolicyDesc")} — ${leaveTypeName}` : `${t("settings.configurePolicyDesc")} — ${leaveTypeName}`}
+            {policy
+              ? `${t("settings.editPolicyDesc")} — ${leaveTypeName}`
+              : `${t("settings.configurePolicyDesc")} — ${leaveTypeName}`}
           </DialogDescription>
         </DialogHeader>
 
         <form noValidate onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           {serverError && (
-            <div role="alert" className="rounded-md bg-destructive/10 p-3 text-center text-destructive text-sm">{serverError}</div>
+            <div role="alert" className="rounded-md bg-destructive/10 p-3 text-center text-destructive text-sm">
+              {serverError}
+            </div>
           )}
 
           <FieldGroup>

@@ -1,5 +1,7 @@
 import { Skeleton } from "@/components/ui/skeleton";
 
+const SUMMARY_SKELETON_KEYS = ["total-requests", "approved-days", "pending-requests", "approval-rate"];
+
 export default function AnalyticsReportsLoading() {
   return (
     <div className="flex flex-1 flex-col gap-4 md:gap-6">
@@ -17,8 +19,8 @@ export default function AnalyticsReportsLoading() {
 
       {/* Summary Cards */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {Array.from({ length: 4 }).map((_, i) => (
-          <Skeleton key={i} className="h-28 w-full" />
+        {SUMMARY_SKELETON_KEYS.map((key) => (
+          <Skeleton key={key} className="h-28 w-full" />
         ))}
       </div>
 

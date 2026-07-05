@@ -15,12 +15,14 @@ export async function exportEmployeesCSV(): Promise<{ success: boolean; csv?: st
     const supabase = await createClient();
     const { data, error } = await supabase
       .from("employees")
-      .select("employee_code, full_name, work_email, phone_number, position, status, role, join_date, departments!employees_department_id_fk(name)")
+      .select(
+        "employee_code, full_name, work_email, phone_number, position, status, role, join_date, departments!employees_department_id_fk(name)",
+      )
       .order("full_name");
 
     if (error) return { success: false, error: error.message };
 
-    const rows = (data ?? []).map(e => ({
+    const rows = (data ?? []).map((e) => ({
       employee_code: e.employee_code,
       full_name: e.full_name,
       work_email: e.work_email,
@@ -61,13 +63,15 @@ export async function exportLeaveRequestsCSV(): Promise<{ success: boolean; csv?
     const supabase = await createClient();
     const { data, error } = await supabase
       .from("leave_requests")
-      .select("request_number, status, start_date, end_date, requested_days, reason, partial_day, created_at, employees!leave_requests_employee_id_fk(full_name, employee_code), leave_types!leave_requests_leave_type_id_fk(name)")
+      .select(
+        "request_number, status, start_date, end_date, requested_days, reason, partial_day, created_at, employees!leave_requests_employee_id_fk(full_name, employee_code), leave_types!leave_requests_leave_type_id_fk(name)",
+      )
       .order("created_at", { ascending: false })
       .limit(1000);
 
     if (error) return { success: false, error: error.message };
 
-    const rows = (data ?? []).map(r => ({
+    const rows = (data ?? []).map((r) => ({
       request_number: r.request_number,
       employee_code: (r.employees as { employee_code: string } | null)?.employee_code ?? "",
       employee_name: (r.employees as { full_name: string } | null)?.full_name ?? "",

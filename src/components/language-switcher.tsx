@@ -9,7 +9,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useLocale, type Locale } from "@/providers/locale-provider";
+import { type Locale, useLocale } from "@/providers/locale-provider";
 
 const LANGUAGES: { code: Locale; label: string; flag: string }[] = [
   { code: "en", label: "English", flag: "🇺🇸" },
@@ -23,14 +23,9 @@ export function LanguageSwitcher() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button
-          variant="ghost"
-          size="sm"
-          className="gap-2 px-3 font-medium"
-          aria-label="Change language"
-        >
+        <Button variant="ghost" size="sm" className="gap-2 px-3 font-medium" aria-label="Change language">
           <Globe className="h-4 w-4" />
-          <span className="text-xs font-semibold uppercase tracking-wide" suppressHydrationWarning>
+          <span className="font-semibold text-xs uppercase tracking-wide" suppressHydrationWarning>
             {currentLang?.code ?? "en"}
           </span>
         </Button>
@@ -42,15 +37,11 @@ export function LanguageSwitcher() {
             <DropdownMenuItem
               key={lang.code}
               onClick={() => setLocale(lang.code)}
-              className={`px-3 py-2.5 rounded-md ${
-                isActive
-                  ? "bg-primary/10 text-primary font-semibold"
-                  : ""
-              }`}
+              className={`rounded-md px-3 py-2.5 ${isActive ? "bg-primary/10 font-semibold text-primary" : ""}`}
             >
-              <span className="text-base mr-3">{lang.flag}</span>
+              <span className="mr-3 text-base">{lang.flag}</span>
               <span className="flex-1">{lang.label}</span>
-              {isActive && <Check className="h-4 w-4 text-primary ml-2" />}
+              {isActive && <Check className="ml-2 h-4 w-4 text-primary" />}
             </DropdownMenuItem>
           );
         })}

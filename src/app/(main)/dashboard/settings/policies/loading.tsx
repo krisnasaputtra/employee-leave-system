@@ -1,6 +1,8 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 
+const ROW_SKELETON_KEYS = ["policy-row-1", "policy-row-2", "policy-row-3", "policy-row-4", "policy-row-5"];
+
 export default function PoliciesLoading() {
   return (
     <div className="@container/main flex flex-col gap-4 md:gap-6">
@@ -14,8 +16,8 @@ export default function PoliciesLoading() {
       <Card>
         <CardContent className="p-0">
           <div className="divide-y">
-            {Array.from({ length: 5 }).map((_, i) => (
-              <div key={i} className="flex items-center gap-4 px-4 py-3">
+            {ROW_SKELETON_KEYS.map((key) => (
+              <div key={key} className="flex items-center gap-4 px-4 py-3">
                 <Skeleton className="h-5 w-32" />
                 <Skeleton className="h-5 w-20" />
                 <Skeleton className="h-5 w-24" />

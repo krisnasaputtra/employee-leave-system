@@ -2,20 +2,17 @@
 
 import { revalidatePath } from "next/cache";
 
-import { isNextInternalError } from "@/lib/utils/server-action-utils";
-
-import { delegationCreateSchema } from "@/lib/delegations/schemas";
 import { getAuthenticatedUser } from "@/lib/auth/get-authenticated-user";
+import { delegationCreateSchema } from "@/lib/delegations/schemas";
 import { createClient } from "@/lib/supabase/server";
+import { isNextInternalError } from "@/lib/utils/server-action-utils";
 
 interface ActionResult {
   success: boolean;
   error?: string;
 }
 
-export async function createDelegationAction(
-  input: Record<string, unknown>,
-): Promise<ActionResult> {
+export async function createDelegationAction(input: Record<string, unknown>): Promise<ActionResult> {
   try {
     const { employee: actor } = await getAuthenticatedUser();
 
@@ -72,9 +69,7 @@ export async function createDelegationAction(
   }
 }
 
-export async function revokeDelegationAction(
-  delegationId: string,
-): Promise<ActionResult> {
+export async function revokeDelegationAction(delegationId: string): Promise<ActionResult> {
   try {
     const { employee: actor } = await getAuthenticatedUser();
 

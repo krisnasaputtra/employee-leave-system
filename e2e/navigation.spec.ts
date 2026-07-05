@@ -1,4 +1,5 @@
-import { test, expect } from "@playwright/test";
+import { expect, test } from "@playwright/test";
+
 import { loginAsAdmin } from "./helpers/auth";
 
 test.describe("Dashboard Navigation", () => {
@@ -14,16 +15,12 @@ test.describe("Dashboard Navigation", () => {
 
   test("can navigate to employees page", async ({ page }) => {
     await page.goto("/dashboard/employees");
-    await expect(
-      page.getByRole("heading", { name: /employees/i }),
-    ).toBeVisible();
+    await expect(page.getByRole("heading", { name: /employees/i })).toBeVisible();
   });
 
   test("can navigate to leave requests page", async ({ page }) => {
     await page.goto("/dashboard/leave/requests");
-    await expect(
-      page.getByRole("heading", { name: /leave request/i }),
-    ).toBeVisible();
+    await expect(page.getByRole("heading", { name: /leave request/i })).toBeVisible();
   });
 
   test("can navigate to approvals page", async ({ page }) => {
@@ -43,8 +40,6 @@ test.describe("Dashboard Navigation", () => {
 
   test("can navigate to settings pages", async ({ page }) => {
     await page.goto("/dashboard/settings/leave-types");
-    await expect(
-      page.getByRole("heading", { name: /leave types/i }),
-    ).toBeVisible();
+    await expect(page.getByRole("heading", { name: /leave types/i })).toBeVisible();
   });
 });

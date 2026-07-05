@@ -1,7 +1,5 @@
 "use client";
 
-import { useTranslation } from "@/providers/locale-provider";
-
 import { useTransition } from "react";
 
 import { toast } from "sonner";
@@ -18,6 +16,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+import { useTranslation } from "@/providers/locale-provider";
 
 import { toggleHolidayAction } from "../../actions";
 
@@ -51,14 +50,18 @@ export function HolidayToggleButton({ holidayId, isActive, name }: Props) {
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>{isActive ? t("settings.deactivateHoliday") : t("settings.activateHoliday")}</AlertDialogTitle>
+          <AlertDialogTitle>
+            {isActive ? t("settings.deactivateHoliday") : t("settings.activateHoliday")}
+          </AlertDialogTitle>
           <AlertDialogDescription>
             {`${isActive ? t("common.deactivate") : t("common.activate")} ${name}?`}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
-          <AlertDialogAction onClick={handleToggle}>{isActive ? t("common.deactivate") : t("common.activate")}</AlertDialogAction>
+          <AlertDialogAction onClick={handleToggle}>
+            {isActive ? t("common.deactivate") : t("common.activate")}
+          </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

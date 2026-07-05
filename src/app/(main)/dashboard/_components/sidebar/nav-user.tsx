@@ -3,7 +3,6 @@
 import { useRouter } from "next/navigation";
 
 import { useQueryClient } from "@tanstack/react-query";
-
 import { CircleUser, EllipsisVertical, KeyRound, LogOut } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -104,4 +103,3 @@ export function NavUser({
     </SidebarMenu>
   );
 }
-

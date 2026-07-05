@@ -10,7 +10,14 @@ import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
-import { Combobox, ComboboxContent, ComboboxEmpty, ComboboxInput, ComboboxItem, ComboboxList } from "@/components/ui/combobox";
+import {
+  Combobox,
+  ComboboxContent,
+  ComboboxEmpty,
+  ComboboxInput,
+  ComboboxItem,
+  ComboboxList,
+} from "@/components/ui/combobox";
 import { Field, FieldContent, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -81,7 +88,13 @@ export function EmployeeCreateForm({ departments }: Props) {
         </p>
         <div className="mb-4 flex items-center gap-2 rounded-md border bg-muted p-3 font-mono text-sm">
           <span className="flex-1">{showPassword ? createdPassword : "••••••••••••"}</span>
-          <Button type="button" variant="ghost" size="icon" onClick={() => setShowPassword(!showPassword)} aria-label={showPassword ? "Hide password" : "Show password"}>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            onClick={() => setShowPassword(!showPassword)}
+            aria-label={showPassword ? "Hide password" : "Show password"}
+          >
             {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
           </Button>
           <Button
@@ -107,7 +120,9 @@ export function EmployeeCreateForm({ departments }: Props) {
   return (
     <form noValidate onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
       {serverError && (
-        <div role="alert" className="rounded-md bg-destructive/10 p-3 text-center text-destructive text-sm">{serverError}</div>
+        <div role="alert" className="rounded-md bg-destructive/10 p-3 text-center text-destructive text-sm">
+          {serverError}
+        </div>
       )}
 
       <div className="rounded-lg border bg-card p-6">
@@ -117,7 +132,12 @@ export function EmployeeCreateForm({ departments }: Props) {
             <Field>
               <FieldLabel htmlFor="employee_code">Employee Code</FieldLabel>
               <FieldContent>
-                <Input id="employee_code" placeholder="EMP001" aria-required="true" {...form.register("employee_code")} />
+                <Input
+                  id="employee_code"
+                  placeholder="EMP001"
+                  aria-required="true"
+                  {...form.register("employee_code")}
+                />
               </FieldContent>
               <FieldError>{form.formState.errors.employee_code?.message}</FieldError>
             </Field>
@@ -133,14 +153,26 @@ export function EmployeeCreateForm({ departments }: Props) {
             <Field>
               <FieldLabel htmlFor="work_email">Work Email</FieldLabel>
               <FieldContent>
-                <Input id="work_email" type="email" placeholder="john@company.com" aria-required="true" autoComplete="email" {...form.register("work_email")} />
+                <Input
+                  id="work_email"
+                  type="email"
+                  placeholder="john@company.com"
+                  aria-required="true"
+                  autoComplete="email"
+                  {...form.register("work_email")}
+                />
               </FieldContent>
               <FieldError>{form.formState.errors.work_email?.message}</FieldError>
             </Field>
             <Field>
               <FieldLabel htmlFor="phone_number">Phone Number</FieldLabel>
               <FieldContent>
-                <Input id="phone_number" placeholder="+62 812 ..." autoComplete="tel" {...form.register("phone_number")} />
+                <Input
+                  id="phone_number"
+                  placeholder="+62 812 ..."
+                  autoComplete="tel"
+                  {...form.register("phone_number")}
+                />
               </FieldContent>
               <FieldError>{form.formState.errors.phone_number?.message}</FieldError>
             </Field>
@@ -193,7 +225,12 @@ export function EmployeeCreateForm({ departments }: Props) {
             <Field>
               <FieldLabel htmlFor="position">Position</FieldLabel>
               <FieldContent>
-                <Input id="position" placeholder="Software Engineer" aria-required="true" {...form.register("position")} />
+                <Input
+                  id="position"
+                  placeholder="Software Engineer"
+                  aria-required="true"
+                  {...form.register("position")}
+                />
               </FieldContent>
               <FieldError>{form.formState.errors.position?.message}</FieldError>
             </Field>
@@ -245,10 +282,22 @@ export function EmployeeCreateForm({ departments }: Props) {
                     placeholder="Enter or generate..."
                     {...form.register("temporary_password")}
                   />
-                  <Button type="button" variant="outline" size="icon" onClick={() => setShowPassword(!showPassword)} aria-label={showPassword ? "Hide password" : "Show password"}>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    onClick={() => setShowPassword(!showPassword)}
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                  >
                     {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </Button>
-                  <Button type="button" variant="outline" size="icon" onClick={handleGeneratePassword} aria-label="Generate password">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    onClick={handleGeneratePassword}
+                    aria-label="Generate password"
+                  >
                     <RefreshCw className="h-4 w-4" />
                   </Button>
                 </div>

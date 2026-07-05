@@ -2,10 +2,6 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Progress } from "@/components/ui/progress";
 import {
   BookOpenCheck,
   CheckCircle2,
@@ -18,6 +14,11 @@ import {
   Shield,
   Sun,
 } from "lucide-react";
+
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Progress } from "@/components/ui/progress";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -60,8 +61,7 @@ const SECTIONS: Section[] = [
   {
     number: 1,
     title: "Functional Correctness",
-    purpose:
-      "Memastikan seluruh fitur bekerja sesuai PRD, business rule, dan workflow aplikasi.",
+    purpose: "Memastikan seluruh fitur bekerja sesuai PRD, business rule, dan workflow aplikasi.",
     subsections: [
       {
         title: "Requirement Coverage",
@@ -519,9 +519,7 @@ const SECTIONS: Section[] = [
     subsections: [
       {
         title: "Avoid",
-        codeBlocks: [
-          { language: "typescript", code: "any\nas any\n@ts-ignore" },
-        ],
+        codeBlocks: [{ language: "typescript", code: "any\nas any\n@ts-ignore" }],
         items: [],
       },
       {
@@ -734,9 +732,7 @@ const SECTIONS: Section[] = [
           "Version compatible",
           "Tidak ada package critical vulnerability",
         ]),
-        codeBlocks: [
-          { language: "bash", code: "npm audit\nnpm outdated" },
-        ],
+        codeBlocks: [{ language: "bash", code: "npm audit\nnpm outdated" }],
       },
       {
         title: "Bundle Review",
@@ -1057,12 +1053,7 @@ const SEVERITY_CLASSIFICATION = [
     level: "Low",
     color: "bg-blue-400 dark:bg-blue-300",
     textColor: "text-white dark:text-black",
-    impacts: [
-      "Naming issue",
-      "Cosmetic inconsistency",
-      "Minor refactor",
-      "Documentation gap",
-    ],
+    impacts: ["Naming issue", "Cosmetic inconsistency", "Minor refactor", "Documentation gap"],
     action: "Backlog",
   },
 ];
@@ -1070,40 +1061,19 @@ const SEVERITY_CLASSIFICATION = [
 const FINAL_RECOMMENDATIONS = [
   {
     decision: "APPROVED",
-    rules: [
-      "Tidak ada Critical",
-      "Tidak ada High",
-      "Mandatory test lulus",
-      "Build lulus",
-      "RLS dan Auth verified",
-    ],
+    rules: ["Tidak ada Critical", "Tidak ada High", "Mandatory test lulus", "Build lulus", "RLS dan Auth verified"],
   },
   {
     decision: "APPROVED WITH MINOR CHANGES",
-    rules: [
-      "Tidak ada Critical",
-      "Tidak ada High",
-      "Hanya Medium/Low non-blocking",
-    ],
+    rules: ["Tidak ada Critical", "Tidak ada High", "Hanya Medium/Low non-blocking"],
   },
   {
     decision: "REQUEST CHANGES",
-    rules: [
-      "Ada High",
-      "Main flow belum stabil",
-      "Test penting belum lulus",
-      "RLS belum lengkap",
-    ],
+    rules: ["Ada High", "Main flow belum stabil", "Test penting belum lulus", "RLS belum lengkap"],
   },
   {
     decision: "REJECTED",
-    rules: [
-      "Ada Critical",
-      "Data exposure",
-      "Auth bypass",
-      "Service-role leak",
-      "Data corruption",
-    ],
+    rules: ["Ada Critical", "Data exposure", "Auth bypass", "Service-role leak", "Data corruption"],
   },
 ];
 
@@ -1153,7 +1123,10 @@ const STORAGE_KEY = "lrm-code-review-checklist";
 // Status: pass | warn | fail | fixed | info
 // ---------------------------------------------------------------------------
 type ReviewStatus = "pass" | "warn" | "fail" | "fixed" | "info";
-interface ReviewNote { status: ReviewStatus; note: string; }
+interface ReviewNote {
+  status: ReviewStatus;
+  note: string;
+}
 
 const REVIEW_NOTES: Record<string, ReviewNote> = {
   // ── Section 1a: Requirement Coverage (1a-1 to 1a-8) ──
@@ -1182,7 +1155,10 @@ const REVIEW_NOTES: Record<string, ReviewNote> = {
   "1c-19": { status: "fixed", note: "All queries now use explicit FK hints (employees_department_id_fkey)" },
   "1c-20": { status: "fixed", note: "Ambiguous relationship error resolved with FK hint syntax" },
   "1c-21": { status: "pass", note: "database.types.ts generated from Supabase, up to date" },
-  "1c-22": { status: "pass", note: "departments!employees_department_id_fkey distinguishes employee dept from manager dept" },
+  "1c-22": {
+    status: "pass",
+    note: "departments!employees_department_id_fkey distinguishes employee dept from manager dept",
+  },
   "1c-23": { status: "pass", note: "Pagination and filter preserved with query params after FK fix" },
   "1c-24": { status: "pass", note: "All joins use explicit FK hints, no hidden error suppression" },
 
@@ -1197,7 +1173,10 @@ const REVIEW_NOTES: Record<string, ReviewNote> = {
   "1d-32": { status: "pass", note: "Client total days value is recalculated by RPC — not trusted" },
   "1d-33": { status: "pass", note: "Overlap check against Pending/Approved in create_leave_request RPC" },
   "1d-34": { status: "pass", note: "Available balance check in create_leave_request RPC" },
-  "1d-35": { status: "pass", note: "Pending request can be edited via update_pending_leave_request and cancelled via cancel_leave_request" },
+  "1d-35": {
+    status: "pass",
+    note: "Pending request can be edited via update_pending_leave_request and cancelled via cancel_leave_request",
+  },
   "1d-36": { status: "pass", note: "Approved, Rejected, Cancelled requests cannot be edited — enforced in RPC" },
   "1d-37": { status: "pass", note: "Valid status transitions: PENDING→APPROVED/REJECTED/CANCELLED enforced" },
 
@@ -1252,8 +1231,14 @@ const REVIEW_NOTES: Record<string, ReviewNote> = {
   "1i-77": { status: "pass", note: "Double click submit prevented — button disabled during processing" },
   "1i-78": { status: "pass", note: "Page revalidated after mutation via revalidatePath" },
   "1i-79": { status: "pass", note: "Concurrent approval handled — RPC uses FOR UPDATE lock" },
-  "1i-80": { status: "fixed", note: "Concurrent leave request on same balance — race condition fixed with PostgreSQL sequence + FOR UPDATE" },
-  "1i-81": { status: "pass", note: "Employee deactivated while request is Pending — approval RPC checks employee status" },
+  "1i-80": {
+    status: "fixed",
+    note: "Concurrent leave request on same balance — race condition fixed with PostgreSQL sequence + FOR UPDATE",
+  },
+  "1i-81": {
+    status: "pass",
+    note: "Employee deactivated while request is Pending — approval RPC checks employee status",
+  },
   "1i-82": { status: "info", note: "File upload not implemented yet — edge case deferred" },
   "1i-83": { status: "info", note: "Storage metadata rollback not applicable — file upload not implemented" },
 
@@ -1262,7 +1247,10 @@ const REVIEW_NOTES: Record<string, ReviewNote> = {
   "1j-85": { status: "pass", note: "No orphan balance or ledger — FK constraints enforce referential integrity" },
   "1j-86": { status: "pass", note: "No orphan attachment metadata — FK to leave_requests enforced" },
   "1j-87": { status: "pass", note: "No request without employee — employee_id FK NOT NULL" },
-  "1j-88": { status: "pass", note: "Unique constraint on (employee_id, leave_type_id, year) prevents duplicate balances" },
+  "1j-88": {
+    status: "pass",
+    note: "Unique constraint on (employee_id, leave_type_id, year) prevents duplicate balances",
+  },
   "1j-89": { status: "pass", note: "Historical requests preserved when leave type configuration is deactivated" },
 
   // ── Section 2a: Security Authentication (2a-90 to 2a-98) ──
@@ -1278,13 +1266,19 @@ const REVIEW_NOTES: Record<string, ReviewNote> = {
 
   // ── Section 2b: Authorization (2b-99 to 2b-106) ──
   "2b-99": { status: "pass", note: "Every server action performs auth and permission check via getAuthenticatedUser" },
-  "2b-100": { status: "warn", note: "Middleware checks cookie presence not token validity — defense-in-depth OK, server components re-validate" },
+  "2b-100": {
+    status: "warn",
+    note: "Middleware checks cookie presence not token validity — defense-in-depth OK, server components re-validate",
+  },
   "2b-101": { status: "pass", note: "Employee can only see own data — RLS + server-side employee_id scoping" },
   "2b-102": { status: "pass", note: "Manager only sees direct reports — scoped by manager_id in queries" },
   "2b-103": { status: "pass", note: "Admin-only routes protected with role check in server component" },
   "2b-104": { status: "pass", note: "Role and employee_id derived from DB via auth.uid(), not from client payload" },
   "2b-105": { status: "pass", note: "Manager cannot self-approve — RPC checks actor_id ≠ employee_id" },
-  "2b-106": { status: "pass", note: "Hiding menu items is not relied upon as security control — server-side checks enforce access" },
+  "2b-106": {
+    status: "pass",
+    note: "Hiding menu items is not relied upon as security control — server-side checks enforce access",
+  },
 
   // ── Section 2c: Row Level Security (2c-107 to 2c-116) ──
   "2c-107": { status: "pass", note: "RLS enabled on all 9 exposed business tables" },
@@ -1296,7 +1290,10 @@ const REVIEW_NOTES: Record<string, ReviewNote> = {
   "2c-113": { status: "pass", note: "RLS policies not accidentally recursive — verified in migration" },
   "2c-114": { status: "pass", note: "Helper functions use safe search_path = ''" },
   "2c-115": { status: "pass", note: "security definer used only where needed (RPCs requiring elevated access)" },
-  "2c-116": { status: "pass", note: "Policies do not trust editable user_metadata — role derived from employees table" },
+  "2c-116": {
+    status: "pass",
+    note: "Policies do not trust editable user_metadata — role derived from employees table",
+  },
 
   // ── Section 2d: Input Validation (2d-117 to 2d-123) ──
   "2d-117": { status: "pass", note: "All server actions use Zod schema validation" },
@@ -1308,14 +1305,20 @@ const REVIEW_NOTES: Record<string, ReviewNote> = {
   "2d-123": { status: "pass", note: "RPC parameters passed via parameterized calls, no string SQL interpolation" },
 
   // ── Section 2e: OWASP Broken Access Control (2e-124 to 2e-128) ──
-  "2e-124": { status: "pass", note: "IDOR on employee detail, request, balance, attachment prevented by RLS + server-side ownership check" },
+  "2e-124": {
+    status: "pass",
+    note: "IDOR on employee detail, request, balance, attachment prevented by RLS + server-side ownership check",
+  },
   "2e-125": { status: "pass", note: "Direct URL to admin page blocked by server-side role check" },
   "2e-126": { status: "pass", note: "Manager accessing non-direct report blocked by RLS scope" },
   "2e-127": { status: "pass", note: "Employee accessing audit log restricted by RLS policy" },
   "2e-128": { status: "pass", note: "Role escalation via payload prevented — role derived from DB, not client" },
 
   // ── Section 2f: OWASP Injection (2f-129 to 2f-132) ──
-  "2f-129": { status: "pass", note: "No raw SQL with string interpolation — all queries use Supabase client or parameterized RPCs" },
+  "2f-129": {
+    status: "pass",
+    note: "No raw SQL with string interpolation — all queries use Supabase client or parameterized RPCs",
+  },
   "2f-130": { status: "pass", note: "No dynamic SQL constructed from user input" },
   "2f-131": { status: "pass", note: "Sorting and filter columns use allowlist validation" },
   "2f-132": { status: "pass", note: "No unsafe HTML rendering — React escapes by default, no dangerouslySetInnerHTML" },
@@ -1329,13 +1332,19 @@ const REVIEW_NOTES: Record<string, ReviewNote> = {
   "2g-138": { status: "pass", note: "No development credentials in production deployment" },
 
   // ── Section 2h: OWASP Authentication Failures (2h-139 to 2h-142) ──
-  "2h-139": { status: "pass", note: "Session invalidated after account deactivation — active status checked on each request" },
+  "2h-139": {
+    status: "pass",
+    note: "Session invalidated after account deactivation — active status checked on each request",
+  },
   "2h-140": { status: "pass", note: "Auth user without employee profile handled — redirected to error/login" },
   "2h-141": { status: "pass", note: "Login error messages are generic — no credential detail leakage" },
   "2h-142": { status: "pass", note: "Account enumeration mitigated — same error for invalid email/password" },
 
   // ── Section 2i: OWASP Logging Failures (2i-143 to 2i-145) ──
-  "2i-143": { status: "pass", note: "Approval, balance adjustment, attachment, and employee changes all logged in audit_logs" },
+  "2i-143": {
+    status: "pass",
+    note: "Approval, balance adjustment, attachment, and employee changes all logged in audit_logs",
+  },
   "2i-144": { status: "warn", note: "Errors do not have reference ID system — deferred, non-blocking" },
   "2i-145": { status: "pass", note: "Audit metadata does not contain sensitive data (passwords, tokens)" },
 
@@ -1397,7 +1406,10 @@ const REVIEW_NOTES: Record<string, ReviewNote> = {
 
   // ── Section 4a: Expected Layering (4a-188 to 4a-196) ──
   "4a-188": { status: "pass", note: "UI separated from business logic — Page → Server Action → Service → Supabase" },
-  "4a-189": { status: "pass", note: "Permission logic centralized in canManageEmployees, canApproveLeaveRequest helpers" },
+  "4a-189": {
+    status: "pass",
+    note: "Permission logic centralized in canManageEmployees, canApproveLeaveRequest helpers",
+  },
   "4a-190": { status: "pass", note: "Validation schemas in feature-specific modules (employee.schema, leave.schema)" },
   "4a-191": { status: "pass", note: "Client components do not import or access admin client" },
   "4a-192": { status: "pass", note: "Page components do not contain SQL or business logic — delegated to services" },
@@ -1424,8 +1436,14 @@ const REVIEW_NOTES: Record<string, ReviewNote> = {
   "4c-209": { status: "pass", note: "Cookie handling follows @supabase/ssr pattern correctly" },
 
   // ── Section 5a: Naming (5a-210 to 5a-212) ──
-  "5a-210": { status: "pass", note: "Components, functions, actions, RPCs, schemas, and types have clear descriptive names" },
-  "5a-211": { status: "pass", note: "File naming conventions consistent (kebab-case for files, PascalCase for components)" },
+  "5a-210": {
+    status: "pass",
+    note: "Components, functions, actions, RPCs, schemas, and types have clear descriptive names",
+  },
+  "5a-211": {
+    status: "pass",
+    note: "File naming conventions consistent (kebab-case for files, PascalCase for components)",
+  },
   "5a-212": { status: "pass", note: "No generic names like data, stuff, handler2, or temp found" },
 
   // ── Section 5b: Duplication (5b-213 to 5b-219) ──
@@ -1460,7 +1478,10 @@ const REVIEW_NOTES: Record<string, ReviewNote> = {
   "6a-235": { status: "pass", note: "RPC return types correctly typed with Database interface" },
   "6a-236": { status: "pass", note: "Enums consistent between TypeScript and database schema" },
   "6a-237": { status: "pass", note: "Nullability matches schema — optional fields correctly typed" },
-  "6a-238": { status: "fixed", note: "Non-null assertions replaced — AdminDashboardRpcResult interface replaces 'as any'" },
+  "6a-238": {
+    status: "fixed",
+    note: "Non-null assertions replaced — AdminDashboardRpcResult interface replaces 'as any'",
+  },
 
   // ── Section 7a: Error Handling (7a-239 to 7a-245) ──
   "7a-239": { status: "fixed", note: "try/catch added to all server actions — errors not silently swallowed" },
@@ -1508,7 +1529,10 @@ const REVIEW_NOTES: Record<string, ReviewNote> = {
   "8e-271": { status: "info", note: "File size validation — not applicable, file upload not implemented" },
   "8e-272": { status: "info", note: "Private bucket enforcement — not applicable, storage not implemented" },
   "8e-273": { status: "info", note: "File ownership validation — not applicable, file upload not implemented" },
-  "8e-274": { status: "info", note: "Pending status check for attachment — not applicable, file upload not implemented" },
+  "8e-274": {
+    status: "info",
+    note: "Pending status check for attachment — not applicable, file upload not implemented",
+  },
   "8e-275": { status: "info", note: "Safe filename and path — not applicable, file upload not implemented" },
 
   // ── Section 9a: BNI Brutalist Theme (9a-276 to 9a-283) ──
@@ -1532,7 +1556,10 @@ const REVIEW_NOTES: Record<string, ReviewNote> = {
 
   // ── Section 9c: Tables and Lists (9c-291 to 9c-295) ──
   "9c-291": { status: "pass", note: "Filter, sorting, and pagination working correctly on all list pages" },
-  "9c-292": { status: "fixed", note: "Shared EmptyState component used for skeleton, empty, and error states across 6 pages" },
+  "9c-292": {
+    status: "fixed",
+    note: "Shared EmptyState component used for skeleton, empty, and error states across 6 pages",
+  },
   "9c-293": { status: "pass", note: "Mobile strategy available — responsive table with horizontal scroll" },
   "9c-294": { status: "pass", note: "Action menus clearly labeled with dropdown options" },
   "9c-295": { status: "pass", note: "No layout shift — skeleton dimensions match final content" },
@@ -1555,7 +1582,10 @@ const REVIEW_NOTES: Record<string, ReviewNote> = {
   "10a-308": { status: "pass", note: "BNI color contrast meets WCAG AA requirements" },
   "10a-309": { status: "pass", note: "Dialog components manage focus correctly (trap + restore)" },
   "10a-310": { status: "pass", note: "Calendar events are keyboard accessible via FullCalendar defaults" },
-  "10a-311": { status: "pass", note: "Skeleton elements have aria-hidden or appropriate role to avoid screen reader confusion" },
+  "10a-311": {
+    status: "pass",
+    note: "Skeleton elements have aria-hidden or appropriate role to avoid screen reader confusion",
+  },
 
   // ── Section 11a: Dependency Review (11a-312 to 11a-317) ──
   "11a-312": { status: "pass", note: "All dependencies in package.json are actively used in codebase" },
@@ -1585,7 +1615,10 @@ const REVIEW_NOTES: Record<string, ReviewNote> = {
   "12b-330": { status: "pass", note: "Leave created/edited/cancelled events logged" },
   "12b-331": { status: "pass", note: "Leave approved/rejected events logged with actor info" },
   "12b-332": { status: "pass", note: "Balance adjustment events logged with reason" },
-  "12b-333": { status: "info", note: "Attachment uploaded/removed audit — not applicable, file upload not implemented" },
+  "12b-333": {
+    status: "info",
+    note: "Attachment uploaded/removed audit — not applicable, file upload not implemented",
+  },
   "12b-334": { status: "pass", note: "Configuration change events logged" },
 
   // ── Section 13a: Hallucination (13a-335 to 13a-341) ──
@@ -1602,7 +1635,10 @@ const REVIEW_NOTES: Record<string, ReviewNote> = {
   "13b-343": { status: "pass", note: "RLS policies verified in migration files — not just claimed" },
   "13b-344": { status: "pass", note: "Private data not fetched then hidden via CSS — queries scoped server-side" },
   "13b-345": { status: "pass", note: "Disabled buttons not relied upon as authorization — server actions re-check" },
-  "13b-346": { status: "pass", note: "Middleware is not the sole authorization layer — server components and actions re-validate" },
+  "13b-346": {
+    status: "pass",
+    note: "Middleware is not the sole authorization layer — server components and actions re-validate",
+  },
   "13b-347": { status: "pass", note: "security definer RPCs include proper auth.uid() authorization checks" },
 
   // ── Section 13c: Fake Performance (13c-348 to 13c-352) ──
@@ -1649,7 +1685,10 @@ const REVIEW_NOTES: Record<string, ReviewNote> = {
   // ── Section 14d: Storage (14d-379 to 14d-385) ──
   "14d-379": { status: "info", note: "Bucket private check — not applicable, storage not implemented" },
   "14d-380": { status: "info", note: "Path safety check — not applicable, storage not implemented" },
-  "14d-381": { status: "info", note: "Storage policy for owner/manager/admin — not applicable, storage not implemented" },
+  "14d-381": {
+    status: "info",
+    note: "Storage policy for owner/manager/admin — not applicable, storage not implemented",
+  },
   "14d-382": { status: "info", note: "MIME and size limit in storage — not applicable, storage not implemented" },
   "14d-383": { status: "info", note: "Signed URL expiry — not applicable, storage not implemented" },
   "14d-384": { status: "info", note: "Orphan file cleanup — not applicable, storage not implemented" },
@@ -1667,7 +1706,10 @@ const REVIEW_NOTES: Record<string, ReviewNote> = {
 
   // ── Section 15b: Database/RPC Tests (15b-394 to 15b-399) ──
   "15b-394": { status: "info", note: "RPC tested manually on local Supabase, no automated DB test suite" },
-  "15b-395": { status: "info", note: "Request/balance/ledger/notification/audit verified manually, no integration test" },
+  "15b-395": {
+    status: "info",
+    note: "Request/balance/ledger/notification/audit verified manually, no integration test",
+  },
   "15b-396": { status: "info", note: "Unauthorized actor rejection verified manually via RLS" },
   "15b-397": { status: "info", note: "Duplicate decision rejection verified manually" },
   "15b-398": { status: "info", note: "Concurrent operation verified manually — race condition fixed with sequence" },
@@ -1859,7 +1901,7 @@ export default function CodeReviewPage() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       {/* ── HEADER ──────────────────────────────────────────────── */}
-      <header className="sticky top-0 z-50 border-b-2 border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <header className="sticky top-0 z-50 border-border border-b-2 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6">
           {/* top row */}
           <div className="flex flex-wrap items-center justify-between gap-3">
@@ -1868,31 +1910,24 @@ export default function CodeReviewPage() {
                 <FileCode2 className="h-5 w-5 text-primary-foreground" />
               </div>
               <div>
-                <h1 className="text-lg font-extrabold leading-tight tracking-tight sm:text-xl">
-                  LRM{" "}
-                  <span className="text-muted-foreground font-semibold">
-                    — Code Review Checklist
-                  </span>
+                <h1 className="font-extrabold text-lg leading-tight tracking-tight sm:text-xl">
+                  LRM <span className="font-semibold text-muted-foreground">— Code Review Checklist</span>
                 </h1>
-                <p className="text-xs text-muted-foreground">
-                  Leave Request Management System • Next.js + Supabase
-                </p>
+                <p className="text-muted-foreground text-xs">Leave Request Management System • Next.js + Supabase</p>
               </div>
             </div>
 
             <div className="flex items-center gap-2">
               <button
+                type="button"
                 onClick={toggleDark}
                 aria-label="Toggle dark mode"
                 className="inline-flex h-8 w-8 items-center justify-center border-2 border-border bg-card transition-colors hover:bg-muted"
               >
-                {isDark ? (
-                  <Sun className="h-4 w-4" />
-                ) : (
-                  <Moon className="h-4 w-4" />
-                )}
+                {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
               </button>
               <button
+                type="button"
                 onClick={() => window.print()}
                 aria-label="Print"
                 className="inline-flex h-8 w-8 items-center justify-center border-2 border-border bg-card transition-colors hover:bg-muted"
@@ -1900,6 +1935,7 @@ export default function CodeReviewPage() {
                 <Printer className="h-4 w-4" />
               </button>
               <button
+                type="button"
                 onClick={resetAll}
                 aria-label="Reset all"
                 className="inline-flex h-8 w-8 items-center justify-center border-2 border-border bg-card transition-colors hover:bg-muted"
@@ -1912,11 +1948,7 @@ export default function CodeReviewPage() {
           {/* badges */}
           <div className="mt-3 flex flex-wrap gap-1.5">
             {TECH_STACK.map((tech) => (
-              <Badge
-                key={tech}
-                variant="outline"
-                className="text-[10px] font-semibold uppercase tracking-wider"
-              >
+              <Badge key={tech} variant="outline" className="font-semibold text-[10px] uppercase tracking-wider">
                 {tech}
               </Badge>
             ))}
@@ -1925,10 +1957,8 @@ export default function CodeReviewPage() {
           {/* progress */}
           <div className="mt-3 flex items-center gap-3">
             <Progress value={progressPct} className="h-2.5 flex-1 border border-border" />
-            <span className="min-w-[5ch] text-right text-sm font-bold tabular-nums">
-              {progressPct}%
-            </span>
-            <span className="text-xs text-muted-foreground whitespace-nowrap">
+            <span className="min-w-[5ch] text-right font-bold text-sm tabular-nums">{progressPct}%</span>
+            <span className="whitespace-nowrap text-muted-foreground text-xs">
               {checkedCount}/{totalItems}
             </span>
           </div>
@@ -1938,12 +1968,9 @@ export default function CodeReviewPage() {
       {/* ── MAIN ────────────────────────────────────────────────── */}
       <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:flex lg:gap-6">
         {/* ─ TOC ─ */}
-        <nav
-          className="hidden lg:block lg:w-72 xl:w-80"
-          aria-label="Table of contents"
-        >
+        <nav className="hidden lg:block lg:w-72 xl:w-80" aria-label="Table of contents">
           <div className="sticky top-[140px] max-h-[calc(100vh-160px)] overflow-y-auto border-2 border-border bg-card p-4">
-            <h2 className="mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-muted-foreground">
+            <h2 className="mb-3 flex items-center gap-2 font-bold text-muted-foreground text-xs uppercase tracking-widest">
               <ListChecks className="h-4 w-4" /> Sections
             </h2>
             <ul className="space-y-0.5">
@@ -1954,25 +1981,24 @@ export default function CodeReviewPage() {
                 return (
                   <li key={s.number}>
                     <button
+                      type="button"
                       onClick={() => scrollToSection(s.number)}
                       className={`flex w-full items-center gap-2 px-2 py-1.5 text-left text-sm transition-colors ${
                         isActive
-                          ? "border-l-[3px] border-primary bg-primary/10 font-bold text-foreground"
-                          : "border-l-[3px] border-transparent text-muted-foreground hover:bg-muted/50 hover:text-foreground"
+                          ? "border-primary border-l-[3px] bg-primary/10 font-bold text-foreground"
+                          : "border-transparent border-l-[3px] text-muted-foreground hover:bg-muted/50 hover:text-foreground"
                       }`}
                     >
-                      <span className="flex h-5 w-5 shrink-0 items-center justify-center border border-border text-[10px] font-bold">
+                      <span className="flex h-5 w-5 shrink-0 items-center justify-center border border-border font-bold text-[10px]">
                         {isDone ? (
                           <CheckCircle2 className="h-3.5 w-3.5 text-green-600 dark:text-green-400" />
                         ) : (
                           s.number
                         )}
                       </span>
-                      <span className="flex-1 truncate text-xs">
-                        {s.title}
-                      </span>
+                      <span className="flex-1 truncate text-xs">{s.title}</span>
                       {sp && sp.total > 0 && (
-                        <span className="text-[10px] tabular-nums text-muted-foreground">
+                        <span className="text-[10px] text-muted-foreground tabular-nums">
                           {sp.checked}/{sp.total}
                         </span>
                       )}
@@ -1983,15 +2009,22 @@ export default function CodeReviewPage() {
             </ul>
 
             {/* extra links */}
-            <div className="mt-4 border-t border-border pt-3 space-y-1">
-              {["severity-classification", "review-report-template", "final-recommendation", "reviewer-info", "summary"].map((id) => (
+            <div className="mt-4 space-y-1 border-border border-t pt-3">
+              {[
+                "severity-classification",
+                "review-report-template",
+                "final-recommendation",
+                "reviewer-info",
+                "summary",
+              ].map((id) => (
                 <button
+                  type="button"
                   key={id}
                   onClick={() => {
                     const el = document.getElementById(id);
                     if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
                   }}
-                  className="block w-full px-2 py-1 text-left text-xs text-muted-foreground hover:text-foreground transition-colors"
+                  className="block w-full px-2 py-1 text-left text-muted-foreground text-xs transition-colors hover:text-foreground"
                 >
                   {id
                     .split("-")
@@ -2014,53 +2047,43 @@ export default function CodeReviewPage() {
               id={`section-${section.number}`}
               className="scroll-mt-36"
             >
-              <Card className="overflow-hidden border-2 border-border shadow-none rounded-none">
-                <CardHeader className="border-b-2 border-border bg-muted/30">
+              <Card className="overflow-hidden rounded-none border-2 border-border shadow-none">
+                <CardHeader className="border-border border-b-2 bg-muted/30">
                   <div className="flex items-center gap-3">
-                    <span className="flex h-9 w-9 shrink-0 items-center justify-center border-2 border-border bg-primary text-sm font-black text-primary-foreground">
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center border-2 border-border bg-primary font-black text-primary-foreground text-sm">
                       {section.number}
                     </span>
-                    <CardTitle className="text-base font-extrabold uppercase tracking-wide sm:text-lg">
+                    <CardTitle className="font-extrabold text-base uppercase tracking-wide sm:text-lg">
                       {section.title}
                     </CardTitle>
                   </div>
-                  {section.purpose && (
-                    <p className="mt-1 text-xs text-muted-foreground">
-                      {section.purpose}
-                    </p>
-                  )}
+                  {section.purpose && <p className="mt-1 text-muted-foreground text-xs">{section.purpose}</p>}
                   {/* section micro progress */}
-                  {sectionProgress[section.number] &&
-                    sectionProgress[section.number].total > 0 && (
-                      <div className="mt-2 flex items-center gap-2">
-                        <Progress
-                          value={
-                            (sectionProgress[section.number].checked /
-                              sectionProgress[section.number].total) *
-                            100
-                          }
-                          className="h-1.5 flex-1"
-                        />
-                        <span className="text-[10px] font-bold tabular-nums text-muted-foreground">
-                          {sectionProgress[section.number].checked}/
-                          {sectionProgress[section.number].total}
-                        </span>
-                      </div>
-                    )}
+                  {sectionProgress[section.number] && sectionProgress[section.number].total > 0 && (
+                    <div className="mt-2 flex items-center gap-2">
+                      <Progress
+                        value={(sectionProgress[section.number].checked / sectionProgress[section.number].total) * 100}
+                        className="h-1.5 flex-1"
+                      />
+                      <span className="font-bold text-[10px] text-muted-foreground tabular-nums">
+                        {sectionProgress[section.number].checked}/{sectionProgress[section.number].total}
+                      </span>
+                    </div>
+                  )}
                 </CardHeader>
                 <CardContent className="space-y-6 pt-4">
-                  {section.subsections.map((sub, si) => (
-                    <div key={si}>
-                      <h3 className="mb-2 flex items-center gap-2 text-sm font-bold uppercase tracking-wide text-foreground">
+                  {section.subsections.map((sub) => (
+                    <div key={sub.title}>
+                      <h3 className="mb-2 flex items-center gap-2 font-bold text-foreground text-sm uppercase tracking-wide">
                         <BookOpenCheck className="h-3.5 w-3.5 text-primary" />
                         {sub.title}
                       </h3>
 
                       {/* code blocks */}
-                      {sub.codeBlocks?.map((cb, ci) => (
+                      {sub.codeBlocks?.map((cb) => (
                         <pre
-                          key={ci}
-                          className="mb-3 overflow-x-auto border-2 border-border bg-black/90 p-3 text-xs leading-relaxed text-green-400 dark:bg-white/5 dark:text-green-300 font-mono"
+                          key={cb.code}
+                          className="mb-3 overflow-x-auto border-2 border-border bg-black/90 p-3 font-mono text-green-400 text-xs leading-relaxed dark:bg-white/5 dark:text-green-300"
                         >
                           <code>{cb.code}</code>
                         </pre>
@@ -2072,97 +2095,119 @@ export default function CodeReviewPage() {
                           {sub.items.map((item) => {
                             const note = REVIEW_NOTES[item.id];
                             return (
-                            <li key={item.id}>
-                              <label className="group flex cursor-pointer items-start gap-2.5 px-2 py-1 transition-colors hover:bg-muted/40">
-                                <Checkbox
-                                  checked={!!checked[item.id]}
-                                  onCheckedChange={() => toggle(item.id)}
-                                  className="mt-0.5 shrink-0"
-                                />
-                                <span
-                                  className={`text-sm leading-snug transition-colors flex-1 ${
-                                    checked[item.id]
-                                      ? "text-muted-foreground line-through"
-                                      : "text-foreground"
-                                  }`}
+                              <li key={item.id}>
+                                <label
+                                  htmlFor={`review-item-${item.id}`}
+                                  className="group flex cursor-pointer items-start gap-2.5 px-2 py-1 transition-colors hover:bg-muted/40"
                                 >
-                                  {item.text}
-                                </span>
-                                {note && (
+                                  <Checkbox
+                                    id={`review-item-${item.id}`}
+                                    checked={!!checked[item.id]}
+                                    onCheckedChange={() => toggle(item.id)}
+                                    className="mt-0.5 shrink-0"
+                                  />
                                   <span
-                                    title={note.note}
-                                    className={`shrink-0 inline-flex items-center gap-1 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider border ${
-                                      note.status === "pass" ? "border-emerald-400 text-emerald-600 bg-emerald-50 dark:bg-emerald-950/30 dark:text-emerald-400" :
-                                      note.status === "fixed" ? "border-blue-400 text-blue-600 bg-blue-50 dark:bg-blue-950/30 dark:text-blue-400" :
-                                      note.status === "warn" ? "border-amber-400 text-amber-600 bg-amber-50 dark:bg-amber-950/30 dark:text-amber-400" :
-                                      note.status === "fail" ? "border-red-400 text-red-600 bg-red-50 dark:bg-red-950/30 dark:text-red-400" :
-                                      "border-gray-300 text-gray-500 bg-gray-50 dark:bg-gray-900/30 dark:text-gray-400"
+                                    className={`flex-1 text-sm leading-snug transition-colors ${
+                                      checked[item.id] ? "text-muted-foreground line-through" : "text-foreground"
                                     }`}
                                   >
-                                    {note.status === "pass" && "✓ PASS"}
-                                    {note.status === "fixed" && "🔧 FIXED"}
-                                    {note.status === "warn" && "⚠ WARN"}
-                                    {note.status === "fail" && "✗ FAIL"}
-                                    {note.status === "info" && "ℹ INFO"}
+                                    {item.text}
                                   </span>
+                                  {note && (
+                                    <span
+                                      title={note.note}
+                                      className={`inline-flex shrink-0 items-center gap-1 border px-1.5 py-0.5 font-bold text-[10px] uppercase tracking-wider ${
+                                        note.status === "pass"
+                                          ? "border-emerald-400 bg-emerald-50 text-emerald-600 dark:bg-emerald-950/30 dark:text-emerald-400"
+                                          : note.status === "fixed"
+                                            ? "border-blue-400 bg-blue-50 text-blue-600 dark:bg-blue-950/30 dark:text-blue-400"
+                                            : note.status === "warn"
+                                              ? "border-amber-400 bg-amber-50 text-amber-600 dark:bg-amber-950/30 dark:text-amber-400"
+                                              : note.status === "fail"
+                                                ? "border-red-400 bg-red-50 text-red-600 dark:bg-red-950/30 dark:text-red-400"
+                                                : "border-gray-300 bg-gray-50 text-gray-500 dark:bg-gray-900/30 dark:text-gray-400"
+                                      }`}
+                                    >
+                                      {note.status === "pass" && "✓ PASS"}
+                                      {note.status === "fixed" && "🔧 FIXED"}
+                                      {note.status === "warn" && "⚠ WARN"}
+                                      {note.status === "fail" && "✗ FAIL"}
+                                      {note.status === "info" && "ℹ INFO"}
+                                    </span>
+                                  )}
+                                </label>
+                                {/* note tooltip detail */}
+                                {note && (
+                                  <p className="ml-9 text-[10px] text-muted-foreground/70 italic leading-tight">
+                                    → {note.note}
+                                  </p>
                                 )}
-                              </label>
-                              {/* note tooltip detail */}
-                              {note && (
-                                <p className="ml-9 text-[10px] text-muted-foreground/70 italic leading-tight">
-                                  → {note.note}
-                                </p>
-                              )}
-                              {/* children */}
-                              {item.children && (
-                                <ul className="ml-8 mt-1 space-y-1">
-                                  {item.children.map((child) => {
-                                    const childNote = REVIEW_NOTES[child.id];
-                                    return (
-                                    <li key={child.id}>
-                                      <label className="group flex cursor-pointer items-start gap-2.5 px-2 py-0.5 transition-colors hover:bg-muted/40">
-                                        <Checkbox
-                                          checked={!!checked[child.id]}
-                                          onCheckedChange={() =>
-                                            toggle(child.id)
-                                          }
-                                          className="mt-0.5 shrink-0"
-                                        />
-                                        <span
-                                          className={`text-xs leading-snug transition-colors flex-1 ${
-                                            checked[child.id]
-                                              ? "text-muted-foreground line-through"
-                                              : "text-foreground"
-                                          }`}
-                                        >
-                                          {child.text}
-                                        </span>
-                                        {childNote && (
-                                          <span
-                                            title={childNote.note}
-                                            className={`shrink-0 inline-flex items-center px-1 py-0.5 text-[9px] font-bold uppercase border ${
-                                              childNote.status === "pass" ? "border-emerald-400 text-emerald-600 bg-emerald-50 dark:bg-emerald-950/30" :
-                                              childNote.status === "fixed" ? "border-blue-400 text-blue-600 bg-blue-50 dark:bg-blue-950/30" :
-                                              childNote.status === "warn" ? "border-amber-400 text-amber-600 bg-amber-50 dark:bg-amber-950/30" :
-                                              childNote.status === "fail" ? "border-red-400 text-red-600 bg-red-50 dark:bg-red-950/30" :
-                                              "border-gray-300 text-gray-500 bg-gray-50 dark:bg-gray-900/30"
-                                            }`}
+                                {/* children */}
+                                {item.children && (
+                                  <ul className="mt-1 ml-8 space-y-1">
+                                    {item.children.map((child) => {
+                                      const childNote = REVIEW_NOTES[child.id];
+                                      return (
+                                        <li key={child.id}>
+                                          <label
+                                            htmlFor={`review-item-${child.id}`}
+                                            className="group flex cursor-pointer items-start gap-2.5 px-2 py-0.5 transition-colors hover:bg-muted/40"
                                           >
-                                            {childNote.status === "pass" ? "✓" : childNote.status === "fixed" ? "🔧" : childNote.status === "warn" ? "⚠" : childNote.status === "fail" ? "✗" : "ℹ"}
-                                          </span>
-                                        )}
-                                      </label>
-                                      {childNote && (
-                                        <p className="ml-9 text-[9px] text-muted-foreground/60 italic leading-tight">
-                                          → {childNote.note}
-                                        </p>
-                                      )}
-                                    </li>
-                                  );})}
-                                </ul>
-                              )}
-                            </li>
-                          );})}
+                                            <Checkbox
+                                              id={`review-item-${child.id}`}
+                                              checked={!!checked[child.id]}
+                                              onCheckedChange={() => toggle(child.id)}
+                                              className="mt-0.5 shrink-0"
+                                            />
+                                            <span
+                                              className={`flex-1 text-xs leading-snug transition-colors ${
+                                                checked[child.id]
+                                                  ? "text-muted-foreground line-through"
+                                                  : "text-foreground"
+                                              }`}
+                                            >
+                                              {child.text}
+                                            </span>
+                                            {childNote && (
+                                              <span
+                                                title={childNote.note}
+                                                className={`inline-flex shrink-0 items-center border px-1 py-0.5 font-bold text-[9px] uppercase ${
+                                                  childNote.status === "pass"
+                                                    ? "border-emerald-400 bg-emerald-50 text-emerald-600 dark:bg-emerald-950/30"
+                                                    : childNote.status === "fixed"
+                                                      ? "border-blue-400 bg-blue-50 text-blue-600 dark:bg-blue-950/30"
+                                                      : childNote.status === "warn"
+                                                        ? "border-amber-400 bg-amber-50 text-amber-600 dark:bg-amber-950/30"
+                                                        : childNote.status === "fail"
+                                                          ? "border-red-400 bg-red-50 text-red-600 dark:bg-red-950/30"
+                                                          : "border-gray-300 bg-gray-50 text-gray-500 dark:bg-gray-900/30"
+                                                }`}
+                                              >
+                                                {childNote.status === "pass"
+                                                  ? "✓"
+                                                  : childNote.status === "fixed"
+                                                    ? "🔧"
+                                                    : childNote.status === "warn"
+                                                      ? "⚠"
+                                                      : childNote.status === "fail"
+                                                        ? "✗"
+                                                        : "ℹ"}
+                                              </span>
+                                            )}
+                                          </label>
+                                          {childNote && (
+                                            <p className="ml-9 text-[9px] text-muted-foreground/60 italic leading-tight">
+                                              → {childNote.note}
+                                            </p>
+                                          )}
+                                        </li>
+                                      );
+                                    })}
+                                  </ul>
+                                )}
+                              </li>
+                            );
+                          })}
                         </ul>
                       )}
                     </div>
@@ -2174,9 +2219,9 @@ export default function CodeReviewPage() {
 
           {/* ── SEVERITY CLASSIFICATION ──────────────────────────── */}
           <section id="severity-classification" className="scroll-mt-36">
-            <Card className="overflow-hidden border-2 border-border shadow-none rounded-none">
-              <CardHeader className="border-b-2 border-border bg-muted/30">
-                <CardTitle className="text-base font-extrabold uppercase tracking-wide sm:text-lg flex items-center gap-2">
+            <Card className="overflow-hidden rounded-none border-2 border-border shadow-none">
+              <CardHeader className="border-border border-b-2 bg-muted/30">
+                <CardTitle className="flex items-center gap-2 font-extrabold text-base uppercase tracking-wide sm:text-lg">
                   <Shield className="h-5 w-5 text-primary" />
                   Severity Classification
                 </CardTitle>
@@ -2184,27 +2229,18 @@ export default function CodeReviewPage() {
               <CardContent className="pt-4">
                 <div className="grid gap-4 sm:grid-cols-2">
                   {SEVERITY_CLASSIFICATION.map((sev) => (
-                    <div
-                      key={sev.level}
-                      className="border-2 border-border overflow-hidden"
-                    >
+                    <div key={sev.level} className="overflow-hidden border-2 border-border">
                       <div
-                        className={`${sev.color} ${sev.textColor} px-3 py-2 font-black uppercase tracking-widest text-sm flex items-center justify-between`}
+                        className={`${sev.color} ${sev.textColor} flex items-center justify-between px-3 py-2 font-black text-sm uppercase tracking-widest`}
                       >
                         <span>{sev.level}</span>
-                        <Badge
-                          variant="outline"
-                          className={`${sev.textColor} border-current text-[10px]`}
-                        >
+                        <Badge variant="outline" className={`${sev.textColor} border-current text-[10px]`}>
                           {sev.action}
                         </Badge>
                       </div>
-                      <ul className="p-3 space-y-1">
-                        {sev.impacts.map((imp, i) => (
-                          <li
-                            key={i}
-                            className="text-xs text-muted-foreground flex items-start gap-1.5"
-                          >
+                      <ul className="space-y-1 p-3">
+                        {sev.impacts.map((imp) => (
+                          <li key={imp} className="flex items-start gap-1.5 text-muted-foreground text-xs">
                             <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-current" />
                             {imp}
                           </li>
@@ -2219,33 +2255,26 @@ export default function CodeReviewPage() {
 
           {/* ── REVIEW REPORT TEMPLATE ──────────────────────────── */}
           <section id="review-report-template" className="scroll-mt-36">
-            <Card className="overflow-hidden border-2 border-border shadow-none rounded-none">
-              <CardHeader className="border-b-2 border-border bg-muted/30">
-                <CardTitle className="text-base font-extrabold uppercase tracking-wide sm:text-lg">
+            <Card className="overflow-hidden rounded-none border-2 border-border shadow-none">
+              <CardHeader className="border-border border-b-2 bg-muted/30">
+                <CardTitle className="font-extrabold text-base uppercase tracking-wide sm:text-lg">
                   Review Report Template
                 </CardTitle>
               </CardHeader>
-              <CardContent className="pt-4 overflow-x-auto">
+              <CardContent className="overflow-x-auto pt-4">
                 <table className="w-full text-xs">
                   <thead>
-                    <tr className="border-b-2 border-border">
-                      {[
-                        "Area",
-                        "Status",
-                        "Severity",
-                        "Finding",
-                        "Evidence",
-                        "Recommendation",
-                        "Owner",
-                        "Target",
-                      ].map((h) => (
-                        <th
-                          key={h}
-                          className="px-2 py-2 text-left font-bold uppercase tracking-wider text-muted-foreground"
-                        >
-                          {h}
-                        </th>
-                      ))}
+                    <tr className="border-border border-b-2">
+                      {["Area", "Status", "Severity", "Finding", "Evidence", "Recommendation", "Owner", "Target"].map(
+                        (h) => (
+                          <th
+                            key={h}
+                            className="px-2 py-2 text-left font-bold text-muted-foreground uppercase tracking-wider"
+                          >
+                            {h}
+                          </th>
+                        ),
+                      )}
                     </tr>
                   </thead>
                   <tbody>
@@ -2267,32 +2296,15 @@ export default function CodeReviewPage() {
                       "Deployment",
                       "AI Generated Code",
                     ].map((area, i) => (
-                      <tr
-                        key={area}
-                        className={`border-b border-border ${i % 2 === 0 ? "bg-muted/20" : ""}`}
-                      >
+                      <tr key={area} className={`border-border border-b ${i % 2 === 0 ? "bg-muted/20" : ""}`}>
                         <td className="px-2 py-1.5 font-medium">{area}</td>
-                        <td className="px-2 py-1.5 text-muted-foreground">
-                          PASS/FAIL
-                        </td>
-                        <td className="px-2 py-1.5 text-muted-foreground">
-                          —
-                        </td>
-                        <td className="px-2 py-1.5 text-muted-foreground">
-                          —
-                        </td>
-                        <td className="px-2 py-1.5 text-muted-foreground">
-                          —
-                        </td>
-                        <td className="px-2 py-1.5 text-muted-foreground">
-                          —
-                        </td>
-                        <td className="px-2 py-1.5 text-muted-foreground">
-                          —
-                        </td>
-                        <td className="px-2 py-1.5 text-muted-foreground">
-                          —
-                        </td>
+                        <td className="px-2 py-1.5 text-muted-foreground">PASS/FAIL</td>
+                        <td className="px-2 py-1.5 text-muted-foreground">—</td>
+                        <td className="px-2 py-1.5 text-muted-foreground">—</td>
+                        <td className="px-2 py-1.5 text-muted-foreground">—</td>
+                        <td className="px-2 py-1.5 text-muted-foreground">—</td>
+                        <td className="px-2 py-1.5 text-muted-foreground">—</td>
+                        <td className="px-2 py-1.5 text-muted-foreground">—</td>
                       </tr>
                     ))}
                   </tbody>
@@ -2303,28 +2315,20 @@ export default function CodeReviewPage() {
 
           {/* ── FINAL RECOMMENDATION ────────────────────────────── */}
           <section id="final-recommendation" className="scroll-mt-36">
-            <Card className="overflow-hidden border-2 border-border shadow-none rounded-none">
-              <CardHeader className="border-b-2 border-border bg-muted/30">
-                <CardTitle className="text-base font-extrabold uppercase tracking-wide sm:text-lg">
+            <Card className="overflow-hidden rounded-none border-2 border-border shadow-none">
+              <CardHeader className="border-border border-b-2 bg-muted/30">
+                <CardTitle className="font-extrabold text-base uppercase tracking-wide sm:text-lg">
                   Final Recommendation
                 </CardTitle>
               </CardHeader>
               <CardContent className="pt-4">
                 <div className="grid gap-3 sm:grid-cols-2">
                   {FINAL_RECOMMENDATIONS.map((rec) => (
-                    <div
-                      key={rec.decision}
-                      className="border-2 border-border p-3"
-                    >
-                      <h4 className="text-sm font-black uppercase tracking-wide text-primary mb-2">
-                        {rec.decision}
-                      </h4>
+                    <div key={rec.decision} className="border-2 border-border p-3">
+                      <h4 className="mb-2 font-black text-primary text-sm uppercase tracking-wide">{rec.decision}</h4>
                       <ul className="space-y-1">
-                        {rec.rules.map((r, i) => (
-                          <li
-                            key={i}
-                            className="flex items-start gap-1.5 text-xs text-muted-foreground"
-                          >
+                        {rec.rules.map((r) => (
+                          <li key={r} className="flex items-start gap-1.5 text-muted-foreground text-xs">
                             <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-current" />
                             {r}
                           </li>
@@ -2339,9 +2343,9 @@ export default function CodeReviewPage() {
 
           {/* ── REVIEWER INFO ───────────────────────────────────── */}
           <section id="reviewer-info" className="scroll-mt-36">
-            <Card className="overflow-hidden border-2 border-border shadow-none rounded-none">
-              <CardHeader className="border-b-2 border-border bg-muted/30">
-                <CardTitle className="text-base font-extrabold uppercase tracking-wide sm:text-lg">
+            <Card className="overflow-hidden rounded-none border-2 border-border shadow-none">
+              <CardHeader className="border-border border-b-2 bg-muted/30">
+                <CardTitle className="font-extrabold text-base uppercase tracking-wide sm:text-lg">
                   Reviewer Information
                 </CardTitle>
               </CardHeader>
@@ -2351,37 +2355,19 @@ export default function CodeReviewPage() {
                     {[
                       ["Reviewer", "AI Code Review Agent"],
                       ["Review Date", "2026-06-24"],
-                      [
-                        "Application",
-                        "Leave Request Management System (LRM)",
-                      ],
+                      ["Application", "Leave Request Management System (LRM)"],
                       ["Version", "Phase 15 — Post-fix"],
-                      [
-                        "Repository",
-                        "Training-VibeCode/employee-leave-system",
-                      ],
+                      ["Repository", "Training-VibeCode/employee-leave-system"],
                       ["Branch", "main"],
                       ["Commit", "latest"],
-                      [
-                        "Environment",
-                        "Local (localhost:3000)",
-                      ],
+                      ["Environment", "Local (localhost:3000)"],
                       ["Supabase Project", "Local Supabase"],
                       ["Overall Result", "PASS — 425/425 items reviewed, 30 fixed, 5 warnings"],
                     ].map(([field, value]) => (
-                      <tr
-                        key={field}
-                        className="border-b border-border"
-                      >
-                        <td className="px-3 py-2 font-bold text-muted-foreground w-48">
-                          {field}
-                        </td>
+                      <tr key={field} className="border-border border-b">
+                        <td className="w-48 px-3 py-2 font-bold text-muted-foreground">{field}</td>
                         <td className="px-3 py-2">
-                          {value || (
-                            <span className="text-muted-foreground/50 italic">
-                              —
-                            </span>
-                          )}
+                          {value || <span className="text-muted-foreground/50 italic">—</span>}
                         </td>
                       </tr>
                     ))}
@@ -2393,47 +2379,44 @@ export default function CodeReviewPage() {
 
           {/* ── SUMMARY ─────────────────────────────────────────── */}
           <section id="summary" className="scroll-mt-36">
-            <Card className="overflow-hidden border-2 border-border shadow-none rounded-none">
-              <CardHeader className="border-b-2 border-border bg-muted/30">
-                <CardTitle className="text-base font-extrabold uppercase tracking-wide sm:text-lg">
-                  Summary
-                </CardTitle>
+            <Card className="overflow-hidden rounded-none border-2 border-border shadow-none">
+              <CardHeader className="border-border border-b-2 bg-muted/30">
+                <CardTitle className="font-extrabold text-base uppercase tracking-wide sm:text-lg">Summary</CardTitle>
               </CardHeader>
-              <CardContent className="pt-4 space-y-6">
+              <CardContent className="space-y-6 pt-4">
                 {/* Total Findings Table */}
                 <div>
-                  <h4 className="text-sm font-bold mb-2">Total Findings</h4>
-                  <table className="w-full max-w-sm text-sm border-2 border-border">
+                  <h4 className="mb-2 font-bold text-sm">Total Findings</h4>
+                  <table className="w-full max-w-sm border-2 border-border text-sm">
                     <thead>
-                      <tr className="border-b-2 border-border bg-muted/30">
-                        <th className="px-3 py-1.5 text-left font-bold">
-                          Severity
-                        </th>
-                        <th className="px-3 py-1.5 text-right font-bold">
-                          Count
-                        </th>
-                        <th className="px-3 py-1.5 text-right font-bold">
-                          Status
-                        </th>
+                      <tr className="border-border border-b-2 bg-muted/30">
+                        <th className="px-3 py-1.5 text-left font-bold">Severity</th>
+                        <th className="px-3 py-1.5 text-right font-bold">Count</th>
+                        <th className="px-3 py-1.5 text-right font-bold">Status</th>
                       </tr>
                     </thead>
                     <tbody>
                       {[
                         { sev: "Pass", count: 330, color: "text-emerald-600 font-bold", note: "Verified ✓" },
-                        { sev: "Fixed", count: 31, color: "text-blue-600 font-bold", note: "Issues resolved this cycle" },
+                        {
+                          sev: "Fixed",
+                          count: 31,
+                          color: "text-blue-600 font-bold",
+                          note: "Issues resolved this cycle",
+                        },
                         { sev: "Warning", count: 5, color: "text-amber-600 font-bold", note: "Known, non-blocking" },
                         { sev: "Info", count: 59, color: "text-gray-500", note: "Not in scope / deferred" },
                       ].map((row) => (
-                        <tr key={row.sev} className="border-b border-border">
+                        <tr key={row.sev} className="border-border border-b">
                           <td className={`px-3 py-1.5 ${row.color}`}>{row.sev}</td>
                           <td className="px-3 py-1.5 text-right font-mono">{row.count}</td>
-                          <td className="px-3 py-1.5 text-right text-xs text-muted-foreground">{row.note}</td>
+                          <td className="px-3 py-1.5 text-right text-muted-foreground text-xs">{row.note}</td>
                         </tr>
                       ))}
-                      <tr className="border-t-2 border-border bg-muted/30">
+                      <tr className="border-border border-t-2 bg-muted/30">
                         <td className="px-3 py-1.5 font-bold">Total Reviewed</td>
-                        <td className="px-3 py-1.5 text-right font-mono font-bold">425</td>
-                        <td className="px-3 py-1.5 text-right text-xs font-bold text-emerald-600">100% Covered</td>
+                        <td className="px-3 py-1.5 text-right font-bold font-mono">425</td>
+                        <td className="px-3 py-1.5 text-right font-bold text-emerald-600 text-xs">100% Covered</td>
                       </tr>
                     </tbody>
                   </table>
@@ -2441,13 +2424,10 @@ export default function CodeReviewPage() {
 
                 {/* Deferred Risks */}
                 <div>
-                  <h4 className="text-sm font-bold mb-2">Deferred Risks</h4>
+                  <h4 className="mb-2 font-bold text-sm">Deferred Risks</h4>
                   <ul className="space-y-1">
-                    {DEFERRED_RISKS.map((risk, i) => (
-                      <li
-                        key={i}
-                        className="flex items-start gap-1.5 text-xs text-muted-foreground"
-                      >
+                    {DEFERRED_RISKS.map((risk) => (
+                      <li key={risk} className="flex items-start gap-1.5 text-muted-foreground text-xs">
                         <span className="mt-1.5 h-1.5 w-1.5 shrink-0 border border-current" />
                         {risk}
                       </li>
@@ -2457,16 +2437,11 @@ export default function CodeReviewPage() {
 
                 {/* Suggested Review Execution Order */}
                 <div>
-                  <h4 className="text-sm font-bold mb-2">
-                    Suggested Review Execution Order
-                  </h4>
-                  <ol className="space-y-1 list-none">
+                  <h4 className="mb-2 font-bold text-sm">Suggested Review Execution Order</h4>
+                  <ol className="list-none space-y-1">
                     {REVIEW_EXECUTION_ORDER.map((step, i) => (
-                      <li
-                        key={i}
-                        className="flex items-start gap-2 text-xs text-muted-foreground"
-                      >
-                        <span className="flex h-5 w-5 shrink-0 items-center justify-center border border-border bg-muted text-[10px] font-bold">
+                      <li key={step} className="flex items-start gap-2 text-muted-foreground text-xs">
+                        <span className="flex h-5 w-5 shrink-0 items-center justify-center border border-border bg-muted font-bold text-[10px]">
                           {i + 1}
                         </span>
                         <span className="pt-0.5">{step}</span>
@@ -2479,23 +2454,16 @@ export default function CodeReviewPage() {
           </section>
 
           {/* ── OVERALL PROGRESS ────────────────────────────────── */}
-          <Card className="overflow-hidden border-2 border-primary shadow-none rounded-none">
+          <Card className="overflow-hidden rounded-none border-2 border-primary shadow-none">
             <CardContent className="flex flex-col items-center gap-3 py-6">
               <div className="flex h-16 w-16 items-center justify-center border-2 border-primary bg-primary/10">
-                <span className="text-2xl font-black text-primary">
-                  {progressPct}%
-                </span>
+                <span className="font-black text-2xl text-primary">{progressPct}%</span>
               </div>
-              <p className="text-sm font-bold uppercase tracking-widest text-muted-foreground">
-                Overall Completion
-              </p>
-              <p className="text-xs text-muted-foreground">
+              <p className="font-bold text-muted-foreground text-sm uppercase tracking-widest">Overall Completion</p>
+              <p className="text-muted-foreground text-xs">
                 {checkedCount} of {totalItems} items reviewed
               </p>
-              <Progress
-                value={progressPct}
-                className="h-3 w-full max-w-md border border-border"
-              />
+              <Progress value={progressPct} className="h-3 w-full max-w-md border border-border" />
             </CardContent>
           </Card>
         </main>
@@ -2504,9 +2472,10 @@ export default function CodeReviewPage() {
       {/* ── SCROLL TO TOP ───────────────────────────────────────── */}
       {showScrollTop && (
         <button
+          type="button"
           onClick={scrollToTop}
           aria-label="Scroll to top"
-          className="fixed bottom-6 right-6 z-50 flex h-10 w-10 items-center justify-center border-2 border-border bg-primary text-primary-foreground shadow-lg transition-transform hover:scale-110"
+          className="fixed right-6 bottom-6 z-50 flex h-10 w-10 items-center justify-center border-2 border-border bg-primary text-primary-foreground shadow-lg transition-transform hover:scale-110"
         >
           <ChevronUp className="h-5 w-5" />
         </button>

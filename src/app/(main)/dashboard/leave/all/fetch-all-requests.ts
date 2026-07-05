@@ -38,9 +38,7 @@ export interface FetchAllRequestsResult {
   totalPages: number;
 }
 
-export async function fetchAllRequests(
-  params: FetchAllRequestsParams = {},
-): Promise<FetchAllRequestsResult> {
+export async function fetchAllRequests(params: FetchAllRequestsParams = {}): Promise<FetchAllRequestsResult> {
   const { employee: actor } = await getAuthenticatedUser();
 
   // Admin-only
@@ -53,8 +51,7 @@ export async function fetchAllRequests(
   const page = params.page ?? 1;
   const pageSize = params.pageSize ?? 10;
   const offset = (page - 1) * pageSize;
-  const statusFilter =
-    params.status && params.status !== "ALL" ? params.status : null;
+  const statusFilter = params.status && params.status !== "ALL" ? params.status : null;
   const safeSearch = params.search ? sanitizeSearch(params.search) : null;
 
   // If searching by employee name, first find matching employee IDs (fast indexed lookup)
@@ -63,9 +60,7 @@ export async function fetchAllRequests(
     const { data: matchedEmployees } = await supabase
       .from("employees")
       .select("id")
-      .or(
-        `full_name.ilike.%${safeSearch}%,employee_code.ilike.%${safeSearch}%`,
-      );
+      .or(`full_name.ilike.%${safeSearch}%,employee_code.ilike.%${safeSearch}%`);
     employeeIds = (matchedEmployees ?? []).map((e) => e.id);
   }
 
@@ -76,32 +71,22 @@ export async function fetchAllRequests(
       { count: "exact" },
     );
 
-  if (
-    statusFilter &&
-    ["PENDING", "APPROVED", "REJECTED", "CANCELLED"].includes(statusFilter)
-  ) {
-    query = query.eq(
-      "status",
-      statusFilter as NonNullable<LeaveRequestStatus>,
-    );
+  if (statusFilter && ["PENDING", "APPROVED", "REJECTED", "CANCELLED"].includes(statusFilter)) {
+    query = query.eq("status", statusFilter as NonNullable<LeaveRequestStatus>);
   }
 
   // Two-step search: filter by request_number OR matching employee IDs
   if (safeSearch && employeeIds !== null) {
     if (employeeIds.length > 0) {
       // Match request_number OR employee_id in matched set
-      query = query.or(
-        `request_number.ilike.%${safeSearch}%,employee_id.in.(${employeeIds.join(",")})`,
-      );
+      query = query.or(`request_number.ilike.%${safeSearch}%,employee_id.in.(${employeeIds.join(",")})`);
     } else {
       // No employees matched — only search request_number
       query = query.ilike("request_number", `%${safeSearch}%`);
     }
   }
 
-  query = query
-    .order("created_at", { ascending: false })
-    .range(offset, offset + pageSize - 1);
+  query = query.order("created_at", { ascending: false }).range(offset, offset + pageSize - 1);
 
   const { data, count, error } = await query;
 

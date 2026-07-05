@@ -5,14 +5,7 @@ import { Pencil } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { getAuthenticatedUser } from "@/lib/auth/get-authenticated-user";
 import { canManageConfiguration } from "@/lib/permissions";
 import { createClient } from "@/lib/supabase/server";
@@ -27,7 +20,9 @@ export default async function PoliciesPage() {
 
   const { data: leaveTypes } = await supabase
     .from("leave_types")
-    .select("id, name, is_active, leave_policies(id, leave_type_id, notice_period_days, max_consecutive_days, requires_attachment)")
+    .select(
+      "id, name, is_active, leave_policies(id, leave_type_id, notice_period_days, max_consecutive_days, requires_attachment)",
+    )
     .eq("is_active", true)
     .order("name");
 
@@ -60,8 +55,8 @@ export default async function PoliciesPage() {
               <TableBody>
                 {leaveTypes.map((lt) => {
                   const policy = Array.isArray(lt.leave_policies)
-                    ? lt.leave_policies[0] ?? null
-                    : lt.leave_policies ?? null;
+                    ? (lt.leave_policies[0] ?? null)
+                    : (lt.leave_policies ?? null);
 
                   return (
                     <TableRow key={lt.id}>

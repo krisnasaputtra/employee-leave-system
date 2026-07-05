@@ -18,7 +18,9 @@ export default async function MyLeaveBalancesPage() {
 
   const { data: balances, error } = await supabase
     .from("leave_balances")
-    .select("id, entitled_days, adjustment_days, used_days, pending_days, leave_type_id, leave_types(code, name, color, allow_negative_balance)")
+    .select(
+      "id, entitled_days, adjustment_days, used_days, pending_days, leave_type_id, leave_types(code, name, color, allow_negative_balance)",
+    )
     .eq("employee_id", actor.id)
     .eq("balance_year", currentYear)
     .order("leave_type_id");
@@ -45,7 +47,9 @@ export default async function MyLeaveBalancesPage() {
       {error ? (
         <div className="flex flex-col items-center justify-center gap-2 py-20">
           <p className="text-destructive text-sm">Failed to load balances.</p>
-          <p className="text-muted-foreground text-xs">Something went wrong while loading data. Please try again later.</p>
+          <p className="text-muted-foreground text-xs">
+            Something went wrong while loading data. Please try again later.
+          </p>
         </div>
       ) : !balances || balances.length === 0 ? (
         <EmptyState

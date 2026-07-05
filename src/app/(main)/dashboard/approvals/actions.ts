@@ -2,14 +2,14 @@
 
 import { revalidatePath } from "next/cache";
 
-import { isNextInternalError } from "@/lib/utils/server-action-utils";
-
-import { leaveRejectionSchema } from "@/lib/approvals/schemas";
+import { approvalRequestIdSchema, bulkApprovalRequestIdsSchema, leaveRejectionSchema } from "@/lib/approvals/schemas";
 import { getAuthenticatedUser } from "@/lib/auth/get-authenticated-user";
-import { createClient } from "@/lib/supabase/server";
-import { createAdminClient } from "@/lib/supabase/admin";
 import { sendEmail } from "@/lib/email/send";
 import { leaveApprovedTemplate, leaveRejectedTemplate } from "@/lib/email/templates";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { createClient } from "@/lib/supabase/server";
+import { sanitizeDbError } from "@/lib/utils/sanitize-error";
+import { isNextInternalError } from "@/lib/utils/server-action-utils";
 
 interface ActionResult {
   success: boolean;
@@ -22,15 +22,19 @@ export async function approveLeaveRequestAction(requestId: string): Promise<Acti
   try {
     const { employee: _actor } = await getAuthenticatedUser();
 
+    const parsedId = approvalRequestIdSchema.safeParse(requestId);
+    if (!parsedId.success) {
+      return { success: false, error: parsedId.error.issues[0]?.message ?? "Validation failed." };
+    }
+
     const supabase = await createClient();
 
     const { data, error } = await supabase.rpc("approve_leave_request", {
-      p_request_id: requestId,
+      p_request_id: parsedId.data,
     });
 
     if (error) {
-      const msg = error.message?.replace(/^.*?:\s*/, "") ?? "Failed to approve request.";
-      return { success: false, error: msg };
+      return { success: false, error: sanitizeDbError(error, "Failed to approve request.") };
     }
 
     const result = data as Record<string, unknown> | null;
@@ -38,7 +42,7 @@ export async function approveLeaveRequestAction(requestId: string): Promise<Acti
     revalidatePath("/dashboard/approvals");
     revalidatePath("/dashboard/leave/requests");
     revalidatePath("/dashboard/leave/balances");
-    revalidatePath(`/dashboard/leave/requests/${requestId}`);
+    revalidatePath(`/dashboard/leave/requests/${parsedId.data}`);
 
     // Fire-and-forget: email notification to employee
     const requestNumber = (result?.request_number as string) ?? "";
@@ -50,7 +54,7 @@ export async function approveLeaveRequestAction(requestId: string): Promise<Acti
         const { data: request } = await admin
           .from("leave_requests")
           .select("employee_id, leave_type_id, start_date, end_date, requested_days")
-          .eq("id", requestId)
+          .eq("id", parsedId.data)
           .single();
 
         if (!request) return;
@@ -75,7 +79,7 @@ export async function approveLeaveRequestAction(requestId: string): Promise<Acti
             endDate: request.end_date,
             days: request.requested_days,
             requestNumber,
-            requestId,
+            requestId: parsedId.data,
             approverName: _actor.full_name,
           });
           await sendEmail({ to: emp.work_email, ...template });
@@ -87,13 +91,13 @@ export async function approveLeaveRequestAction(requestId: string): Promise<Acti
 
     return {
       success: true,
-      request_id: requestId,
+      request_id: parsedId.data,
       request_number: requestNumber,
     };
   } catch (error) {
     if (isNextInternalError(error)) throw error;
-    console.error('approveLeaveRequestAction failed:', error);
-    return { success: false, error: 'An unexpected error occurred. Please try again.' };
+    console.error("approveLeaveRequestAction failed:", error);
+    return { success: false, error: "An unexpected error occurred. Please try again." };
   }
 }
 
@@ -104,6 +108,11 @@ export async function rejectLeaveRequestAction(
   try {
     const { employee: _actor } = await getAuthenticatedUser();
 
+    const parsedId = approvalRequestIdSchema.safeParse(requestId);
+    if (!parsedId.success) {
+      return { success: false, error: parsedId.error.issues[0]?.message ?? "Validation failed." };
+    }
+
     const parsed = leaveRejectionSchema.safeParse(input);
     if (!parsed.success) {
       return { success: false, error: parsed.error.issues[0]?.message ?? "Validation failed." };
@@ -112,13 +121,12 @@ export async function rejectLeaveRequestAction(
     const supabase = await createClient();
 
     const { data, error } = await supabase.rpc("reject_leave_request", {
-      p_request_id: requestId,
+      p_request_id: parsedId.data,
       p_rejection_reason: parsed.data.rejection_reason,
     });
 
     if (error) {
-      const msg = error.message?.replace(/^.*?:\s*/, "") ?? "Failed to reject request.";
-      return { success: false, error: msg };
+      return { success: false, error: sanitizeDbError(error, "Failed to reject request.") };
     }
 
     const result = data as Record<string, unknown> | null;
@@ -126,7 +134,7 @@ export async function rejectLeaveRequestAction(
     revalidatePath("/dashboard/approvals");
     revalidatePath("/dashboard/leave/requests");
     revalidatePath("/dashboard/leave/balances");
-    revalidatePath(`/dashboard/leave/requests/${requestId}`);
+    revalidatePath(`/dashboard/leave/requests/${parsedId.data}`);
 
     // Fire-and-forget: email notification to employee
     const requestNumber = (result?.request_number as string) ?? "";
@@ -137,7 +145,7 @@ export async function rejectLeaveRequestAction(
         const { data: request } = await admin
           .from("leave_requests")
           .select("employee_id, leave_type_id, start_date, end_date, requested_days")
-          .eq("id", requestId)
+          .eq("id", parsedId.data)
           .single();
 
         if (!request) return;
@@ -162,7 +170,7 @@ export async function rejectLeaveRequestAction(
             endDate: request.end_date,
             days: request.requested_days,
             requestNumber,
-            requestId,
+            requestId: parsedId.data,
             approverName: _actor.full_name,
             rejectionReason: parsed.data.rejection_reason,
           });
@@ -175,29 +183,38 @@ export async function rejectLeaveRequestAction(
 
     return {
       success: true,
-      request_id: requestId,
+      request_id: parsedId.data,
       request_number: requestNumber,
     };
   } catch (error) {
     if (isNextInternalError(error)) throw error;
-    console.error('rejectLeaveRequestAction failed:', error);
-    return { success: false, error: 'An unexpected error occurred. Please try again.' };
+    console.error("rejectLeaveRequestAction failed:", error);
+    return { success: false, error: "An unexpected error occurred. Please try again." };
   }
 }
 
 export async function bulkApproveAction(requestIds: string[]) {
   try {
-    const { employee: _actor } = await getAuthenticatedUser();
+    await getAuthenticatedUser();
+
+    const parsedIds = bulkApprovalRequestIdsSchema.safeParse(requestIds);
+    if (!parsedIds.success) {
+      return { success: false, error: parsedIds.error.issues[0]?.message ?? "Validation failed." };
+    }
+
     const supabase = await createClient();
     const settled = await Promise.allSettled(
-      requestIds.map((id) =>
-        supabase.rpc("approve_leave_request", { p_request_id: id })
-      )
+      parsedIds.data.map((id) => supabase.rpc("approve_leave_request", { p_request_id: id })),
     );
     const results = settled.map((s, i) => ({
-      id: requestIds[i],
+      id: parsedIds.data[i],
       success: s.status === "fulfilled" && !s.value.error,
-      error: s.status === "fulfilled" ? s.value.error?.message : (s.reason as Error)?.message,
+      error:
+        s.status === "fulfilled" && s.value.error
+          ? sanitizeDbError(s.value.error, "Failed to approve request.")
+          : s.status === "rejected"
+            ? sanitizeDbError({ message: (s.reason as Error)?.message }, "Failed to approve request.")
+            : undefined,
     }));
 
     revalidatePath("/dashboard/approvals");
@@ -212,17 +229,33 @@ export async function bulkApproveAction(requestIds: string[]) {
 
 export async function bulkRejectAction(requestIds: string[], reason: string) {
   try {
-    const { employee: _actor } = await getAuthenticatedUser();
+    await getAuthenticatedUser();
+
+    const parsedIds = bulkApprovalRequestIdsSchema.safeParse(requestIds);
+    if (!parsedIds.success) {
+      return { success: false, error: parsedIds.error.issues[0]?.message ?? "Validation failed." };
+    }
+
+    const parsed = leaveRejectionSchema.safeParse({ rejection_reason: reason });
+    if (!parsed.success) {
+      return { success: false, error: parsed.error.issues[0]?.message ?? "Validation failed." };
+    }
+
     const supabase = await createClient();
     const settled = await Promise.allSettled(
-      requestIds.map((id) =>
-        supabase.rpc("reject_leave_request", { p_request_id: id, p_rejection_reason: reason })
-      )
+      parsedIds.data.map((id) =>
+        supabase.rpc("reject_leave_request", { p_request_id: id, p_rejection_reason: parsed.data.rejection_reason }),
+      ),
     );
     const results = settled.map((s, i) => ({
-      id: requestIds[i],
+      id: parsedIds.data[i],
       success: s.status === "fulfilled" && !s.value.error,
-      error: s.status === "fulfilled" ? s.value.error?.message : (s.reason as Error)?.message,
+      error:
+        s.status === "fulfilled" && s.value.error
+          ? sanitizeDbError(s.value.error, "Failed to reject request.")
+          : s.status === "rejected"
+            ? sanitizeDbError({ message: (s.reason as Error)?.message }, "Failed to reject request.")
+            : undefined,
     }));
 
     revalidatePath("/dashboard/approvals");

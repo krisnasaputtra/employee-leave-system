@@ -52,13 +52,23 @@ export function ChangePasswordForm() {
   return (
     <form noValidate onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4">
       {serverError && (
-        <div role="alert" className="rounded-md bg-destructive/10 p-3 text-center text-destructive text-sm">{serverError}</div>
+        <div role="alert" className="rounded-md bg-destructive/10 p-3 text-center text-destructive text-sm">
+          {serverError}
+        </div>
       )}
       <FieldGroup>
         <Field>
           <FieldLabel htmlFor="password">New Password</FieldLabel>
           <FieldContent>
-            <Input id="password" type="password" placeholder="••••••••" autoComplete="new-password" aria-required="true" aria-describedby="password-error" {...form.register("password")} />
+            <Input
+              id="password"
+              type="password"
+              placeholder="••••••••"
+              autoComplete="new-password"
+              aria-required="true"
+              aria-describedby="password-error"
+              {...form.register("password")}
+            />
           </FieldContent>
           <FieldError id="password-error">{form.formState.errors.password?.message}</FieldError>
         </Field>

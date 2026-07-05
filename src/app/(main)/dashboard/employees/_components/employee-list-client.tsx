@@ -1,33 +1,27 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+
 import Link from "next/link";
+
 import { useQuery } from "@tanstack/react-query";
 import { Loader2, Plus, Search, Users, X } from "lucide-react";
 
-import { useTranslation } from "@/providers/locale-provider";
-
+import { ExportCSVButton } from "@/components/export-csv-button";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ExportButton } from "@/components/ui/export-button";
-import { ExportCSVButton } from "@/components/export-csv-button";
-import { ROLE_BADGE_STYLES, EMPLOYMENT_STATUS_STYLES } from "@/lib/ui/badge-variants";
-import { generateCsv } from "@/lib/utils/export-csv";
+import { Input } from "@/components/ui/input";
+import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useDebounce } from "@/hooks/use-debounce";
+import { EMPLOYMENT_STATUS_STYLES, ROLE_BADGE_STYLES } from "@/lib/ui/badge-variants";
+import { generateCsv } from "@/lib/utils/export-csv";
+import { useTranslation } from "@/providers/locale-provider";
 
-import { fetchEmployees, type FetchEmployeesResult } from "../fetch-employees";
 import { exportEmployeesCSV } from "../export-action";
+import { type FetchEmployeesResult, fetchEmployees } from "../fetch-employees";
 
 // ---------------------------------------------------------------------------
 // Props
@@ -43,11 +37,7 @@ interface EmployeeListClientProps {
 // Component
 // ---------------------------------------------------------------------------
 
-export function EmployeeListClient({
-  initialData,
-  isAdmin,
-  departments,
-}: EmployeeListClientProps) {
+export function EmployeeListClient({ initialData, isAdmin, departments }: EmployeeListClientProps) {
   const { t } = useTranslation();
   // ------ local filter / pagination state ------
   const [search, setSearch] = useState("");
@@ -61,11 +51,10 @@ export function EmployeeListClient({
   // Reset to page 1 whenever any filter changes
   useEffect(() => {
     setPage(1);
-  }, [debouncedSearch, department, role, status]);
+  }, []);
 
   // ------ React Query ------
-  const isDefault =
-    page === 1 && !debouncedSearch && !department && !role && !status;
+  const isDefault = page === 1 && !debouncedSearch && !department && !role && !status;
 
   const { data, isFetching } = useQuery({
     queryKey: ["employees", debouncedSearch, department, role, status, page],
@@ -136,11 +125,7 @@ export function EmployeeListClient({
         <div className="flex items-center gap-2">
           <ExportButton csvContent={csvContent} filename="employees.csv" />
           {isAdmin && (
-            <ExportCSVButton
-              exportFn={exportEmployeesCSV}
-              filename="employees"
-              label={t("common.exportAll")}
-            />
+            <ExportCSVButton exportFn={exportEmployeesCSV} filename="employees" label={t("common.exportAll")} />
           )}
           {isAdmin && (
             <Button asChild>
@@ -156,8 +141,8 @@ export function EmployeeListClient({
       {/* Search & Filters bar */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-2">
         {/* Search input */}
-        <div className="relative flex-1 max-w-sm">
-          <Search className="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+        <div className="relative max-w-sm flex-1">
+          <Search className="pointer-events-none absolute top-1/2 left-2.5 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             placeholder={t("employee.searchPlaceholder")}
             value={search}
@@ -167,11 +152,7 @@ export function EmployeeListClient({
         </div>
 
         {/* Department filter */}
-        <NativeSelect
-          value={department}
-          onChange={(e) => setDepartment(e.target.value)}
-          className="w-full sm:w-auto"
-        >
+        <NativeSelect value={department} onChange={(e) => setDepartment(e.target.value)} className="w-full sm:w-auto">
           <NativeSelectOption value="">{t("employee.allDepartments")}</NativeSelectOption>
           {departments.map((d) => (
             <NativeSelectOption key={d.id} value={d.id}>
@@ -181,11 +162,7 @@ export function EmployeeListClient({
         </NativeSelect>
 
         {/* Role filter */}
-        <NativeSelect
-          value={role}
-          onChange={(e) => setRole(e.target.value)}
-          className="w-full sm:w-auto"
-        >
+        <NativeSelect value={role} onChange={(e) => setRole(e.target.value)} className="w-full sm:w-auto">
           <NativeSelectOption value="">{t("employee.allRoles")}</NativeSelectOption>
           <NativeSelectOption value="ADMIN">{t("employee.roleAdmin")}</NativeSelectOption>
           <NativeSelectOption value="MANAGER">{t("employee.roleManager")}</NativeSelectOption>
@@ -193,11 +170,7 @@ export function EmployeeListClient({
         </NativeSelect>
 
         {/* Status filter */}
-        <NativeSelect
-          value={status}
-          onChange={(e) => setStatus(e.target.value)}
-          className="w-full sm:w-auto"
-        >
+        <NativeSelect value={status} onChange={(e) => setStatus(e.target.value)} className="w-full sm:w-auto">
           <NativeSelectOption value="">{t("employee.allStatuses")}</NativeSelectOption>
           <NativeSelectOption value="ACTIVE">{t("status.active")}</NativeSelectOption>
           <NativeSelectOption value="INACTIVE">{t("status.inactive")}</NativeSelectOption>
@@ -206,30 +179,19 @@ export function EmployeeListClient({
 
         {/* Clear filters */}
         {hasActiveFilters && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={clearFilters}
-            className="text-muted-foreground"
-          >
+          <Button variant="ghost" size="sm" onClick={clearFilters} className="text-muted-foreground">
             <X className="mr-1 h-3.5 w-3.5" />
             {t("common.clearFilters")}
           </Button>
         )}
 
         {/* Fetching indicator */}
-        {isFetching && (
-          <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
-        )}
+        {isFetching && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
       </div>
 
       {/* Table or Empty state */}
       {employees.length === 0 && !isFetching ? (
-        <EmptyState
-          icon={Users}
-          title={t("employee.noEmployees")}
-          description={t("employee.noEmployeesDescription")}
-        />
+        <EmptyState icon={Users} title={t("employee.noEmployees")} description={t("employee.noEmployeesDescription")} />
       ) : (
         <div
           className={`rounded-lg border bg-card transition-opacity duration-150 ${
@@ -242,12 +204,8 @@ export function EmployeeListClient({
                 <TableRow>
                   <TableHead>{t("employee.fullName")}</TableHead>
                   <TableHead>{t("employee.employeeCode")}</TableHead>
-                  <TableHead className="hidden md:table-cell">
-                    {t("employee.department")}
-                  </TableHead>
-                  <TableHead className="hidden lg:table-cell">
-                    {t("employee.position")}
-                  </TableHead>
+                  <TableHead className="hidden md:table-cell">{t("employee.department")}</TableHead>
+                  <TableHead className="hidden lg:table-cell">{t("employee.position")}</TableHead>
                   <TableHead>{t("employee.role")}</TableHead>
                   <TableHead>{t("common.status")}</TableHead>
                   <TableHead className="hidden sm:table-cell">{t("employee.loginEnabled")}</TableHead>
@@ -258,40 +216,21 @@ export function EmployeeListClient({
                 {employees.map((emp) => (
                   <TableRow key={emp.id}>
                     <TableCell>
-                      <Link
-                        href={`/dashboard/employees/${emp.id}`}
-                        className="font-medium hover:underline"
-                      >
+                      <Link href={`/dashboard/employees/${emp.id}`} className="font-medium hover:underline">
                         {emp.full_name}
                       </Link>
-                      <p className="text-muted-foreground text-xs">
-                        {emp.work_email}
-                      </p>
+                      <p className="text-muted-foreground text-xs">{emp.work_email}</p>
                     </TableCell>
-                    <TableCell className="font-mono text-xs">
-                      {emp.employee_code}
-                    </TableCell>
-                    <TableCell className="hidden md:table-cell">
-                      {emp.departments?.name ?? "—"}
-                    </TableCell>
-                    <TableCell className="hidden lg:table-cell">
-                      {emp.position}
-                    </TableCell>
+                    <TableCell className="font-mono text-xs">{emp.employee_code}</TableCell>
+                    <TableCell className="hidden md:table-cell">{emp.departments?.name ?? "—"}</TableCell>
+                    <TableCell className="hidden lg:table-cell">{emp.position}</TableCell>
                     <TableCell>
-                      <Badge
-                        variant="outline"
-                        className={ROLE_BADGE_STYLES[emp.role]?.className}
-                      >
+                      <Badge variant="outline" className={ROLE_BADGE_STYLES[emp.role]?.className}>
                         {emp.role}
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      <Badge
-                        variant="outline"
-                        className={
-                          EMPLOYMENT_STATUS_STYLES[emp.status]?.className
-                        }
-                      >
+                      <Badge variant="outline" className={EMPLOYMENT_STATUS_STYLES[emp.status]?.className}>
                         {emp.status}
                       </Badge>
                     </TableCell>
@@ -304,11 +243,7 @@ export function EmployeeListClient({
                       <TableCell>
                         <div className="flex gap-1">
                           <Button variant="ghost" size="sm" asChild>
-                            <Link
-                              href={`/dashboard/employees/${emp.id}/edit`}
-                            >
-                              {t("common.edit")}
-                            </Link>
+                            <Link href={`/dashboard/employees/${emp.id}/edit`}>{t("common.edit")}</Link>
                           </Button>
                         </div>
                       </TableCell>
@@ -327,20 +262,12 @@ export function EmployeeListClient({
               </p>
               <div className="flex gap-1">
                 {page > 1 && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setPage((p) => p - 1)}
-                  >
+                  <Button variant="outline" size="sm" onClick={() => setPage((p) => p - 1)}>
                     {t("common.previous")}
                   </Button>
                 )}
                 {page < totalPages && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setPage((p) => p + 1)}
-                  >
+                  <Button variant="outline" size="sm" onClick={() => setPage((p) => p + 1)}>
                     {t("common.next")}
                   </Button>
                 )}

@@ -2,13 +2,13 @@
 
 import { revalidatePath } from "next/cache";
 
-import { isNextInternalError } from "@/lib/utils/server-action-utils";
 import { getAuthenticatedUser } from "@/lib/auth/get-authenticated-user";
 import { employeeCreateSchema, employeeUpdateSchema } from "@/lib/employees/schemas";
 import { activateEmployee, createEmployeeWithAccount, deactivateEmployee } from "@/lib/employees/service";
 import { canManageEmployees } from "@/lib/permissions";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { sanitizeDbError } from "@/lib/utils/sanitize-error";
+import { isNextInternalError } from "@/lib/utils/server-action-utils";
 import type { Database } from "@/types/database.types";
 
 type EmployeeUpdate = Database["public"]["Tables"]["employees"]["Update"];
@@ -25,30 +25,30 @@ export async function createEmployeeAction(input: Record<string, unknown>): Prom
     // 1. Authenticate
     const { employee: actor } = await getAuthenticatedUser();
 
-  // 2. Authorize
-  if (!canManageEmployees(actor.role)) {
-    return {
-      success: false,
-      error: "You do not have permission to create employees.",
-    };
-  }
+    // 2. Authorize
+    if (!canManageEmployees(actor.role)) {
+      return {
+        success: false,
+        error: "You do not have permission to create employees.",
+      };
+    }
 
-  // 3. Validate
-  const parsed = employeeCreateSchema.safeParse(input);
-  if (!parsed.success) {
-    const firstError = parsed.error.issues[0];
-    return {
-      success: false,
-      error: firstError?.message ?? "Validation failed.",
-    };
-  }
+    // 3. Validate
+    const parsed = employeeCreateSchema.safeParse(input);
+    if (!parsed.success) {
+      const firstError = parsed.error.issues[0];
+      return {
+        success: false,
+        error: firstError?.message ?? "Validation failed.",
+      };
+    }
 
-  // 4. Execute
-  const result = await createEmployeeWithAccount(parsed.data, actor.id);
+    // 4. Execute
+    const result = await createEmployeeWithAccount(parsed.data, actor.id);
 
-  if (result.success) {
-    revalidatePath("/dashboard/employees");
-  }
+    if (result.success) {
+      revalidatePath("/dashboard/employees");
+    }
 
     return result;
   } catch (error) {
@@ -62,52 +62,52 @@ export async function updateEmployeeAction(employeeId: string, input: Record<str
   try {
     const { employee: actor } = await getAuthenticatedUser();
 
-  if (!canManageEmployees(actor.role)) {
-    return {
-      success: false,
-      error: "You do not have permission to edit employees.",
-    };
-  }
-
-  const parsed = employeeUpdateSchema.safeParse(input);
-  if (!parsed.success) {
-    const firstError = parsed.error.issues[0];
-    return {
-      success: false,
-      error: firstError?.message ?? "Validation failed.",
-    };
-  }
-
-  const admin = createAdminClient();
-  const updateData: EmployeeUpdate = {};
-
-  for (const [key, value] of Object.entries(parsed.data)) {
-    if (value !== undefined) {
-      const safeValue = key === "manager_id" || key === "phone_number" ? (value as string) || null : value;
-      (updateData as Record<string, unknown>)[key] = safeValue;
+    if (!canManageEmployees(actor.role)) {
+      return {
+        success: false,
+        error: "You do not have permission to edit employees.",
+      };
     }
-  }
 
-  const { error } = await admin.from("employees").update(updateData).eq("id", employeeId);
+    const parsed = employeeUpdateSchema.safeParse(input);
+    if (!parsed.success) {
+      const firstError = parsed.error.issues[0];
+      return {
+        success: false,
+        error: firstError?.message ?? "Validation failed.",
+      };
+    }
 
-  if (error) {
-    return {
-      success: false,
-      error: sanitizeDbError(error, "Failed to update employee."),
-    };
-  }
+    const admin = createAdminClient();
+    const updateData: EmployeeUpdate = {};
 
-  // Write audit log
-  await admin.from("audit_logs").insert({
-    actor_employee_id: actor.id,
-    action: "EMPLOYEE_UPDATED",
-    entity_type: "employee",
-    entity_id: employeeId,
-    metadata: updateData as unknown as Record<string, string>,
-  });
+    for (const [key, value] of Object.entries(parsed.data)) {
+      if (value !== undefined) {
+        const safeValue = key === "manager_id" || key === "phone_number" ? (value as string) || null : value;
+        (updateData as Record<string, unknown>)[key] = safeValue;
+      }
+    }
 
-  revalidatePath("/dashboard/employees");
-  revalidatePath(`/dashboard/employees/${employeeId}`);
+    const { error } = await admin.from("employees").update(updateData).eq("id", employeeId);
+
+    if (error) {
+      return {
+        success: false,
+        error: sanitizeDbError(error, "Failed to update employee."),
+      };
+    }
+
+    // Write audit log
+    await admin.from("audit_logs").insert({
+      actor_employee_id: actor.id,
+      action: "EMPLOYEE_UPDATED",
+      entity_type: "employee",
+      entity_id: employeeId,
+      metadata: updateData as unknown as Record<string, string>,
+    });
+
+    revalidatePath("/dashboard/employees");
+    revalidatePath(`/dashboard/employees/${employeeId}`);
 
     return { success: true };
   } catch (error) {
@@ -121,25 +121,25 @@ export async function deactivateEmployeeAction(employeeId: string): Promise<Acti
   try {
     const { employee: actor } = await getAuthenticatedUser();
 
-  if (!canManageEmployees(actor.role)) {
-    return {
-      success: false,
-      error: "You do not have permission to deactivate employees.",
-    };
-  }
+    if (!canManageEmployees(actor.role)) {
+      return {
+        success: false,
+        error: "You do not have permission to deactivate employees.",
+      };
+    }
 
-  if (actor.id === employeeId) {
-    return {
-      success: false,
-      error: "You cannot deactivate your own account.",
-    };
-  }
+    if (actor.id === employeeId) {
+      return {
+        success: false,
+        error: "You cannot deactivate your own account.",
+      };
+    }
 
-  const result = await deactivateEmployee(employeeId, actor.id);
+    const result = await deactivateEmployee(employeeId, actor.id);
 
-  if (result.success) {
-    revalidatePath("/dashboard/employees");
-  }
+    if (result.success) {
+      revalidatePath("/dashboard/employees");
+    }
 
     return result;
   } catch (error) {
