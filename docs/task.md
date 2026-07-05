@@ -1538,3 +1538,24 @@
 - [x] `npm run check` - passed
 - [x] `git diff --check` - passed
 - [x] `npm run build` - passed with network escalation for Google Fonts
+
+---
+
+# Post-Phase 18 - Phase 3 Type and Constant Cleanup
+
+## 1. Domain Constant Consolidation
+- [x] Added typed application role and employment status constants in `src/lib/permissions/roles.ts`
+- [x] Added typed leave request status constants in `src/lib/leave-requests/status.ts`
+- [x] Reused leave request status constants in the admin all-requests filter options
+
+## 2. Type Safety Cleanup
+- [x] Replaced employee role/status filter casts with validated type guards
+- [x] Replaced leave request status filter cast with a validated type guard
+- [x] Updated employee schemas to reuse the same typed role/status constants
+
+## 3. Validation
+- [x] `npm run lint` - passed
+- [x] `npx tsc --noEmit` - passed
+- [x] `npm run test` - 7 files passed, 93 tests passed
+- [x] `npm run check` - passed after import ordering fix
+- [x] `npm run build` - passed with network escalation for Google Fonts

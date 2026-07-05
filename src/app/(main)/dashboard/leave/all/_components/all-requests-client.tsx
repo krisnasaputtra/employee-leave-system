@@ -16,6 +16,7 @@ import { ExportButton } from "@/components/ui/export-button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useDebounce } from "@/hooks/use-debounce";
+import { LEAVE_REQUEST_STATUSES } from "@/lib/leave-requests/status";
 import { STATUS_BADGE_STYLES } from "@/lib/ui/badge-variants";
 import { generateCsv } from "@/lib/utils/export-csv";
 import { formatDate } from "@/lib/utils/format-date";
@@ -28,7 +29,7 @@ import { type FetchAllRequestsResult, fetchAllRequests } from "../fetch-all-requ
 // Constants
 // ---------------------------------------------------------------------------
 
-const STATUS_OPTIONS = ["ALL", "PENDING", "APPROVED", "REJECTED", "CANCELLED"] as const;
+const STATUS_OPTIONS = ["ALL", ...LEAVE_REQUEST_STATUSES] as const;
 
 // ---------------------------------------------------------------------------
 // Props

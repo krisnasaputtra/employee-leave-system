@@ -1,12 +1,14 @@
 "use server";
 
 import { getAuthenticatedUser } from "@/lib/auth/get-authenticated-user";
+import {
+  type ApplicationRole,
+  type EmploymentStatus,
+  isApplicationRole,
+  isEmploymentStatus,
+} from "@/lib/permissions/roles";
 import { createClient } from "@/lib/supabase/server";
 import { sanitizeSearch } from "@/lib/utils/sanitize-search";
-import type { Database } from "@/types/database.types";
-
-type ApplicationRole = Database["public"]["Enums"]["application_role"];
-type EmploymentStatus = Database["public"]["Enums"]["employment_status"];
 
 export interface EmployeeRow {
   id: string;
@@ -14,8 +16,8 @@ export interface EmployeeRow {
   full_name: string;
   work_email: string;
   position: string;
-  role: string;
-  status: string;
+  role: ApplicationRole;
+  status: EmploymentStatus;
   auth_user_id: string | null;
   department_id: string | null;
   departments: { name: string } | null;
@@ -64,11 +66,11 @@ export async function fetchEmployees(params: FetchEmployeesParams = {}): Promise
   if (params.department) {
     query = query.eq("department_id", params.department);
   }
-  if (params.role) {
-    query = query.eq("role", params.role as ApplicationRole);
+  if (params.role && isApplicationRole(params.role)) {
+    query = query.eq("role", params.role);
   }
-  if (params.status) {
-    query = query.eq("status", params.status as EmploymentStatus);
+  if (params.status && isEmploymentStatus(params.status)) {
+    query = query.eq("status", params.status);
   }
 
   query = query.order("full_name").range(offset, offset + pageSize - 1);

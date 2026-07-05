@@ -1,5 +1,6 @@
 import { z } from "zod";
 
+import { APPLICATION_ROLES, EMPLOYMENT_STATUSES } from "@/lib/permissions/roles";
 import { UUID_RE } from "@/lib/utils/constants";
 
 export const employeeCreateSchema = z.object({
@@ -23,8 +24,8 @@ export const employeeCreateSchema = z.object({
   position: z.string().min(1, "Position is required.").max(100),
   manager_id: z.string().regex(UUID_RE).optional().or(z.literal("")),
   join_date: z.string().min(1, "Join date is required."),
-  role: z.enum(["ADMIN", "MANAGER", "EMPLOYEE"]),
-  status: z.enum(["ACTIVE", "INACTIVE", "TERMINATED"]),
+  role: z.enum(APPLICATION_ROLES),
+  status: z.enum(EMPLOYMENT_STATUSES),
   create_account: z.boolean(),
   temporary_password: z.string().optional(),
 });
@@ -39,8 +40,8 @@ export const employeeUpdateSchema = z.object({
   position: z.string().min(1).max(100).optional(),
   manager_id: z.string().regex(UUID_RE).optional().or(z.literal("")),
   join_date: z.string().optional(),
-  role: z.enum(["ADMIN", "MANAGER", "EMPLOYEE"]).optional(),
-  status: z.enum(["ACTIVE", "INACTIVE", "TERMINATED"]).optional(),
+  role: z.enum(APPLICATION_ROLES).optional(),
+  status: z.enum(EMPLOYMENT_STATUSES).optional(),
 });
 
 export type EmployeeUpdateInput = z.infer<typeof employeeUpdateSchema>;

@@ -1,11 +1,9 @@
 "use server";
 
 import { getAuthenticatedUser } from "@/lib/auth/get-authenticated-user";
+import { isLeaveRequestStatus, type LeaveRequestStatus } from "@/lib/leave-requests/status";
 import { createClient } from "@/lib/supabase/server";
 import { sanitizeSearch } from "@/lib/utils/sanitize-search";
-import type { Database } from "@/types/database.types";
-
-type LeaveRequestStatus = Database["public"]["Enums"]["leave_request_status"];
 
 export interface LeaveRequestRow {
   id: string;
@@ -15,7 +13,7 @@ export interface LeaveRequestRow {
   start_date: string;
   end_date: string;
   requested_days: number;
-  status: string;
+  status: LeaveRequestStatus;
   reason: string | null;
   partial_day: string | null;
   created_at: string;
@@ -71,8 +69,8 @@ export async function fetchAllRequests(params: FetchAllRequestsParams = {}): Pro
       { count: "exact" },
     );
 
-  if (statusFilter && ["PENDING", "APPROVED", "REJECTED", "CANCELLED"].includes(statusFilter)) {
-    query = query.eq("status", statusFilter as NonNullable<LeaveRequestStatus>);
+  if (statusFilter && isLeaveRequestStatus(statusFilter)) {
+    query = query.eq("status", statusFilter);
   }
 
   // Two-step search: filter by request_number OR matching employee IDs
