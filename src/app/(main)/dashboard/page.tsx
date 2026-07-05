@@ -16,6 +16,12 @@ import { LeaveBalanceChart } from "./_components/leave-balance-chart";
 import { MonthlyTrendChart } from "./_components/monthly-trend-chart";
 import { StatusDistributionChart } from "./_components/status-distribution-chart";
 
+type SupabaseServerClient = Awaited<ReturnType<typeof createClient>>;
+
+function mapRpcJson<T>(data: unknown): T {
+  return data as T;
+}
+
 /* ---------- Employee Dashboard Types ---------- */
 interface EmployeeDashboardData {
   remaining_leave: number;
@@ -442,28 +448,25 @@ export default async function DashboardPage() {
 }
 
 /* ---------- Async sub-sections ---------- */
-// biome-ignore lint/suspicious/noExplicitAny: Supabase client type
-async function EmployeeDashboardSection({ supabase }: { supabase: any }) {
+async function EmployeeDashboardSection({ supabase }: { supabase: SupabaseServerClient }) {
   const { data } = await supabase.rpc("get_employee_dashboard");
-  const empData = data as EmployeeDashboardData;
+  const empData = mapRpcJson<EmployeeDashboardData>(data);
 
   return <EmployeeDashboard data={empData} />;
 }
 
-// biome-ignore lint/suspicious/noExplicitAny: Supabase client type
-async function ManagerDashboardSection({ supabase }: { supabase: any }) {
+async function ManagerDashboardSection({ supabase }: { supabase: SupabaseServerClient }) {
   const [{ data: empRaw }, { data: mgrRaw }] = await Promise.all([
     supabase.rpc("get_employee_dashboard"),
     supabase.rpc("get_manager_dashboard"),
   ]);
-  const empData = empRaw as EmployeeDashboardData;
-  const mgrData = mgrRaw as ManagerDashboardData;
+  const empData = mapRpcJson<EmployeeDashboardData>(empRaw);
+  const mgrData = mapRpcJson<ManagerDashboardData>(mgrRaw);
 
   return <ManagerDashboard empData={empData} mgrData={mgrData} />;
 }
 
-// biome-ignore lint/suspicious/noExplicitAny: Supabase client type
-async function AdminDashboardSection({ supabase }: { supabase: any }) {
+async function AdminDashboardSection({ supabase }: { supabase: SupabaseServerClient }) {
   const MONTH_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
   interface AdminDashboardRpcResult {
@@ -498,7 +501,7 @@ async function AdminDashboardSection({ supabase }: { supabase: any }) {
       .limit(10),
   ]);
 
-  const rawData = data as AdminDashboardRpcResult;
+  const rawData = mapRpcJson<AdminDashboardRpcResult>(data);
 
   // Transform monthly_trend: RPC returns {month: 1, total_days: 5} → chart needs {month: "Jan", count: 5}
   const transformedTrend = (rawData.monthly_trend ?? []).map((item) => ({

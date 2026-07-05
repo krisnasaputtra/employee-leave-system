@@ -75,24 +75,25 @@ Ensure `.env.local` is listed in your `.gitignore`:
 
 ### 2. Startup Validation with Zod
 
-All environment variables are validated at application startup using [Zod](https://zod.dev/) schema validation in `src/lib/env.ts`.
+Environment variables are validated with [Zod](https://zod.dev/) in two scoped modules:
+
+- `src/lib/client-env.ts` validates public variables that are safe in browser code.
+- `src/lib/server-env.ts` validates server-only variables, including secrets.
 
 ```typescript
-// src/lib/env.ts — Simplified example
-import { z } from 'zod';
-
-const envSchema = z.object({
-  NEXT_PUBLIC_SUPABASE_URL: z.string().url(),
+// src/lib/client-env.ts - simplified example
+const clientEnvSchema = z.object({
+  NEXT_PUBLIC_SUPABASE_URL: z.url(),
   NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().min(1),
-  SUPABASE_SERVICE_ROLE_KEY: z.string().min(1),
-  NEXT_PUBLIC_APP_URL: z.string().url(),
+  NEXT_PUBLIC_APP_URL: z.string().min(1).default("http://localhost:3000"),
 });
 
-export const env = envSchema.parse({
-  NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
-  NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-  SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY,
-  NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
+// src/lib/server-env.ts - simplified example
+const serverEnvSchema = z.object({
+  NEXT_PUBLIC_SUPABASE_URL: z.url(),
+  NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().min(1),
+  SUPABASE_SERVICE_ROLE_KEY: z.string().min(1),
+  NEXT_PUBLIC_APP_URL: z.string().min(1).default("http://localhost:3000"),
 });
 ```
 
@@ -100,18 +101,17 @@ If any required variable is missing or invalid, the application will fail to sta
 
 ### 3. Service Role Key Isolation
 
-The `SUPABASE_SERVICE_ROLE_KEY` is only used in `src/lib/supabase/admin.ts`, which imports the `server-only` package to guarantee it cannot be bundled into client-side code.
+The `SUPABASE_SERVICE_ROLE_KEY` is only exposed through `src/lib/server-env.ts` and used by `src/lib/supabase/admin.ts`, both server-only paths.
 
 ```typescript
 // src/lib/supabase/admin.ts
-import 'server-only';
-import { createClient } from '@supabase/supabase-js';
-import { env } from '@/lib/env';
+import "server-only";
 
-export const supabaseAdmin = createClient(
-  env.NEXT_PUBLIC_SUPABASE_URL,
-  env.SUPABASE_SERVICE_ROLE_KEY,
-);
+import { createClient } from "@supabase/supabase-js";
+
+import { getServerEnv } from "@/lib/server-env";
+
+const env = getServerEnv();
 ```
 
 > [!IMPORTANT]

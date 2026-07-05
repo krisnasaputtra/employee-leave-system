@@ -1491,3 +1491,50 @@
 - [x] Replaced index-based React keys in loading skeletons with stable static keys
 - [x] Replaced index-based React keys in dashboard/code-review lists with stable domain/content keys
 - [x] Sorted Tailwind classes in the language switcher to satisfy Biome nursery lint
+
+---
+
+# Post-Phase 18 - Incremental Cleanup Pass
+
+## 1. Baseline
+- [x] `npm ci --dry-run --ignore-scripts` - passed
+- [x] `npm run lint` - passed
+- [ ] `npm run typecheck` - missing script in `package.json`
+- [x] `npx tsc --noEmit` - passed
+- [x] `npm run test` - 7 files passed, 93 tests passed
+- [x] `npm run build` - passed with network escalation for Google Fonts
+
+## 2. Low-Risk Cleanup
+- [x] Removed tracked backup file `src/proxy.disabled.ts` after verifying no imports or framework references
+- [x] Replaced dashboard server component Supabase `any` props with `Awaited<ReturnType<typeof createClient>>`
+- [x] Updated `docs/ENVIRONMENT.md` to reference `src/lib/client-env.ts` and `src/lib/server-env.ts`
+
+## 3. Final Validation
+- [x] `npm run lint` - passed
+- [x] `npx tsc --noEmit` - passed
+- [x] `npm run test` - 7 files passed, 93 tests passed
+- [x] `npm run build` - passed with network escalation for Google Fonts
+
+---
+
+# Post-Phase 18 - Phase 2 Unused Code Audit
+
+## 1. Reference-Verified Removals
+- [x] Removed unused shared `DateRangePicker` component after verifying no imports or dynamic references
+- [x] Removed unused `useIsLg` hook after verifying no imports or dynamic references
+- [x] Removed unused `useAddComment` hook after verifying comment flow uses direct action wiring
+- [x] Removed unused sidebar template components: `AccountSwitcher`, `NavSecondary`, and `NavDocuments`
+- [x] Removed unused `hasActiveDelegation` helper after verifying no runtime references
+- [x] Removed unused `getLocalStorageValue` export while keeping `setLocalStorageValue`, which is still used by preferences persistence
+
+## 2. Dependency Audit
+- [x] Reviewed dependency usage against app code, scripts, config, CSS imports, and shadcn/ui components
+- [x] No dependency removed; candidates are still required by current UI components, tooling, or config
+
+## 3. Validation
+- [x] `npm run lint` - passed
+- [x] `npx tsc --noEmit` - passed
+- [x] `npm run test` - 7 files passed, 93 tests passed
+- [x] `npm run check` - passed
+- [x] `git diff --check` - passed
+- [x] `npm run build` - passed with network escalation for Google Fonts
