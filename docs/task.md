@@ -1737,3 +1737,19 @@
 - [x] `npm run test` - 7 files passed, 93 tests passed
 - [x] `npm run check` - passed
 - [x] `npm run build` - passed with network escalation for Google Fonts
+
+---
+
+# Post-Phase 18 - Phase 15 Approval RPC Row Mapping Cleanup
+
+## 1. Medium-Risk Type Cleanup
+- [x] Replaced broad approval RPC array cast with explicit row mapping
+- [x] Reused RPC result readers for approval request fields and nested employee/leave type objects
+- [x] Preserved existing empty-array fallback when the RPC result is not an array
+
+## 2. Validation
+- [x] `npm run lint` - passed
+- [x] `npx tsc --noEmit` - passed
+- [x] `npm run test` - 7 files passed, 93 tests passed
+- [x] `npm run check` - passed after import formatting fix
+- [x] `npm run build` - passed with network escalation for Google Fonts
