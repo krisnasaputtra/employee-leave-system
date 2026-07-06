@@ -22,6 +22,7 @@ import { Field, FieldContent, FieldError, FieldGroup, FieldLabel } from "@/compo
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { type EmployeeCreateInput, employeeCreateSchema, generateTemporaryPassword } from "@/lib/employees/schemas";
+import { toActionInput } from "@/lib/forms/to-action-input";
 
 import { createEmployeeAction } from "../actions";
 
@@ -64,7 +65,7 @@ export function EmployeeCreateForm({ departments }: Props) {
     setServerError(null);
     setCreatedPassword(null);
     startTransition(async () => {
-      const result = await createEmployeeAction(data as unknown as Record<string, unknown>);
+      const result = await createEmployeeAction(toActionInput(data));
       if (!result.success) {
         setServerError(result.error ?? "Failed to create employee.");
       } else {

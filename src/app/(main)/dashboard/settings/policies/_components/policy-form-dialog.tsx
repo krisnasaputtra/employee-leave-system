@@ -20,6 +20,7 @@ import {
 import { Field, FieldContent, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
+import { toActionInput } from "@/lib/forms/to-action-input";
 import { useTranslation } from "@/providers/locale-provider";
 
 import { upsertPolicyAction } from "../actions";
@@ -85,7 +86,7 @@ export function PolicyFormDialog({ leaveTypeId, leaveTypeName, policy, trigger }
   const onSubmit = (data: PolicyFormInput) => {
     setServerError(null);
     startTransition(async () => {
-      const result = await upsertPolicyAction(data as unknown as Record<string, unknown>);
+      const result = await upsertPolicyAction(toActionInput(data));
       if (!result.success) {
         setServerError(result.error ?? "Operation failed.");
       } else {

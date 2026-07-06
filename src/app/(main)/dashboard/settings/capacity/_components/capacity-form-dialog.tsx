@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/dialog";
 import { Field, FieldContent, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { toActionInput } from "@/lib/forms/to-action-input";
 import { useTranslation } from "@/providers/locale-provider";
 
 import { upsertCapacityRuleAction } from "../actions";
@@ -85,7 +86,7 @@ export function CapacityFormDialog({ departmentId, departmentName, employeeCount
   const onSubmit = (data: CapacityFormInput) => {
     setServerError(null);
     startTransition(async () => {
-      const result = await upsertCapacityRuleAction(data as unknown as Record<string, unknown>);
+      const result = await upsertCapacityRuleAction(toActionInput(data));
       if (!result.success) {
         setServerError(result.error ?? "Operation failed.");
       } else {
