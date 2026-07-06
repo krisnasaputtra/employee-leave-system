@@ -4,7 +4,7 @@ import { useState, useTransition } from "react";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
-import { type Resolver, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 
@@ -40,6 +40,7 @@ const capacityFormSchema = z.object({
     .transform((v) => (v === 0 ? null : v)),
 });
 
+type CapacityFormValues = z.input<typeof capacityFormSchema>;
 type CapacityFormInput = z.output<typeof capacityFormSchema>;
 
 // =============================================================
@@ -71,8 +72,8 @@ export function CapacityFormDialog({ departmentId, departmentName, employeeCount
   const [isPending, startTransition] = useTransition();
   const [serverError, setServerError] = useState<string | null>(null);
 
-  const form = useForm<CapacityFormInput>({
-    resolver: zodResolver(capacityFormSchema) as unknown as Resolver<CapacityFormInput>,
+  const form = useForm<CapacityFormValues, undefined, CapacityFormInput>({
+    resolver: zodResolver(capacityFormSchema),
     defaultValues: {
       department_id: departmentId,
       max_absent_percentage: rule ? rule.max_absent_percentage : 25,
@@ -80,8 +81,9 @@ export function CapacityFormDialog({ departmentId, departmentName, employeeCount
     },
   });
 
-  const maxAbsentPct = form.watch("max_absent_percentage");
-  const maxAbsentCount = Math.floor((employeeCount * (maxAbsentPct || 0)) / 100);
+  const watchedMaxAbsentPct = Number(form.watch("max_absent_percentage"));
+  const maxAbsentPct = Number.isFinite(watchedMaxAbsentPct) ? watchedMaxAbsentPct : 0;
+  const maxAbsentCount = Math.floor((employeeCount * maxAbsentPct) / 100);
 
   const onSubmit = (data: CapacityFormInput) => {
     setServerError(null);
@@ -129,7 +131,7 @@ export function CapacityFormDialog({ departmentId, departmentName, employeeCount
                   {...form.register("max_absent_percentage", { valueAsNumber: true })}
                 />
               </FieldContent>
-              <FieldError>{form.formState.errors.max_absent_percentage?.message}</FieldError>
+              <FieldError>{String(form.formState.errors.max_absent_percentage?.message ?? "")}</FieldError>
             </Field>
 
             <Field>
@@ -142,7 +144,7 @@ export function CapacityFormDialog({ departmentId, departmentName, employeeCount
                   {...form.register("min_staff_count", { valueAsNumber: true })}
                 />
               </FieldContent>
-              <FieldError>{form.formState.errors.min_staff_count?.message}</FieldError>
+              <FieldError>{String(form.formState.errors.min_staff_count?.message ?? "")}</FieldError>
             </Field>
 
             {employeeCount > 0 && (

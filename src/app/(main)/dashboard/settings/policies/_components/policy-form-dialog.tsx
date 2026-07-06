@@ -4,7 +4,7 @@ import { useState, useTransition } from "react";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
-import { type Resolver, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 
@@ -42,6 +42,7 @@ const policyFormSchema = z.object({
   requires_attachment: z.boolean().default(false),
 });
 
+type PolicyFormValues = z.input<typeof policyFormSchema>;
 type PolicyFormInput = z.output<typeof policyFormSchema>;
 
 // =============================================================
@@ -73,8 +74,8 @@ export function PolicyFormDialog({ leaveTypeId, leaveTypeName, policy, trigger }
   const [isPending, startTransition] = useTransition();
   const [serverError, setServerError] = useState<string | null>(null);
 
-  const form = useForm<PolicyFormInput>({
-    resolver: zodResolver(policyFormSchema) as unknown as Resolver<PolicyFormInput>,
+  const form = useForm<PolicyFormValues, undefined, PolicyFormInput>({
+    resolver: zodResolver(policyFormSchema),
     defaultValues: {
       leave_type_id: leaveTypeId,
       notice_period_days: policy ? policy.notice_period_days : 0,

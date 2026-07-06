@@ -1689,3 +1689,19 @@
 - [x] `npm run test` - 7 files passed, 93 tests passed
 - [x] `npm run check` - passed
 - [x] `npm run build` - passed with network escalation for Google Fonts
+
+---
+
+# Post-Phase 18 - Phase 12 Form Resolver Type Cleanup
+
+## 1. Type Safety Cleanup
+- [x] Replaced policy form resolver double cast with React Hook Form input/output generics
+- [x] Replaced capacity form resolver double cast with React Hook Form input/output generics
+- [x] Normalized capacity percentage display value after separating form input and parsed output types
+
+## 2. Validation
+- [x] `npm run lint` - passed
+- [x] `npx tsc --noEmit` - passed after capacity display narrowing
+- [x] `npm run test` - 7 files passed, 93 tests passed
+- [x] `npm run check` - passed
+- [x] `npm run build` - passed with network escalation for Google Fonts
