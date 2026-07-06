@@ -80,14 +80,18 @@ export async function updateEmployeeAction(employeeId: string, input: Record<str
     }
 
     const admin = createAdminClient();
-    const updateData: EmployeeUpdate = {};
-
-    for (const [key, value] of Object.entries(parsed.data)) {
-      if (value !== undefined) {
-        const safeValue = key === "manager_id" || key === "phone_number" ? (value as string) || null : value;
-        (updateData as Record<string, unknown>)[key] = safeValue;
-      }
-    }
+    const updateInput = parsed.data;
+    const updateData: EmployeeUpdate = {
+      ...(updateInput.full_name !== undefined && { full_name: updateInput.full_name }),
+      ...(updateInput.work_email !== undefined && { work_email: updateInput.work_email }),
+      ...(updateInput.phone_number !== undefined && { phone_number: updateInput.phone_number || null }),
+      ...(updateInput.department_id !== undefined && { department_id: updateInput.department_id }),
+      ...(updateInput.position !== undefined && { position: updateInput.position }),
+      ...(updateInput.manager_id !== undefined && { manager_id: updateInput.manager_id || null }),
+      ...(updateInput.join_date !== undefined && { join_date: updateInput.join_date }),
+      ...(updateInput.role !== undefined && { role: updateInput.role }),
+      ...(updateInput.status !== undefined && { status: updateInput.status }),
+    };
 
     const { error } = await admin.from("employees").update(updateData).eq("id", employeeId);
 

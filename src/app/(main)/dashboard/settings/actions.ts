@@ -131,14 +131,16 @@ export async function updateDepartmentAction(id: string, input: Record<string, u
 
     // 4. Execute — build typed update object
     const admin = createAdminClient();
-    const updateData: DepartmentUpdate = {};
-
-    for (const [key, value] of Object.entries(parsed.data)) {
-      if (value !== undefined) {
-        const safeValue = key === "manager_employee_id" || key === "description" ? (value as string) || null : value;
-        (updateData as Record<string, unknown>)[key] = safeValue;
-      }
-    }
+    const updateInput = parsed.data;
+    const updateData: DepartmentUpdate = {
+      ...(updateInput.code !== undefined && { code: updateInput.code }),
+      ...(updateInput.name !== undefined && { name: updateInput.name }),
+      ...(updateInput.description !== undefined && { description: updateInput.description || null }),
+      ...(updateInput.manager_employee_id !== undefined && {
+        manager_employee_id: updateInput.manager_employee_id || null,
+      }),
+      ...(updateInput.is_active !== undefined && { is_active: updateInput.is_active }),
+    };
 
     const { error } = await admin.from("departments").update(updateData).eq("id", id);
 
@@ -347,14 +349,23 @@ export async function updateLeaveTypeAction(id: string, input: Record<string, un
 
     // 4. Execute — build typed update object
     const admin = createAdminClient();
-    const updateData: LeaveTypeUpdate = {};
-
-    for (const [key, value] of Object.entries(parsed.data)) {
-      if (value !== undefined) {
-        const safeValue = key === "description" ? (value as string) || null : value;
-        (updateData as Record<string, unknown>)[key] = safeValue;
-      }
-    }
+    const updateInput = parsed.data;
+    const updateData: LeaveTypeUpdate = {
+      ...(updateInput.code !== undefined && { code: updateInput.code }),
+      ...(updateInput.name !== undefined && { name: updateInput.name }),
+      ...(updateInput.description !== undefined && { description: updateInput.description || null }),
+      ...(updateInput.default_entitlement !== undefined && { default_entitlement: updateInput.default_entitlement }),
+      ...(updateInput.color !== undefined && { color: updateInput.color }),
+      ...(updateInput.deducts_balance !== undefined && { deducts_balance: updateInput.deducts_balance }),
+      ...(updateInput.allow_negative_balance !== undefined && {
+        allow_negative_balance: updateInput.allow_negative_balance,
+      }),
+      ...(updateInput.requires_attachment !== undefined && { requires_attachment: updateInput.requires_attachment }),
+      ...(updateInput.show_type_on_calendar !== undefined && {
+        show_type_on_calendar: updateInput.show_type_on_calendar,
+      }),
+      ...(updateInput.is_active !== undefined && { is_active: updateInput.is_active }),
+    };
 
     const { error } = await admin.from("leave_types").update(updateData).eq("id", id);
 
@@ -563,13 +574,12 @@ export async function updateHolidayAction(id: string, input: Record<string, unkn
 
     // 4. Execute — build typed update object
     const admin = createAdminClient();
-    const updateData: HolidayUpdate = {};
-
-    for (const [key, value] of Object.entries(parsed.data)) {
-      if (value !== undefined) {
-        (updateData as Record<string, unknown>)[key] = value;
-      }
-    }
+    const updateData: HolidayUpdate = {
+      name: parsed.data.name,
+      holiday_date: parsed.data.holiday_date,
+      is_recurring: parsed.data.is_recurring,
+      is_active: parsed.data.is_active,
+    };
 
     const { error } = await admin.from("holidays").update(updateData).eq("id", id);
 
