@@ -14,3 +14,8 @@ export function getRpcResultNumber(data: unknown, key: string): number {
   const value = getRpcResultObject(data)[key];
   return typeof value === "number" ? value : 0;
 }
+
+export function getRpcResultBoolean(data: unknown, key: string): boolean {
+  const value = getRpcResultObject(data)[key];
+  return typeof value === "boolean" ? value : false;
+}

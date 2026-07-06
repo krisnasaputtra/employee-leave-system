@@ -1,7 +1,9 @@
 "use server";
 
 import { getAuthenticatedUser } from "@/lib/auth/get-authenticated-user";
+import { getRpcResultBoolean, getRpcResultString } from "@/lib/supabase/rpc-result";
 import { createClient } from "@/lib/supabase/server";
+import { getUntypedRpc } from "@/lib/supabase/untyped-rpc";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -29,11 +31,6 @@ export interface FetchApprovalsResult {
   capacityWarnings: Record<string, string>;
 }
 
-type UntypedRpc = (
-  functionName: string,
-  args?: Record<string, unknown>,
-) => Promise<{ data: unknown; error: { message?: string } | null }>;
-
 // ---------------------------------------------------------------------------
 // Server action
 // ---------------------------------------------------------------------------
@@ -42,7 +39,7 @@ export async function fetchApprovals(): Promise<FetchApprovalsResult> {
   await getAuthenticatedUser();
 
   const supabase = await createClient();
-  const rpc = supabase.rpc.bind(supabase) as unknown as UntypedRpc;
+  const rpc = getUntypedRpc(supabase);
   const { data, error } = await rpc("get_pending_approval_requests");
 
   if (error) {
@@ -92,9 +89,8 @@ export async function fetchApprovals(): Promise<FetchApprovalsResult> {
     const [key] = capacityEntries[i];
     const settled = capacityResults[i];
     if (settled.status === "fulfilled") {
-      const result = settled.value.data as Record<string, unknown> | null;
-      if (result?.warning) {
-        const message = (result.message as string) ?? "Department capacity may be exceeded.";
+      if (getRpcResultBoolean(settled.value.data, "warning")) {
+        const message = getRpcResultString(settled.value.data, "message") || "Department capacity may be exceeded.";
         for (const reqId of capacityKeyToRequestIds.get(key) ?? []) {
           capacityWarnings[reqId] = message;
         }

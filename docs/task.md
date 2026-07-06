@@ -1673,3 +1673,19 @@
 - [x] `npm run test` - 7 files passed, 93 tests passed
 - [x] `npm run check` - passed
 - [x] `npm run build` - passed with network escalation for Google Fonts
+
+---
+
+# Post-Phase 18 - Phase 11 Untyped RPC Boundary Cleanup
+
+## 1. Type Safety Cleanup
+- [x] Centralized untyped Supabase RPC binding in `getUntypedRpc()`
+- [x] Removed repeated untyped RPC binding casts from header counts and approvals fetches
+- [x] Added a boolean RPC result reader and reused existing string/number readers for header and capacity responses
+
+## 2. Validation
+- [x] `npm run lint` - passed
+- [x] `npx tsc --noEmit` - passed
+- [x] `npm run test` - 7 files passed, 93 tests passed
+- [x] `npm run check` - passed
+- [x] `npm run build` - passed with network escalation for Google Fonts

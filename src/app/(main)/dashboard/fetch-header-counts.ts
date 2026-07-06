@@ -1,12 +1,9 @@
 "use server";
 
 import { getAuthenticatedUser } from "@/lib/auth/get-authenticated-user";
+import { getRpcResultNumber } from "@/lib/supabase/rpc-result";
 import { createClient } from "@/lib/supabase/server";
-
-type UntypedRpc = (
-  functionName: string,
-  args?: Record<string, unknown>,
-) => Promise<{ data: unknown; error: { message?: string } | null }>;
+import { getUntypedRpc } from "@/lib/supabase/untyped-rpc";
 
 /**
  * Fetch notification + approval counts for the header badges.
@@ -19,20 +16,15 @@ export async function fetchHeaderCounts(): Promise<{
 }> {
   await getAuthenticatedUser();
   const supabase = await createClient();
-  const rpc = supabase.rpc.bind(supabase) as unknown as UntypedRpc;
+  const rpc = getUntypedRpc(supabase);
   const { data, error } = await rpc("get_header_counts");
 
   if (error) {
     return { unreadNotifications: 0, pendingApprovals: 0 };
   }
 
-  const counts = data as Partial<{
-    unreadNotifications: number;
-    pendingApprovals: number;
-  }> | null;
-
   return {
-    unreadNotifications: counts?.unreadNotifications ?? 0,
-    pendingApprovals: counts?.pendingApprovals ?? 0,
+    unreadNotifications: getRpcResultNumber(data, "unreadNotifications"),
+    pendingApprovals: getRpcResultNumber(data, "pendingApprovals"),
   };
 }
