@@ -2,6 +2,7 @@
 
 import { getAuthenticatedUser } from "@/lib/auth/get-authenticated-user";
 import type { LeaveRequestStatus } from "@/lib/leave-requests/status";
+import { firstRelation } from "@/lib/supabase/relations";
 import { createClient } from "@/lib/supabase/server";
 
 // ---------------------------------------------------------------------------
@@ -37,10 +38,6 @@ export interface FetchMyRequestsResult {
   page: number;
   pageSize: number;
   totalPages: number;
-}
-
-function firstRelation<T>(relation: T | T[] | null): T | null {
-  return Array.isArray(relation) ? (relation[0] ?? null) : relation;
 }
 
 // ---------------------------------------------------------------------------

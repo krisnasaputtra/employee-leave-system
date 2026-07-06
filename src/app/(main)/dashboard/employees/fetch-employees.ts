@@ -7,6 +7,7 @@ import {
   isApplicationRole,
   isEmploymentStatus,
 } from "@/lib/permissions/roles";
+import { firstRelation } from "@/lib/supabase/relations";
 import { createClient } from "@/lib/supabase/server";
 import { sanitizeSearch } from "@/lib/utils/sanitize-search";
 
@@ -38,10 +39,6 @@ export interface FetchEmployeesResult {
   page: number;
   pageSize: number;
   totalPages: number;
-}
-
-function firstRelation<T>(relation: T | T[] | null): T | null {
-  return Array.isArray(relation) ? (relation[0] ?? null) : relation;
 }
 
 export async function fetchEmployees(params: FetchEmployeesParams = {}): Promise<FetchEmployeesResult> {

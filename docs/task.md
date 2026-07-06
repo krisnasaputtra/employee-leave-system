@@ -1705,3 +1705,19 @@
 - [x] `npm run test` - 7 files passed, 93 tests passed
 - [x] `npm run check` - passed
 - [x] `npm run build` - passed with network escalation for Google Fonts
+
+---
+
+# Post-Phase 18 - Phase 13 Supabase Relationship Helper Cleanup
+
+## 1. Duplicate Logic Cleanup
+- [x] Added shared `firstRelation()` helper for Supabase relationship fields that can be returned as object or array
+- [x] Removed duplicated local `firstRelation()` helpers from employee and leave request fetch modules
+- [x] Preserved explicit row mapping from the previous cleanup phase
+
+## 2. Validation
+- [x] `npm run lint` - passed
+- [x] `npx tsc --noEmit` - passed
+- [x] `npm run test` - 7 files passed, 93 tests passed
+- [x] `npm run check` - passed after import ordering fix
+- [x] `npm run build` - passed with network escalation for Google Fonts
