@@ -7,6 +7,7 @@ import { sendEmail } from "@/lib/email/send";
 import { leaveSubmittedTemplate } from "@/lib/email/templates";
 import { leaveRequestCreateSchema, leaveRequestIdSchema, leaveRequestUpdateSchema } from "@/lib/leave-requests/schemas";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { getRpcResultNumber, getRpcResultString } from "@/lib/supabase/rpc-result";
 import { createClient } from "@/lib/supabase/server";
 import { sanitizeDbError } from "@/lib/utils/sanitize-error";
 import { isNextInternalError } from "@/lib/utils/server-action-utils";
@@ -50,16 +51,14 @@ export async function createLeaveRequestAction(input: Record<string, unknown>): 
       return { success: false, error: sanitizeDbError(error, "Failed to create leave request.") };
     }
 
-    const result = data as Record<string, unknown> | null;
-
     // 5. Revalidate
     revalidatePath("/dashboard/leave/requests");
     revalidatePath("/dashboard/leave/balances");
 
     // 6. Fire-and-forget: email notification to manager
-    const requestId = (result?.request_id as string) ?? "";
-    const requestNumber = (result?.request_number as string) ?? "";
-    const requestedDays = (result?.requested_days as number) ?? 0;
+    const requestId = getRpcResultString(data, "request_id");
+    const requestNumber = getRpcResultString(data, "request_number");
+    const requestedDays = getRpcResultNumber(data, "requested_days");
 
     const managerId = employee.manager_id;
     if (managerId && requestId) {
@@ -147,8 +146,6 @@ export async function updateLeaveRequestAction(
       return { success: false, error: sanitizeDbError(error, "Failed to update leave request.") };
     }
 
-    const result = data as Record<string, unknown> | null;
-
     revalidatePath("/dashboard/leave/requests");
     revalidatePath("/dashboard/leave/balances");
     revalidatePath(`/dashboard/leave/requests/${parsedId.data}`);
@@ -156,7 +153,7 @@ export async function updateLeaveRequestAction(
     return {
       success: true,
       request_id: parsedId.data,
-      requested_days: (result?.requested_days as number) ?? 0,
+      requested_days: getRpcResultNumber(data, "requested_days"),
     };
   } catch (error) {
     if (isNextInternalError(error)) throw error;

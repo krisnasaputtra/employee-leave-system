@@ -7,6 +7,7 @@ import { getAuthenticatedUser } from "@/lib/auth/get-authenticated-user";
 import { sendEmail } from "@/lib/email/send";
 import { leaveApprovedTemplate, leaveRejectedTemplate } from "@/lib/email/templates";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { getRpcResultString } from "@/lib/supabase/rpc-result";
 import { createClient } from "@/lib/supabase/server";
 import { sanitizeDbError } from "@/lib/utils/sanitize-error";
 import { isNextInternalError } from "@/lib/utils/server-action-utils";
@@ -37,15 +38,13 @@ export async function approveLeaveRequestAction(requestId: string): Promise<Acti
       return { success: false, error: sanitizeDbError(error, "Failed to approve request.") };
     }
 
-    const result = data as Record<string, unknown> | null;
-
     revalidatePath("/dashboard/approvals");
     revalidatePath("/dashboard/leave/requests");
     revalidatePath("/dashboard/leave/balances");
     revalidatePath(`/dashboard/leave/requests/${parsedId.data}`);
 
     // Fire-and-forget: email notification to employee
-    const requestNumber = (result?.request_number as string) ?? "";
+    const requestNumber = getRpcResultString(data, "request_number");
     void (async () => {
       try {
         const admin = createAdminClient();
@@ -129,15 +128,13 @@ export async function rejectLeaveRequestAction(
       return { success: false, error: sanitizeDbError(error, "Failed to reject request.") };
     }
 
-    const result = data as Record<string, unknown> | null;
-
     revalidatePath("/dashboard/approvals");
     revalidatePath("/dashboard/leave/requests");
     revalidatePath("/dashboard/leave/balances");
     revalidatePath(`/dashboard/leave/requests/${parsedId.data}`);
 
     // Fire-and-forget: email notification to employee
-    const requestNumber = (result?.request_number as string) ?? "";
+    const requestNumber = getRpcResultString(data, "request_number");
     void (async () => {
       try {
         const admin = createAdminClient();
