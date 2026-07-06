@@ -11,6 +11,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { ExportButton } from "@/components/ui/export-button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { getAuditMetadataObject } from "@/lib/audit/metadata";
 import { getAuthenticatedUser } from "@/lib/auth/get-authenticated-user";
 import { createClient } from "@/lib/supabase/server";
 import { generateCsv } from "@/lib/utils/export-csv";
@@ -19,7 +20,7 @@ import { sanitizeSearch } from "@/lib/utils/sanitize-search";
 function renderMetadata(value: unknown): React.ReactNode {
   if (value === null || value === undefined) return <span className="text-muted-foreground">—</span>;
   if (typeof value === "object" && !Array.isArray(value)) {
-    const entries = Object.entries(value as Record<string, unknown>);
+    const entries = Object.entries(getAuditMetadataObject(value));
     if (entries.length === 0) return <span className="text-muted-foreground">—</span>;
     return (
       <div className="space-y-0.5 text-muted-foreground text-xs">

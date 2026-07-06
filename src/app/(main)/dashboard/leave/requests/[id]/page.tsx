@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { getAuditMetadataObject } from "@/lib/audit/metadata";
 import { getAuthenticatedUser } from "@/lib/auth/get-authenticated-user";
 import { canApproveLeaveRequest } from "@/lib/permissions";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -113,9 +114,9 @@ export default async function LeaveRequestDetailPage({ params }: PageProps) {
     created_at: e.created_at,
     actor_employee_id: e.actor_employee_id,
     metadata: {
-      ...(e.metadata as Record<string, unknown> | null),
+      ...getAuditMetadataObject(e.metadata),
       actor_name:
-        (e.metadata as Record<string, unknown> | null)?.actor_name ??
+        getAuditMetadataObject(e.metadata).actor_name ??
         (e.actor_employee_id ? actorNameMap[e.actor_employee_id] : null) ??
         "System",
     },

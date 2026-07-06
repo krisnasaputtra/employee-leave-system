@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
+import { getAuditMetadataString } from "@/lib/audit/metadata";
 
 import { addCommentAction } from "../../comment-actions";
 
@@ -119,9 +120,9 @@ export function CommentSection({ requestId, events }: CommentSectionProps) {
         {events.length > 0 ? (
           <div className="relative space-y-0 pl-6">
             {events.map((event, index) => {
-              const actorName = (event.metadata?.actor_name as string) ?? "System";
+              const actorName = getAuditMetadataString(event.metadata, "actor_name") ?? "System";
               const isComment = event.action === "COMMENT_ADDED";
-              const commentText = isComment ? (event.metadata?.comment as string) : null;
+              const commentText = isComment ? getAuditMetadataString(event.metadata, "comment") : null;
               const isLast = index === events.length - 1;
 
               return (
