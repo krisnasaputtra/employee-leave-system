@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 
+import { auditMetadata } from "@/lib/audit/metadata";
 import { getAuthenticatedUser } from "@/lib/auth/get-authenticated-user";
 import { canManageConfiguration } from "@/lib/permissions";
 import {
@@ -90,7 +91,7 @@ export async function createDepartmentAction(input: Record<string, unknown>): Pr
       action: "DEPARTMENT_CREATED",
       entity_type: "department",
       entity_id: null,
-      metadata: { code: parsed.data.code, name: parsed.data.name } as unknown as Record<string, string>,
+      metadata: auditMetadata({ code: parsed.data.code, name: parsed.data.name }),
     });
 
     // 6. Revalidate
@@ -154,7 +155,7 @@ export async function updateDepartmentAction(id: string, input: Record<string, u
       action: "DEPARTMENT_UPDATED",
       entity_type: "department",
       entity_id: id,
-      metadata: updateData as unknown as Record<string, string>,
+      metadata: auditMetadata({ ...updateData }),
     });
 
     // 6. Revalidate
@@ -228,7 +229,7 @@ export async function toggleDepartmentAction(id: string): Promise<ActionResult> 
       action: "DEPARTMENT_TOGGLED",
       entity_type: "department",
       entity_id: id,
-      metadata: { is_active: newStatus } as unknown as Record<string, string>,
+      metadata: auditMetadata({ is_active: newStatus }),
     });
 
     // 7. Revalidate
@@ -306,7 +307,7 @@ export async function createLeaveTypeAction(input: Record<string, unknown>): Pro
       action: "LEAVE_TYPE_CREATED",
       entity_type: "leave_type",
       entity_id: null,
-      metadata: { code: parsed.data.code, name: parsed.data.name } as unknown as Record<string, string>,
+      metadata: auditMetadata({ code: parsed.data.code, name: parsed.data.name }),
     });
 
     // 6. Revalidate
@@ -370,7 +371,7 @@ export async function updateLeaveTypeAction(id: string, input: Record<string, un
       action: "LEAVE_TYPE_UPDATED",
       entity_type: "leave_type",
       entity_id: id,
-      metadata: updateData as unknown as Record<string, string>,
+      metadata: auditMetadata({ ...updateData }),
     });
 
     // 6. Revalidate
@@ -444,7 +445,7 @@ export async function toggleLeaveTypeAction(id: string): Promise<ActionResult> {
       action: "LEAVE_TYPE_TOGGLED",
       entity_type: "leave_type",
       entity_id: id,
-      metadata: { is_active: newStatus } as unknown as Record<string, string>,
+      metadata: auditMetadata({ is_active: newStatus }),
     });
 
     // 7. Revalidate
@@ -519,10 +520,10 @@ export async function createHolidayAction(input: Record<string, unknown>): Promi
       action: "HOLIDAY_CREATED",
       entity_type: "holiday",
       entity_id: null,
-      metadata: {
+      metadata: auditMetadata({
         name: parsed.data.name,
         holiday_date: parsed.data.holiday_date,
-      } as unknown as Record<string, string>,
+      }),
     });
 
     // 6. Revalidate
@@ -585,7 +586,7 @@ export async function updateHolidayAction(id: string, input: Record<string, unkn
       action: "HOLIDAY_UPDATED",
       entity_type: "holiday",
       entity_id: id,
-      metadata: updateData as unknown as Record<string, string>,
+      metadata: auditMetadata({ ...updateData }),
     });
 
     // 6. Revalidate
@@ -643,7 +644,7 @@ export async function toggleHolidayAction(id: string): Promise<ActionResult> {
       action: "HOLIDAY_TOGGLED",
       entity_type: "holiday",
       entity_id: id,
-      metadata: { is_active: newStatus } as unknown as Record<string, string>,
+      metadata: auditMetadata({ is_active: newStatus }),
     });
 
     // 6. Revalidate

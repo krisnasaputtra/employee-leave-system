@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 
+import { auditMetadata } from "@/lib/audit/metadata";
 import { getAuthenticatedUser } from "@/lib/auth/get-authenticated-user";
 import { employeeCreateSchema, employeeUpdateSchema } from "@/lib/employees/schemas";
 import { activateEmployee, createEmployeeWithAccount, deactivateEmployee } from "@/lib/employees/service";
@@ -103,7 +104,7 @@ export async function updateEmployeeAction(employeeId: string, input: Record<str
       action: "EMPLOYEE_UPDATED",
       entity_type: "employee",
       entity_id: employeeId,
-      metadata: updateData as unknown as Record<string, string>,
+      metadata: auditMetadata({ ...updateData }),
     });
 
     revalidatePath("/dashboard/employees");

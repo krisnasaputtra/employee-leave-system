@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 
 import { z } from "zod";
 
+import { auditMetadata } from "@/lib/audit/metadata";
 import { getAuthenticatedUser } from "@/lib/auth/get-authenticated-user";
 import { canManageConfiguration } from "@/lib/permissions";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -102,10 +103,10 @@ export async function upsertPolicyAction(input: Record<string, unknown>): Promis
       action: existing ? "LEAVE_POLICY_UPDATED" : "LEAVE_POLICY_CREATED",
       entity_type: "leave_policy",
       entity_id: existing?.id ?? null,
-      metadata: {
+      metadata: auditMetadata({
         leave_type_id: parsed.data.leave_type_id,
         notice_period_days: parsed.data.notice_period_days,
-      } as unknown as Record<string, string>,
+      }),
     });
 
     // 6. Revalidate
@@ -159,7 +160,7 @@ export async function deletePolicyAction(id: string): Promise<ActionResult> {
       action: "LEAVE_POLICY_DELETED",
       entity_type: "leave_policy",
       entity_id: id,
-      metadata: {} as unknown as Record<string, string>,
+      metadata: auditMetadata({}),
     });
 
     // 6. Revalidate
