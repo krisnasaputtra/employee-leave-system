@@ -1624,3 +1624,20 @@
 - [x] `npm run test` - 7 files passed, 93 tests passed
 - [x] `npm run check` - passed after formatting fix
 - [x] `npm run build` - passed with network escalation for Google Fonts
+
+---
+
+# Post-Phase 18 - Phase 8 Fetch Row Mapping Cleanup
+
+## 1. Type Safety Cleanup
+- [x] Replaced broad fetched employee row array cast with explicit row mapping
+- [x] Replaced broad all leave requests row array cast with explicit row mapping
+- [x] Replaced broad personal leave requests row array cast with explicit row mapping
+- [x] Added local relationship normalization for Supabase relationship fields that may be returned as object or array
+
+## 2. Validation
+- [x] `npm run lint` - passed
+- [x] `npx tsc --noEmit` - passed
+- [x] `npm run test` - 7 files passed, 93 tests passed
+- [x] `npm run check` - passed
+- [x] `npm run build` - passed with network escalation for Google Fonts

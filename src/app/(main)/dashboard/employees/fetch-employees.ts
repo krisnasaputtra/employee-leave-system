@@ -40,6 +40,10 @@ export interface FetchEmployeesResult {
   totalPages: number;
 }
 
+function firstRelation<T>(relation: T | T[] | null): T | null {
+  return Array.isArray(relation) ? (relation[0] ?? null) : relation;
+}
+
 export async function fetchEmployees(params: FetchEmployeesParams = {}): Promise<FetchEmployeesResult> {
   await getAuthenticatedUser(); // ensure authenticated
   const supabase = await createClient();
@@ -80,7 +84,18 @@ export async function fetchEmployees(params: FetchEmployeesParams = {}): Promise
   if (error) throw new Error(error.message);
 
   return {
-    employees: (data ?? []) as unknown as EmployeeRow[],
+    employees: (data ?? []).map((employee) => ({
+      id: employee.id,
+      employee_code: employee.employee_code,
+      full_name: employee.full_name,
+      work_email: employee.work_email,
+      position: employee.position,
+      role: employee.role,
+      status: employee.status,
+      auth_user_id: employee.auth_user_id,
+      department_id: employee.department_id,
+      departments: firstRelation(employee.departments),
+    })),
     totalCount: count ?? 0,
     page,
     pageSize,

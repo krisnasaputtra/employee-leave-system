@@ -36,6 +36,10 @@ export interface FetchAllRequestsResult {
   totalPages: number;
 }
 
+function firstRelation<T>(relation: T | T[] | null): T | null {
+  return Array.isArray(relation) ? (relation[0] ?? null) : relation;
+}
+
 export async function fetchAllRequests(params: FetchAllRequestsParams = {}): Promise<FetchAllRequestsResult> {
   const { employee: actor } = await getAuthenticatedUser();
 
@@ -91,7 +95,21 @@ export async function fetchAllRequests(params: FetchAllRequestsParams = {}): Pro
   if (error) throw new Error(error.message);
 
   return {
-    requests: (data ?? []) as unknown as LeaveRequestRow[],
+    requests: (data ?? []).map((request) => ({
+      id: request.id,
+      request_number: request.request_number,
+      employee_id: request.employee_id,
+      leave_type_id: request.leave_type_id,
+      start_date: request.start_date,
+      end_date: request.end_date,
+      requested_days: request.requested_days,
+      status: request.status,
+      reason: request.reason,
+      partial_day: request.partial_day,
+      created_at: request.created_at,
+      employees: firstRelation(request.employees),
+      leave_types: firstRelation(request.leave_types),
+    })),
     totalCount: count ?? 0,
     page,
     pageSize,
