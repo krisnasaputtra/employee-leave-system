@@ -23,12 +23,16 @@ interface LocaleContextValue {
 
 const LocaleContext = createContext<LocaleContextValue | null>(null);
 
-function getNestedValue(obj: Record<string, unknown>, path: string): string {
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
+}
+
+function getNestedValue(obj: unknown, path: string): string {
   const keys = path.split(".");
   let current: unknown = obj;
   for (const key of keys) {
-    if (current && typeof current === "object" && key in current) {
-      current = (current as Record<string, unknown>)[key];
+    if (isRecord(current) && key in current) {
+      current = current[key];
     } else {
       return path; // fallback to key if not found
     }
@@ -55,7 +59,7 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
 
   const t = useCallback(
     (key: string): string => {
-      return getNestedValue(MESSAGES[locale] as unknown as Record<string, unknown>, key);
+      return getNestedValue(MESSAGES[locale], key);
     },
     [locale],
   );
