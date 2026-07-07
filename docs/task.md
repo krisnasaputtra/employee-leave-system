@@ -1769,3 +1769,22 @@
 - [x] `npm run test` - 7 files passed, 93 tests passed
 - [x] `npm run check` - passed after formatting fix
 - [x] `npm run build` - passed with network escalation for Google Fonts
+
+---
+
+# Post-Phase 18 - Phase 17 Balance Initialization Boundary Validation
+
+## 1. High-Risk Area Guardrail Cleanup
+- [x] Added shared balance employee ID validation schema
+- [x] Validated `initializeBalancesAction` employee ID before calling the admin balance initialization RPC
+- [x] Added unit tests for balance adjustment and employee ID validation schemas
+- [x] Preserved RPC, RLS, migration, leave balance calculation, and authorization behavior
+
+## 2. Validation
+- [x] `npx vitest run src/lib/balances/__tests__/schemas.test.ts` - 1 file passed, 5 tests passed
+- [x] `npm run check` - passed
+- [x] `npx tsc --noEmit` - passed
+- [x] `npm run lint` - passed
+- [x] `npm run test` - 8 files passed, 98 tests passed
+- [x] `git diff --check` - passed with existing LF-to-CRLF warnings
+- [x] `npm run build` - first sandbox run failed on Google Fonts network fetch; rerun with network escalation passed

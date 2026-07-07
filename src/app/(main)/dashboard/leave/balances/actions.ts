@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 
 import { getAuthenticatedUser } from "@/lib/auth/get-authenticated-user";
-import { balanceAdjustmentSchema } from "@/lib/balances/schemas";
+import { balanceAdjustmentSchema, balanceEmployeeIdSchema } from "@/lib/balances/schemas";
 import { sendEmail } from "@/lib/email/send";
 import { balanceAdjustedTemplate } from "@/lib/email/templates";
 import { canManageLeaveBalance } from "@/lib/permissions";
@@ -122,10 +122,19 @@ export async function initializeBalancesAction(employeeId: string, year?: number
       };
     }
 
-    // 3. Execute RPC
+    // 3. Validate
+    const parsedEmployeeId = balanceEmployeeIdSchema.safeParse(employeeId);
+    if (!parsedEmployeeId.success) {
+      return {
+        success: false,
+        error: parsedEmployeeId.error.issues[0]?.message ?? "Validation failed.",
+      };
+    }
+
+    // 4. Execute RPC
     const admin = createAdminClient();
     const { data, error } = await admin.rpc("initialize_employee_balances", {
-      p_employee_id: employeeId,
+      p_employee_id: parsedEmployeeId.data,
       p_year: year ?? new Date().getFullYear(),
     });
 
