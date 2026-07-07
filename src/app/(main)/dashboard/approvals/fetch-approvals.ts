@@ -3,9 +3,11 @@
 import { getAuthenticatedUser } from "@/lib/auth/get-authenticated-user";
 import {
   getRpcResultBoolean,
+  getRpcResultNullableString,
   getRpcResultNumber,
   getRpcResultObject,
   getRpcResultString,
+  hasRpcResultFields,
 } from "@/lib/supabase/rpc-result";
 import { createClient } from "@/lib/supabase/server";
 import { getUntypedRpc } from "@/lib/supabase/untyped-rpc";
@@ -36,15 +38,6 @@ export interface FetchApprovalsResult {
   capacityWarnings: Record<string, string>;
 }
 
-// ---------------------------------------------------------------------------
-// Server action
-// ---------------------------------------------------------------------------
-
-function getNullableString(record: Record<string, unknown>, key: string): string | null {
-  const value = record[key];
-  return typeof value === "string" ? value : null;
-}
-
 function mapApprovalRequest(row: unknown): ApprovalRequest {
   const record = getRpcResultObject(row);
   const leaveType = getRpcResultObject(record.leave_types);
@@ -52,29 +45,27 @@ function mapApprovalRequest(row: unknown): ApprovalRequest {
 
   return {
     id: getRpcResultString(record, "id"),
-    request_number: getNullableString(record, "request_number"),
+    request_number: getRpcResultNullableString(record, "request_number"),
     start_date: getRpcResultString(record, "start_date"),
     end_date: getRpcResultString(record, "end_date"),
     requested_days: getRpcResultNumber(record, "requested_days"),
     created_at: getRpcResultString(record, "created_at"),
     employee_id: getRpcResultString(record, "employee_id"),
-    leave_types:
-      Object.keys(leaveType).length > 0
-        ? {
-            name: getRpcResultString(leaveType, "name"),
-            color: getRpcResultString(leaveType, "color"),
-            code: getRpcResultString(leaveType, "code"),
-          }
-        : null,
-    employees:
-      Object.keys(employee).length > 0
-        ? {
-            id: getRpcResultString(employee, "id"),
-            full_name: getRpcResultString(employee, "full_name"),
-            employee_code: getRpcResultString(employee, "employee_code"),
-            department_id: getNullableString(employee, "department_id"),
-          }
-        : null,
+    leave_types: hasRpcResultFields(leaveType)
+      ? {
+          name: getRpcResultString(leaveType, "name"),
+          color: getRpcResultString(leaveType, "color"),
+          code: getRpcResultString(leaveType, "code"),
+        }
+      : null,
+    employees: hasRpcResultFields(employee)
+      ? {
+          id: getRpcResultString(employee, "id"),
+          full_name: getRpcResultString(employee, "full_name"),
+          employee_code: getRpcResultString(employee, "employee_code"),
+          department_id: getRpcResultNullableString(employee, "department_id"),
+        }
+      : null,
   };
 }
 

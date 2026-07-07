@@ -1753,3 +1753,19 @@
 - [x] `npm run test` - 7 files passed, 93 tests passed
 - [x] `npm run check` - passed after import formatting fix
 - [x] `npm run build` - passed with network escalation for Google Fonts
+
+---
+
+# Post-Phase 18 - Phase 16 Shared RPC Reader Cleanup
+
+## 1. Medium-Risk Type Cleanup
+- [x] Added shared nullable string RPC reader
+- [x] Added shared RPC object field-presence helper
+- [x] Removed approval-specific nullable string helper in favor of shared RPC result readers
+
+## 2. Validation
+- [x] `npm run lint` - passed
+- [x] `npx tsc --noEmit` - passed
+- [x] `npm run test` - 7 files passed, 93 tests passed
+- [x] `npm run check` - passed after formatting fix
+- [x] `npm run build` - passed with network escalation for Google Fonts
