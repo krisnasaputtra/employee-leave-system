@@ -15,3 +15,6 @@ export const delegationCreateSchema = z
   });
 
 export type DelegationCreateInput = z.infer<typeof delegationCreateSchema>;
+
+export const delegationIdSchema = z.string().regex(UUID_RE, "Invalid delegation selected.");
+export type DelegationIdInput = z.infer<typeof delegationIdSchema>;

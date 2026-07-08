@@ -10,6 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { getAuditMetadataObject } from "@/lib/audit/metadata";
 import { getAuthenticatedUser } from "@/lib/auth/get-authenticated-user";
+import { canViewLeaveRequest } from "@/lib/leave-requests/access";
 import { canApproveLeaveRequest } from "@/lib/permissions";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { STATUS_BADGE_STYLES } from "@/lib/ui/badge-variants";
@@ -60,6 +61,7 @@ export default async function LeaveRequestDetailPage({ params }: PageProps) {
 
   const isOwner = request.employee_id === actor.id;
   const isPending = request.status === "PENDING";
+  let hasActiveApprovalDelegation = false;
   let canApprove = canApproveLeaveRequest(
     actor.role,
     actor.id,
@@ -80,11 +82,24 @@ export default async function LeaveRequestDetailPage({ params }: PageProps) {
       .gte("end_date", today)
       .limit(1);
     if (delegation && delegation.length > 0) {
+      hasActiveApprovalDelegation = true;
       canApprove = true;
     }
   }
 
-  // Fetch attachments (RLS-scoped: owner, manager, admin)
+  const canView = canViewLeaveRequest({
+    actorId: actor.id,
+    actorRole: actor.role,
+    requesterId: request.employee_id,
+    requesterManagerId: requesterEmployee?.manager_id ?? null,
+    hasActiveApprovalDelegation,
+  });
+
+  if (!canView) {
+    redirect("/dashboard/leave/requests");
+  }
+
+  // Access is guarded above before reading attachments or activity.
   const { data: attachments } = await supabase
     .from("leave_request_attachments")
     .select("id, original_name, mime_type, size_bytes, created_at")

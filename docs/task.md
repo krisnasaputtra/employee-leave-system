@@ -1788,3 +1788,25 @@
 - [x] `npm run test` - 8 files passed, 98 tests passed
 - [x] `git diff --check` - passed with existing LF-to-CRLF warnings
 - [x] `npm run build` - first sandbox run failed on Google Fonts network fetch; rerun with network escalation passed
+
+---
+
+# Post-Phase 18 - Phase 18 Leave Request Access Guard Hardening
+
+## 1. High-Risk Area Guardrail Cleanup
+- [x] Added shared leave request view/comment access helper
+- [x] Added explicit detail-page access guard before reading attachments or audit timeline through the admin client
+- [x] Added comment action authorization guard before writing audit-log comments through the admin client
+- [x] Added delegation ID validation before revoke queries
+- [x] Sanitized delegation mutation database errors before returning them to users
+- [x] Left delegated attachment download expansion unmodified pending product/security confirmation
+- [x] Preserved RPC, RLS, migration, approval workflow, cancellation workflow, and leave balance behavior
+
+## 2. Validation
+- [x] `npx vitest run src/lib/leave-requests/__tests__/access.test.ts src/lib/delegations/__tests__/schemas.test.ts` - 2 files passed, 10 tests passed
+- [x] `npm run check` - passed
+- [x] `npx tsc --noEmit` - passed
+- [x] `npm run lint` - passed
+- [x] `npm run test` - 10 files passed, 108 tests passed
+- [x] `git diff --check` - passed with existing LF-to-CRLF warnings
+- [x] `npm run build` - first sandbox run failed on Google Fonts network fetch; rerun with network escalation passed
