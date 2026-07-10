@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 
 import { attachmentIdSchema } from "@/lib/attachments/schemas";
 import { getAuthenticatedUser } from "@/lib/auth/get-authenticated-user";
+import { canDownloadLeaveRequestAttachment } from "@/lib/leave-requests/access";
 import { leaveRequestIdSchema } from "@/lib/leave-requests/schemas";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
@@ -280,7 +281,7 @@ export async function removeAttachmentAction(attachmentId: string, requestId: st
 
 /**
  * Get a short-lived signed download URL for an attachment.
- * Authorized: owner, direct manager, admin.
+ * Authorized: owner, direct manager, delegated approver, or admin.
  */
 export async function getAttachmentDownloadUrlAction(
   attachmentId: string,
@@ -317,11 +318,11 @@ export async function getAttachmentDownloadUrlAction(
       return { success: false, error: "Leave request not found." };
     }
 
-    // 3. Authorization: owner, direct manager, or admin
+    // 3. Authorization: owner, direct manager, delegated approver, or admin
     const isOwner = request.employee_id === employee.id;
     const isAdmin = employee.role === "ADMIN";
 
-    let isManager = false;
+    let requesterManagerId: string | null = null;
     if (!isOwner && !isAdmin) {
       const { data: ownerEmployee } = await supabase
         .from("employees")
@@ -329,10 +330,34 @@ export async function getAttachmentDownloadUrlAction(
         .eq("id", request.employee_id)
         .single();
 
-      isManager = ownerEmployee?.manager_id === employee.id;
+      requesterManagerId = ownerEmployee?.manager_id ?? null;
     }
 
-    if (!isOwner && !isAdmin && !isManager) {
+    let hasActiveApprovalDelegation = false;
+    if (!isOwner && !isAdmin && requesterManagerId) {
+      const today = new Date().toISOString().split("T")[0];
+      const { data: delegation } = await supabase
+        .from("approval_delegations")
+        .select("id")
+        .eq("delegate_id", employee.id)
+        .eq("delegator_id", requesterManagerId)
+        .eq("is_active", true)
+        .lte("start_date", today)
+        .gte("end_date", today)
+        .limit(1);
+
+      hasActiveApprovalDelegation = (delegation ?? []).length > 0;
+    }
+
+    const canDownload = canDownloadLeaveRequestAttachment({
+      actorId: employee.id,
+      actorRole: employee.role,
+      requesterId: request.employee_id,
+      requesterManagerId,
+      hasActiveApprovalDelegation,
+    });
+
+    if (!canDownload) {
       return { success: false, error: "Not authorized to access this attachment." };
     }
 
@@ -346,7 +371,7 @@ export async function getAttachmentDownloadUrlAction(
       return { success: false, error: "Failed to generate download link." };
     }
 
-    // 5. Audit for manager/admin access (not owner)
+    // 5. Audit for manager/admin/delegate access (not owner)
     if (!isOwner) {
       const admin = createAdminClient();
       await admin.from("audit_logs").insert({
@@ -357,7 +382,7 @@ export async function getAttachmentDownloadUrlAction(
         metadata: {
           leave_request_id: attachment.leave_request_id,
           original_name: attachment.original_name,
-          accessed_by_role: isAdmin ? "admin" : "manager",
+          accessed_by_role: isAdmin ? "admin" : hasActiveApprovalDelegation ? "delegate" : "manager",
         },
       });
     }

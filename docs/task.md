@@ -1810,3 +1810,24 @@
 - [x] `npm run test` - 10 files passed, 108 tests passed
 - [x] `git diff --check` - passed with existing LF-to-CRLF warnings
 - [x] `npm run build` - first sandbox run failed on Google Fonts network fetch; rerun with network escalation passed
+
+---
+
+# Post-Phase 18 - Phase 19 Delegated Attachment Download Guard
+
+## 1. High-Risk Area Guardrail Cleanup
+- [x] Allowed active delegated approvers to download attachments for requests within their delegation scope
+- [x] Kept attachment upload and removal permissions unchanged
+- [x] Kept signed download URLs short-lived at 60 seconds
+- [x] Added `delegate` audit metadata for delegated attachment access
+- [x] Reused the shared leave request access helper for view, comment, and attachment download authorization
+- [x] Preserved RPC, RLS, migration, approval workflow, cancellation workflow, and leave balance behavior
+
+## 2. Validation
+- [x] `npx vitest run src/lib/leave-requests/__tests__/access.test.ts src/lib/attachments/__tests__/schemas.test.ts` - 2 files passed, 9 tests passed
+- [x] `npm run check` - passed
+- [x] `npx tsc --noEmit` - passed
+- [x] `npm run lint` - passed
+- [x] `npm run test` - 10 files passed, 109 tests passed
+- [x] `git diff --check` - passed with existing LF-to-CRLF warnings
+- [x] `npm run build` - first sandbox run failed on Google Fonts network fetch; rerun with network escalation passed

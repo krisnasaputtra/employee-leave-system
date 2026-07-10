@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { canCommentOnLeaveRequest, canViewLeaveRequest } from "../access";
+import { canCommentOnLeaveRequest, canDownloadLeaveRequestAttachment, canViewLeaveRequest } from "../access";
 
 describe("leave request access helpers", () => {
   const requesterId = "employee-1";
@@ -72,5 +72,17 @@ describe("leave request access helpers", () => {
         requesterManagerId: managerId,
       }),
     ).toBe(false);
+  });
+
+  it("allows delegated approvers to download attachments for delegated requests", () => {
+    expect(
+      canDownloadLeaveRequestAttachment({
+        actorId: otherId,
+        actorRole: "EMPLOYEE",
+        requesterId,
+        requesterManagerId: managerId,
+        hasActiveApprovalDelegation: true,
+      }),
+    ).toBe(true);
   });
 });

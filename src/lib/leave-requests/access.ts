@@ -23,3 +23,4 @@ export function canViewLeaveRequest({
 }
 
 export const canCommentOnLeaveRequest = canViewLeaveRequest;
+export const canDownloadLeaveRequestAttachment = canViewLeaveRequest;
