@@ -4,7 +4,7 @@ import { checkRateLimit } from "@/lib/security/rate-limit";
 import { updateSession } from "@/lib/supabase/middleware";
 
 /** Public paths that don't require authentication. */
-const PUBLIC_PATHS = ["/login", "/auth/signout", "/code-review"];
+const PUBLIC_PATHS = ["/login", "/auth/signout", "/code-review", "/consent-agreement"];
 
 // Rate-limited paths (auth endpoints)
 const RATE_LIMITED_PATHS = ["/login", "/change-password", "/auth/signout"];

@@ -12,6 +12,7 @@
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | ✅ Yes | ✅ Yes | Supabase anonymous/public API key for client-side requests |
 | `SUPABASE_SERVICE_ROLE_KEY` | ✅ Yes | ❌ No | Supabase service role key for server-side admin operations |
 | `NEXT_PUBLIC_APP_URL` | ✅ Yes | ✅ Yes | Application URL (e.g., `https://your-app.vercel.app`) |
+| `CONSENT_AGREEMENT_URL` | Consent route only | ❌ No | URL loaded by the public `/consent-agreement` page |
 
 ### Variable Details
 
@@ -53,6 +54,12 @@ NEXT_PUBLIC_APP_URL=https://your-app.vercel.app
 # Local development
 NEXT_PUBLIC_APP_URL=http://localhost:3000
 ```
+
+#### `CONSENT_AGREEMENT_URL`
+
+Set this to the full consent URL for `/consent-agreement`. Do not prefix it with `NEXT_PUBLIC_`; the app reads it server-side and adds only its origin to the Content Security Policy. Configure it in each Vercel environment that uses the page, then redeploy so the CSP is rebuilt. If it is unset, the page shows an unconfigured state.
+
+The route is public, so the URL is still sent to visitors as the iframe source. Keeping it in an environment variable prevents it from being committed to GitHub, but does not hide it from people who can access the page. Use HTTPS in production; browsers block HTTP iframe content on an HTTPS Vercel page.
 
 ---
 
@@ -130,7 +137,7 @@ cp .env.example .env.local
 
 ### Vercel (Production / Preview)
 
-Set all four variables in the Vercel Dashboard:
+Set the required variables, plus `CONSENT_AGREEMENT_URL` in environments where the consent page is used:
 
 **Project Settings** → **Environment Variables**
 
@@ -140,6 +147,7 @@ Set all four variables in the Vercel Dashboard:
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Production, Preview, Development |
 | `SUPABASE_SERVICE_ROLE_KEY` | Production, Preview, Development |
 | `NEXT_PUBLIC_APP_URL` | Production, Preview |
+| `CONSENT_AGREEMENT_URL` | Production, Preview, Development (where needed) |
 
 > [!TIP]
 > For preview deployments, consider using a separate Supabase project to avoid polluting production data.
