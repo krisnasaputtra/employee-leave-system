@@ -59,7 +59,7 @@ NEXT_PUBLIC_APP_URL=http://localhost:3000
 
 Set this to the full consent URL for `/consent-agreement`. Do not prefix it with `NEXT_PUBLIC_`; the app reads it server-side and adds only its origin to the Content Security Policy. Configure it in each Vercel environment that uses the page, then redeploy so the CSP is rebuilt. If it is unset, the page shows an unconfigured state.
 
-The route is public, so the URL is still sent to visitors as the iframe source. Keeping it in an environment variable prevents it from being committed to GitHub, but does not hide it from people who can access the page. Use HTTPS in production; browsers block HTTP iframe content on an HTTPS Vercel page.
+The route is public, so the URL is still sent to visitors as the iframe source. Keeping it in an environment variable prevents it from being committed to GitHub, but does not hide it from people who can access the page. HTTP URLs are allowed for testing; browsers block HTTP iframe content on an HTTPS Vercel page, so production requires an HTTPS target.
 
 ---
 
