@@ -20,7 +20,14 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import { Combobox, ComboboxContent, ComboboxEmpty, ComboboxInput, ComboboxItem, ComboboxList } from "@/components/ui/combobox";
+import {
+  Combobox,
+  ComboboxContent,
+  ComboboxEmpty,
+  ComboboxInput,
+  ComboboxItem,
+  ComboboxList,
+} from "@/components/ui/combobox";
 import { Field, FieldContent, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -97,7 +104,9 @@ export function EmployeeEditForm({ employee, departments, employees }: Props) {
   return (
     <form noValidate onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
       {serverError && (
-        <div role="alert" className="rounded-md bg-destructive/10 p-3 text-center text-destructive text-sm">{serverError}</div>
+        <div role="alert" className="rounded-md bg-destructive/10 p-3 text-center text-destructive text-sm">
+          {serverError}
+        </div>
       )}
 
       <div className="rounded-lg border bg-card p-6">
@@ -114,7 +123,13 @@ export function EmployeeEditForm({ employee, departments, employees }: Props) {
             <Field>
               <FieldLabel htmlFor="edit_work_email">Work Email</FieldLabel>
               <FieldContent>
-                <Input id="edit_work_email" type="email" aria-required="true" autoComplete="email" {...form.register("work_email")} />
+                <Input
+                  id="edit_work_email"
+                  type="email"
+                  aria-required="true"
+                  autoComplete="email"
+                  {...form.register("work_email")}
+                />
               </FieldContent>
             </Field>
           </div>
@@ -240,9 +255,7 @@ export function EmployeeEditForm({ employee, departments, employees }: Props) {
         {employee.status === "ACTIVE" && !employee.auth_user_id && (
           <GrantLoginButton employeeId={employee.id} employeeName={employee.full_name} />
         )}
-        {employee.auth_user_id && (
-          <ResetPasswordButton employeeId={employee.id} employeeName={employee.full_name} />
-        )}
+        {employee.auth_user_id && <ResetPasswordButton employeeId={employee.id} employeeName={employee.full_name} />}
         {employee.status === "ACTIVE" && (
           <AlertDialog>
             <AlertDialogTrigger asChild>
@@ -254,14 +267,13 @@ export function EmployeeEditForm({ employee, departments, employees }: Props) {
               <AlertDialogHeader>
                 <AlertDialogTitle>Deactivate Employee</AlertDialogTitle>
                 <AlertDialogDescription>
-                  Are you sure you want to deactivate this employee? Their login will be banned and they will no longer be able to access the system.
+                  Are you sure you want to deactivate this employee? Their login will be banned and they will no longer
+                  be able to access the system.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction onClick={handleDeactivate}>
-                  Deactivate
-                </AlertDialogAction>
+                <AlertDialogAction onClick={handleDeactivate}>Deactivate</AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
@@ -277,14 +289,13 @@ export function EmployeeEditForm({ employee, departments, employees }: Props) {
               <AlertDialogHeader>
                 <AlertDialogTitle>Activate Employee</AlertDialogTitle>
                 <AlertDialogDescription>
-                  Are you sure you want to reactivate this employee? Their login ban will be lifted and they will be able to access the system again.
+                  Are you sure you want to reactivate this employee? Their login ban will be lifted and they will be
+                  able to access the system again.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction onClick={handleActivate}>
-                  Activate
-                </AlertDialogAction>
+                <AlertDialogAction onClick={handleActivate}>Activate</AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>

@@ -1,7 +1,5 @@
 "use client";
 
-import { useTranslation } from "@/providers/locale-provider";
-
 import { useState, useTransition } from "react";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -22,6 +20,7 @@ import { Field, FieldContent, FieldError, FieldGroup, FieldLabel } from "@/compo
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { type LeaveTypeCreateInput, leaveTypeCreateSchema } from "@/lib/settings/schemas";
+import { useTranslation } from "@/providers/locale-provider";
 import type { Database } from "@/types/database.types";
 
 import { createLeaveTypeAction, updateLeaveTypeAction } from "../../actions";
@@ -100,7 +99,9 @@ export function LeaveTypeFormDialog({ mode, leaveType, trigger }: Props) {
 
         <form noValidate onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           {serverError && (
-            <div role="alert" className="rounded-md bg-destructive/10 p-3 text-center text-destructive text-sm">{serverError}</div>
+            <div role="alert" className="rounded-md bg-destructive/10 p-3 text-center text-destructive text-sm">
+              {serverError}
+            </div>
           )}
 
           <FieldGroup>

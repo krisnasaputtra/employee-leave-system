@@ -1,8 +1,6 @@
 import { expect, test } from "@playwright/test";
-import {
-  loginAsEmployee,
-  loginAsManager,
-} from "./helpers/auth";
+
+import { loginAsEmployee, loginAsManager } from "./helpers/auth";
 
 /**
  * Team & Delegation E2E Tests
@@ -53,9 +51,7 @@ test.describe("Team — Manager view", () => {
     const table = page.locator("table, [role='grid']");
     const list = page.locator("[role='list'], ul, ol");
     const cards = page.locator("[data-testid*='member'], [data-testid*='team']");
-    const emptyState = page.locator(
-      'text=/no.*member|no.*team|empty|no.*employee/i',
-    );
+    const emptyState = page.locator("text=/no.*member|no.*team|empty|no.*employee/i");
 
     const hasTable = await table
       .first()
@@ -127,9 +123,7 @@ test.describe("Team — Employee view", () => {
     expect(isOnTeam || isOnDashboard).toBeTruthy();
   });
 
-  test("employee team page shows colleagues or appropriate content", async ({
-    page,
-  }) => {
+  test("employee team page shows colleagues or appropriate content", async ({ page }) => {
     await page.goto("/dashboard/team");
     await page.waitForLoadState("networkidle");
 
@@ -150,9 +144,7 @@ test.describe("Team — Employee view", () => {
     }
   });
 
-  test("employee team page does not show manager-only controls", async ({
-    page,
-  }) => {
+  test("employee team page does not show manager-only controls", async ({ page }) => {
     await page.goto("/dashboard/team");
     await page.waitForLoadState("networkidle");
 
@@ -188,10 +180,7 @@ test.describe("Delegations — Manager view", () => {
     await page.goto("/dashboard/delegations");
     await page.waitForLoadState("networkidle");
 
-    await expect(page.locator("body")).toContainText(
-      /delegation|delegate|assign/i,
-      { timeout: 15000 },
-    );
+    await expect(page.locator("body")).toContainText(/delegation|delegate|assign/i, { timeout: 15000 });
   });
 
   test("manager delegations page has a delegation form", async ({ page }) => {
@@ -207,9 +196,7 @@ test.describe("Delegations — Manager view", () => {
 
     // Look for form elements: inputs, selects, buttons
     const form = page.locator("form");
-    const inputs = page.locator(
-      'input, select, [role="combobox"], textarea, [data-slot="select-trigger"]',
-    );
+    const inputs = page.locator('input, select, [role="combobox"], textarea, [data-slot="select-trigger"]');
     const submitButton = page.locator(
       'button[type="submit"], button:has-text("Create"), button:has-text("Add"), button:has-text("Delegate"), button:has-text("Save")',
     );
@@ -231,9 +218,7 @@ test.describe("Delegations — Manager view", () => {
     expect(hasForm || hasInputs || hasSubmit).toBeTruthy();
   });
 
-  test("manager delegations page shows existing delegations or empty state", async ({
-    page,
-  }) => {
+  test("manager delegations page shows existing delegations or empty state", async ({ page }) => {
     try {
       await loginAsManager(page);
     } catch {
@@ -247,12 +232,8 @@ test.describe("Delegations — Manager view", () => {
     // Should show a list/table of existing delegations or empty state
     const table = page.locator("table, [role='grid']");
     const list = page.locator("[role='list']");
-    const emptyState = page.locator(
-      'text=/no.*delegation|no.*data|empty|no.*active/i',
-    );
-    const cards = page.locator(
-      "[data-testid*='delegation'], .card, [class*='card']",
-    );
+    const emptyState = page.locator("text=/no.*delegation|no.*data|empty|no.*active/i");
+    const cards = page.locator("[data-testid*='delegation'], .card, [class*='card']");
 
     const hasTable = await table
       .first()
@@ -314,9 +295,7 @@ test.describe("Delegations — Employee view", () => {
     expect(isOnDelegations || isOnDashboard).toBeTruthy();
   });
 
-  test("employee delegations page shows appropriate content", async ({
-    page,
-  }) => {
+  test("employee delegations page shows appropriate content", async ({ page }) => {
     await page.goto("/dashboard/delegations");
     await page.waitForLoadState("networkidle");
 
@@ -336,9 +315,7 @@ test.describe("Delegations — Employee view", () => {
     }
   });
 
-  test("employee delegations page does not expose manager-only actions", async ({
-    page,
-  }) => {
+  test("employee delegations page does not expose manager-only actions", async ({ page }) => {
     await page.goto("/dashboard/delegations");
     await page.waitForLoadState("networkidle");
 

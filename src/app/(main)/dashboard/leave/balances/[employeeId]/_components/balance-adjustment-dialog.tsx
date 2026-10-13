@@ -20,6 +20,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import type { BalanceAdjustmentInput } from "@/lib/balances/schemas";
 import { balanceAdjustmentSchema } from "@/lib/balances/schemas";
+import { toActionInput } from "@/lib/forms/to-action-input";
 
 import { adjustLeaveBalanceAction } from "../../actions";
 
@@ -53,7 +54,7 @@ export function BalanceAdjustmentDialog({
   });
 
   const onSubmit = async (data: BalanceAdjustmentInput) => {
-    const result = await adjustLeaveBalanceAction(data as unknown as Record<string, unknown>);
+    const result = await adjustLeaveBalanceAction(toActionInput(data));
 
     if (result.success) {
       toast.success("Balance adjusted successfully.");

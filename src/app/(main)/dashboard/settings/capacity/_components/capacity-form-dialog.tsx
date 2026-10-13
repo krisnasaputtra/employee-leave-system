@@ -1,7 +1,5 @@
 "use client";
 
-import { useTranslation } from "@/providers/locale-provider";
-
 import { useState, useTransition } from "react";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -21,6 +19,8 @@ import {
 } from "@/components/ui/dialog";
 import { Field, FieldContent, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { toActionInput } from "@/lib/forms/to-action-input";
+import { useTranslation } from "@/providers/locale-provider";
 
 import { upsertCapacityRuleAction } from "../actions";
 
@@ -40,6 +40,7 @@ const capacityFormSchema = z.object({
     .transform((v) => (v === 0 ? null : v)),
 });
 
+type CapacityFormValues = z.input<typeof capacityFormSchema>;
 type CapacityFormInput = z.output<typeof capacityFormSchema>;
 
 // =============================================================
@@ -71,23 +72,23 @@ export function CapacityFormDialog({ departmentId, departmentName, employeeCount
   const [isPending, startTransition] = useTransition();
   const [serverError, setServerError] = useState<string | null>(null);
 
-  const form = useForm<CapacityFormInput>({
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    resolver: zodResolver(capacityFormSchema) as any,
+  const form = useForm<CapacityFormValues, undefined, CapacityFormInput>({
+    resolver: zodResolver(capacityFormSchema),
     defaultValues: {
       department_id: departmentId,
-      max_absent_percentage: rule?.max_absent_percentage ?? 25,
-      min_staff_count: rule?.min_staff_count ?? undefined,
+      max_absent_percentage: rule ? rule.max_absent_percentage : 25,
+      min_staff_count: rule ? rule.min_staff_count : undefined,
     },
   });
 
-  const maxAbsentPct = form.watch("max_absent_percentage");
-  const maxAbsentCount = Math.floor((employeeCount * (maxAbsentPct || 0)) / 100);
+  const watchedMaxAbsentPct = Number(form.watch("max_absent_percentage"));
+  const maxAbsentPct = Number.isFinite(watchedMaxAbsentPct) ? watchedMaxAbsentPct : 0;
+  const maxAbsentCount = Math.floor((employeeCount * maxAbsentPct) / 100);
 
   const onSubmit = (data: CapacityFormInput) => {
     setServerError(null);
     startTransition(async () => {
-      const result = await upsertCapacityRuleAction(data as unknown as Record<string, unknown>);
+      const result = await upsertCapacityRuleAction(toActionInput(data));
       if (!result.success) {
         setServerError(result.error ?? "Operation failed.");
       } else {
@@ -112,7 +113,9 @@ export function CapacityFormDialog({ departmentId, departmentName, employeeCount
 
         <form noValidate onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           {serverError && (
-            <div role="alert" className="rounded-md bg-destructive/10 p-3 text-center text-destructive text-sm">{serverError}</div>
+            <div role="alert" className="rounded-md bg-destructive/10 p-3 text-center text-destructive text-sm">
+              {serverError}
+            </div>
           )}
 
           <FieldGroup>
@@ -128,7 +131,7 @@ export function CapacityFormDialog({ departmentId, departmentName, employeeCount
                   {...form.register("max_absent_percentage", { valueAsNumber: true })}
                 />
               </FieldContent>
-              <FieldError>{form.formState.errors.max_absent_percentage?.message}</FieldError>
+              <FieldError>{String(form.formState.errors.max_absent_percentage?.message ?? "")}</FieldError>
             </Field>
 
             <Field>
@@ -141,12 +144,13 @@ export function CapacityFormDialog({ departmentId, departmentName, employeeCount
                   {...form.register("min_staff_count", { valueAsNumber: true })}
                 />
               </FieldContent>
-              <FieldError>{form.formState.errors.min_staff_count?.message}</FieldError>
+              <FieldError>{String(form.formState.errors.min_staff_count?.message ?? "")}</FieldError>
             </Field>
 
             {employeeCount > 0 && (
               <div className="rounded-md bg-muted/50 p-3 text-muted-foreground text-sm">
-                With <span className="font-medium text-foreground">{employeeCount}</span> employee{employeeCount !== 1 ? "s" : ""}, max{" "}
+                With <span className="font-medium text-foreground">{employeeCount}</span> employee
+                {employeeCount !== 1 ? "s" : ""}, max{" "}
                 <span className="font-medium text-foreground">{maxAbsentCount}</span> can be absent at{" "}
                 {maxAbsentPct ?? 0}%.
               </div>

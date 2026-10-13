@@ -50,8 +50,6 @@ interface LeaveCalendarProps {
   holidays: Holiday[];
 }
 
-
-
 const plugins = [dayGridPlugin, timeGridPlugin, listPlugin, interactionPlugin, multiMonthPlugin];
 
 export function LeaveCalendar({ departments, leaveTypes, holidays }: LeaveCalendarProps) {
@@ -153,14 +151,9 @@ export function LeaveCalendar({ departments, leaveTypes, holidays }: LeaveCalend
 
     return (
       <div className="flex w-full items-center gap-1 overflow-hidden px-1 py-0.5 text-xs">
-        <span
-          className="inline-block size-2 shrink-0 rounded-full"
-          style={{ backgroundColor: props.color }}
-        />
+        <span className="inline-block size-2 shrink-0 rounded-full" style={{ backgroundColor: props.color }} />
         <span className="truncate font-medium">{props.employee_name}</span>
-        <span className="hidden truncate text-[0.65rem] opacity-75 sm:inline">
-          {props.public_label}
-        </span>
+        <span className="hidden truncate text-[0.65rem] opacity-75 sm:inline">{props.public_label}</span>
       </div>
     );
   }, []);
@@ -285,13 +278,10 @@ export function LeaveCalendar({ departments, leaveTypes, holidays }: LeaveCalend
         </div>
 
         {/* Legend */}
-        <div className="flex flex-wrap items-center gap-4 border-b px-4 py-2 text-xs text-muted-foreground">
+        <div className="flex flex-wrap items-center gap-4 border-b px-4 py-2 text-muted-foreground text-xs">
           {leaveTypes.map((lt) => (
             <div key={lt.id} className="flex items-center gap-1.5">
-              <span
-                className="inline-block size-2.5 rounded-full"
-                style={{ backgroundColor: lt.color }}
-              />
+              <span className="inline-block size-2.5 rounded-full" style={{ backgroundColor: lt.color }} />
               {lt.name}
             </div>
           ))}

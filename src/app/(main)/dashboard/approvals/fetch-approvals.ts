@@ -1,9 +1,16 @@
 "use server";
 
-
-
 import { getAuthenticatedUser } from "@/lib/auth/get-authenticated-user";
-import { createAdminClient } from "@/lib/supabase/admin";
+import {
+  getRpcResultBoolean,
+  getRpcResultNullableString,
+  getRpcResultNumber,
+  getRpcResultObject,
+  getRpcResultString,
+  hasRpcResultFields,
+} from "@/lib/supabase/rpc-result";
+import { createClient } from "@/lib/supabase/server";
+import { getUntypedRpc } from "@/lib/supabase/untyped-rpc";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -31,108 +38,58 @@ export interface FetchApprovalsResult {
   capacityWarnings: Record<string, string>;
 }
 
-// ---------------------------------------------------------------------------
-// Server action
-// ---------------------------------------------------------------------------
+function mapApprovalRequest(row: unknown): ApprovalRequest {
+  const record = getRpcResultObject(row);
+  const leaveType = getRpcResultObject(record.leave_types);
+  const employee = getRpcResultObject(record.employees);
+
+  return {
+    id: getRpcResultString(record, "id"),
+    request_number: getRpcResultNullableString(record, "request_number"),
+    start_date: getRpcResultString(record, "start_date"),
+    end_date: getRpcResultString(record, "end_date"),
+    requested_days: getRpcResultNumber(record, "requested_days"),
+    created_at: getRpcResultString(record, "created_at"),
+    employee_id: getRpcResultString(record, "employee_id"),
+    leave_types: hasRpcResultFields(leaveType)
+      ? {
+          name: getRpcResultString(leaveType, "name"),
+          color: getRpcResultString(leaveType, "color"),
+          code: getRpcResultString(leaveType, "code"),
+        }
+      : null,
+    employees: hasRpcResultFields(employee)
+      ? {
+          id: getRpcResultString(employee, "id"),
+          full_name: getRpcResultString(employee, "full_name"),
+          employee_code: getRpcResultString(employee, "employee_code"),
+          department_id: getRpcResultNullableString(employee, "department_id"),
+        }
+      : null,
+  };
+}
 
 export async function fetchApprovals(): Promise<FetchApprovalsResult> {
-  const { employee: actor } = await getAuthenticatedUser();
+  await getAuthenticatedUser();
 
-  const supabase = createAdminClient();
-  const today = new Date().toISOString().split("T")[0];
+  const supabase = await createClient();
+  const rpc = getUntypedRpc(supabase);
+  const { data, error } = await rpc("get_pending_approval_requests");
 
-  // ---- Direct pending requests based on role ----
-  let directRequests: ApprovalRequest[] = [];
-
-  if (actor.role === "ADMIN") {
-    // Admin sees ALL pending requests
-    const { data } = await supabase
-      .from("leave_requests")
-      .select(
-        "*, leave_types(name, color, code), employees!leave_requests_employee_id_fk(id, full_name, employee_code, department_id)",
-      )
-      .eq("status", "PENDING")
-      .order("created_at", { ascending: true });
-    directRequests = (data ?? []) as ApprovalRequest[];
-  } else if (actor.role === "MANAGER") {
-    // Manager sees requests from their direct reports
-    const { data: reportIds } = await supabase
-      .from("employees")
-      .select("id")
-      .eq("manager_id", actor.id);
-
-    const ids = (reportIds ?? []).map((e) => e.id);
-    if (ids.length > 0) {
-      const { data } = await supabase
-        .from("leave_requests")
-        .select(
-          "*, leave_types(name, color, code), employees!leave_requests_employee_id_fk(id, full_name, employee_code, department_id)",
-        )
-        .eq("status", "PENDING")
-        .in("employee_id", ids)
-        .order("created_at", { ascending: true });
-      directRequests = (data ?? []) as ApprovalRequest[];
-    }
-  }
-  // EMPLOYEE role: no direct requests (only delegation below)
-
-  // ---- Delegation: find active delegations TO the current user ----
-  const { data: activeDelegations } = await supabase
-    .from("approval_delegations")
-    .select("delegator_id")
-    .eq("delegate_id", actor.id)
-    .eq("is_active", true)
-    .lte("start_date", today)
-    .gte("end_date", today);
-
-  const delegatorIds = (activeDelegations ?? []).map((d) => d.delegator_id);
-
-  // Fetch pending leave requests from employees managed by delegators
-  let delegatedRequests: ApprovalRequest[] = [];
-  if (delegatorIds.length > 0) {
-    const { data: delegatedEmployees } = await supabase
-      .from("employees")
-      .select("id")
-      .in("manager_id", delegatorIds);
-
-    const delegatedEmployeeIds = (delegatedEmployees ?? []).map((e) => e.id);
-
-    if (delegatedEmployeeIds.length > 0) {
-      const { data: dRequests } = await supabase
-        .from("leave_requests")
-        .select(
-          "*, leave_types(name, color, code), employees!leave_requests_employee_id_fk(id, full_name, employee_code, department_id)",
-        )
-        .eq("status", "PENDING")
-        .in("employee_id", delegatedEmployeeIds)
-        .order("created_at", { ascending: true });
-
-      delegatedRequests = (dRequests ?? []) as ApprovalRequest[];
-    }
+  if (error) {
+    throw new Error(error.message ?? "Failed to fetch approvals.");
   }
 
-  // ---- Merge & deduplicate ----
-  const allRequests = [...directRequests, ...delegatedRequests];
-  const uniqueRequestMap = new Map(allRequests.map((r) => [r.id, r]));
-  const mergedRequests = Array.from(uniqueRequestMap.values());
-
-  // Filter out actor's own requests (self-approval prevention)
-  const filteredRequests = mergedRequests.filter(
-    (r) => r.employee_id !== actor.id,
-  );
+  const requests = Array.isArray(data) ? data.map(mapApprovalRequest) : [];
 
   // ---- Capacity warnings (batched by dept+dates) ----
   const capacityWarnings: Record<string, string> = {};
 
   const capacityKeyToRequestIds = new Map<string, string[]>();
-  const capacityKeyToParams = new Map<
-    string,
-    { deptId: string; start: string; end: string }
-  >();
+  const capacityKeyToParams = new Map<string, { deptId: string; start: string; end: string }>();
 
-  for (const req of filteredRequests) {
-    const deptId = (req.employees as Record<string, unknown>)
-      ?.department_id as string | undefined;
+  for (const req of requests) {
+    const deptId = req.employees?.department_id ?? undefined;
     if (deptId) {
       const key = `${deptId}|${req.start_date}|${req.end_date}`;
       if (!capacityKeyToRequestIds.has(key)) {
@@ -143,7 +100,10 @@ export async function fetchApprovals(): Promise<FetchApprovalsResult> {
           end: req.end_date,
         });
       }
-      capacityKeyToRequestIds.get(key)!.push(req.id);
+      const requestIds = capacityKeyToRequestIds.get(key);
+      if (requestIds) {
+        requestIds.push(req.id);
+      }
     }
   }
 
@@ -163,12 +123,9 @@ export async function fetchApprovals(): Promise<FetchApprovalsResult> {
     const [key] = capacityEntries[i];
     const settled = capacityResults[i];
     if (settled.status === "fulfilled") {
-      const result = settled.value.data as Record<string, unknown> | null;
-      if (result?.warning) {
-        const message =
-          (result.message as string) ??
-          "Department capacity may be exceeded.";
-        for (const reqId of capacityKeyToRequestIds.get(key)!) {
+      if (getRpcResultBoolean(settled.value.data, "warning")) {
+        const message = getRpcResultString(settled.value.data, "message") || "Department capacity may be exceeded.";
+        for (const reqId of capacityKeyToRequestIds.get(key) ?? []) {
           capacityWarnings[reqId] = message;
         }
       }
@@ -177,7 +134,7 @@ export async function fetchApprovals(): Promise<FetchApprovalsResult> {
   }
 
   return {
-    requests: filteredRequests as ApprovalRequest[],
+    requests,
     capacityWarnings,
   };
 }

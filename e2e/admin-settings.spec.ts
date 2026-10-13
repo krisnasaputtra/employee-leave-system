@@ -1,4 +1,5 @@
-import { test, expect } from "@playwright/test";
+import { expect, test } from "@playwright/test";
+
 import { loginAsAdmin, loginAsEmployee } from "./helpers/auth";
 
 /**
@@ -32,7 +33,10 @@ test.describe("Admin Settings — Departments", () => {
     const table = page.locator("table");
     const list = page.locator('[role="list"], [role="grid"], ul, ol');
     const hasTable = await table.isVisible().catch(() => false);
-    const hasList = await list.first().isVisible().catch(() => false);
+    const hasList = await list
+      .first()
+      .isVisible()
+      .catch(() => false);
     expect(hasTable || hasList).toBeTruthy();
   });
 
@@ -64,9 +68,7 @@ test.describe("Admin Settings — Leave Types", () => {
     await page.waitForLoadState("networkidle");
 
     // Heading should reference leave types
-    await expect(
-      page.getByRole("heading", { name: /leave type/i }),
-    ).toBeVisible({ timeout: 15000 });
+    await expect(page.getByRole("heading", { name: /leave type/i })).toBeVisible({ timeout: 15000 });
 
     // Should display leave type entries (table rows, list items, or cards)
     const table = page.locator("table");
@@ -74,7 +76,10 @@ test.describe("Admin Settings — Leave Types", () => {
     const hasTable = await table.isVisible().catch(() => false);
     const hasCards =
       (await cards.count().catch(() => 0)) > 0 &&
-      (await cards.first().isVisible().catch(() => false));
+      (await cards
+        .first()
+        .isVisible()
+        .catch(() => false));
     expect(hasTable || hasCards).toBeTruthy();
   });
 
@@ -110,11 +115,12 @@ test.describe("Admin Settings — Holidays", () => {
 
     // Should render a table or list of holidays
     const table = page.locator("table");
-    const list = page.locator(
-      '[role="list"], [role="grid"], ul, ol, [class*="card"]',
-    );
+    const list = page.locator('[role="list"], [role="grid"], ul, ol, [class*="card"]');
     const hasTable = await table.isVisible().catch(() => false);
-    const hasList = await list.first().isVisible().catch(() => false);
+    const hasList = await list
+      .first()
+      .isVisible()
+      .catch(() => false);
     expect(hasTable || hasList).toBeTruthy();
   });
 });
@@ -136,12 +142,8 @@ test.describe("Employee — Settings Access Control", () => {
     const url = page.url();
     const body = await page.locator("body").textContent();
 
-    const wasRedirected =
-      !url.includes("/settings/departments") || url.includes("/dashboard");
-    const showsUnauthorized =
-      /unauthorized|forbidden|access denied|not allowed|403/i.test(
-        body ?? "",
-      );
+    const wasRedirected = !url.includes("/settings/departments") || url.includes("/dashboard");
+    const showsUnauthorized = /unauthorized|forbidden|access denied|not allowed|403/i.test(body ?? "");
 
     // Either redirected away from settings OR shown an access-denied message
     expect(wasRedirected || showsUnauthorized).toBeTruthy();
@@ -154,12 +156,8 @@ test.describe("Employee — Settings Access Control", () => {
     const url = page.url();
     const body = await page.locator("body").textContent();
 
-    const wasRedirected =
-      !url.includes("/settings/leave-types") || url.includes("/dashboard");
-    const showsUnauthorized =
-      /unauthorized|forbidden|access denied|not allowed|403/i.test(
-        body ?? "",
-      );
+    const wasRedirected = !url.includes("/settings/leave-types") || url.includes("/dashboard");
+    const showsUnauthorized = /unauthorized|forbidden|access denied|not allowed|403/i.test(body ?? "");
 
     expect(wasRedirected || showsUnauthorized).toBeTruthy();
   });
@@ -171,12 +169,8 @@ test.describe("Employee — Settings Access Control", () => {
     const url = page.url();
     const body = await page.locator("body").textContent();
 
-    const wasRedirected =
-      !url.includes("/settings/holidays") || url.includes("/dashboard");
-    const showsUnauthorized =
-      /unauthorized|forbidden|access denied|not allowed|403/i.test(
-        body ?? "",
-      );
+    const wasRedirected = !url.includes("/settings/holidays") || url.includes("/dashboard");
+    const showsUnauthorized = /unauthorized|forbidden|access denied|not allowed|403/i.test(body ?? "");
 
     expect(wasRedirected || showsUnauthorized).toBeTruthy();
   });

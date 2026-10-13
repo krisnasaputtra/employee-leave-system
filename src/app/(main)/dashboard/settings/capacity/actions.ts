@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 
 import { z } from "zod";
 
+import { auditMetadata } from "@/lib/audit/metadata";
 import { getAuthenticatedUser } from "@/lib/auth/get-authenticated-user";
 import { canManageConfiguration } from "@/lib/permissions";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -66,7 +67,7 @@ export async function upsertCapacityRuleAction(input: Record<string, unknown>): 
       .eq("department_id", parsed.data.department_id)
       .maybeSingle();
 
-    let error;
+    let error: { message?: string } | null = null;
 
     if (existing) {
       // Update existing rule
@@ -99,10 +100,10 @@ export async function upsertCapacityRuleAction(input: Record<string, unknown>): 
       action: existing ? "CAPACITY_RULE_UPDATED" : "CAPACITY_RULE_CREATED",
       entity_type: "workforce_capacity_rule",
       entity_id: existing?.id ?? null,
-      metadata: {
+      metadata: auditMetadata({
         department_id: parsed.data.department_id,
         max_absent_percentage: parsed.data.max_absent_percentage,
-      } as unknown as Record<string, string>,
+      }),
     });
 
     // 6. Revalidate
@@ -156,7 +157,7 @@ export async function deleteCapacityRuleAction(id: string): Promise<ActionResult
       action: "CAPACITY_RULE_DELETED",
       entity_type: "workforce_capacity_rule",
       entity_id: id,
-      metadata: {} as unknown as Record<string, string>,
+      metadata: auditMetadata({}),
     });
 
     // 6. Revalidate

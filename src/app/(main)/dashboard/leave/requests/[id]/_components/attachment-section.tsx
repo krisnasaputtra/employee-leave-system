@@ -45,6 +45,8 @@ export function AttachmentSection({ requestId, attachments, canUpload, canRemove
   const [uploadError, setUploadError] = useState("");
 
   function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    if (isPending) return;
+
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -95,7 +97,7 @@ export function AttachmentSection({ requestId, attachments, canUpload, canRemove
           <Upload className="h-4 w-4" />
           Attachments
           {attachments.length > 0 && (
-            <span className="text-muted-foreground text-sm font-normal">({attachments.length})</span>
+            <span className="font-normal text-muted-foreground text-sm">({attachments.length})</span>
           )}
         </CardTitle>
       </CardHeader>
@@ -119,7 +121,7 @@ export function AttachmentSection({ requestId, attachments, canUpload, canRemove
                     className="h-8 w-8 shrink-0 text-destructive hover:text-destructive"
                     disabled={isPending}
                     onClick={() => handleRemove(att.id, att.original_name)}
-                    aria-label="Delete attachment"
+                    aria-label={`Delete attachment ${att.original_name}`}
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>
@@ -136,16 +138,24 @@ export function AttachmentSection({ requestId, attachments, canUpload, canRemove
           <div className="mt-3 space-y-2">
             <div className="flex items-center gap-2">
               <Input
+                id="leave-request-attachment-upload"
                 type="file"
                 accept=".pdf,.jpg,.jpeg,.png"
                 onChange={handleUpload}
                 disabled={isPending}
                 className="text-sm"
+                aria-label="Upload attachment"
+                aria-invalid={uploadError ? "true" : "false"}
+                aria-describedby={uploadError ? "leave-request-attachment-upload-error" : undefined}
               />
               {isPending && <Loader2 className="h-4 w-4 shrink-0 animate-spin" />}
             </div>
             <p className="text-muted-foreground text-xs">PDF, JPEG, or PNG. Max 5 MB.</p>
-            {uploadError && <p className="text-destructive text-sm">{uploadError}</p>}
+            {uploadError && (
+              <p id="leave-request-attachment-upload-error" className="text-destructive text-sm">
+                {uploadError}
+              </p>
+            )}
           </div>
         )}
       </CardContent>

@@ -2,20 +2,18 @@
 
 import { revalidatePath } from "next/cache";
 
-import { isNextInternalError } from "@/lib/utils/server-action-utils";
-
-import { delegationCreateSchema } from "@/lib/delegations/schemas";
 import { getAuthenticatedUser } from "@/lib/auth/get-authenticated-user";
+import { delegationCreateSchema, delegationIdSchema } from "@/lib/delegations/schemas";
 import { createClient } from "@/lib/supabase/server";
+import { sanitizeDbError } from "@/lib/utils/sanitize-error";
+import { isNextInternalError } from "@/lib/utils/server-action-utils";
 
 interface ActionResult {
   success: boolean;
   error?: string;
 }
 
-export async function createDelegationAction(
-  input: Record<string, unknown>,
-): Promise<ActionResult> {
+export async function createDelegationAction(input: Record<string, unknown>): Promise<ActionResult> {
   try {
     const { employee: actor } = await getAuthenticatedUser();
 
@@ -59,7 +57,7 @@ export async function createDelegationAction(
     });
 
     if (error) {
-      return { success: false, error: error.message ?? "Failed to create delegation." };
+      return { success: false, error: sanitizeDbError(error, "Failed to create delegation.") };
     }
 
     revalidatePath("/dashboard/delegations");
@@ -72,11 +70,14 @@ export async function createDelegationAction(
   }
 }
 
-export async function revokeDelegationAction(
-  delegationId: string,
-): Promise<ActionResult> {
+export async function revokeDelegationAction(delegationId: string): Promise<ActionResult> {
   try {
     const { employee: actor } = await getAuthenticatedUser();
+
+    const parsedDelegationId = delegationIdSchema.safeParse(delegationId);
+    if (!parsedDelegationId.success) {
+      return { success: false, error: parsedDelegationId.error.issues[0]?.message ?? "Validation failed." };
+    }
 
     const supabase = await createClient();
 
@@ -84,7 +85,7 @@ export async function revokeDelegationAction(
     const { data: delegation } = await supabase
       .from("approval_delegations")
       .select("delegator_id")
-      .eq("id", delegationId)
+      .eq("id", parsedDelegationId.data)
       .single();
 
     if (!delegation) {
@@ -98,10 +99,10 @@ export async function revokeDelegationAction(
     const { error } = await supabase
       .from("approval_delegations")
       .update({ is_active: false, updated_at: new Date().toISOString() })
-      .eq("id", delegationId);
+      .eq("id", parsedDelegationId.data);
 
     if (error) {
-      return { success: false, error: error.message ?? "Failed to revoke delegation." };
+      return { success: false, error: sanitizeDbError(error, "Failed to revoke delegation.") };
     }
 
     revalidatePath("/dashboard/delegations");

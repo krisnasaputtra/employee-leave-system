@@ -1,4 +1,5 @@
-import { test, expect } from "@playwright/test";
+import { expect, test } from "@playwright/test";
+
 import { loginAsAdmin, loginAsEmployee } from "./helpers/auth";
 
 /**
@@ -34,13 +35,14 @@ test.describe("Admin — Manage Balances", () => {
 
     // Should render an employee list — table, cards, or list items
     const table = page.locator("table");
-    const cards = page.locator(
-      '[class*="card"], [role="listitem"], [role="row"]',
-    );
+    const cards = page.locator('[class*="card"], [role="listitem"], [role="row"]');
     const hasTable = await table.isVisible().catch(() => false);
     const hasCards =
       (await cards.count().catch(() => 0)) > 0 &&
-      (await cards.first().isVisible().catch(() => false));
+      (await cards
+        .first()
+        .isVisible()
+        .catch(() => false));
 
     expect(hasTable || hasCards).toBeTruthy();
   });
@@ -67,9 +69,7 @@ test.describe("Admin — Manage Balances", () => {
     const pagination = page
       .locator('nav[aria-label*="pagination" i]')
       .or(page.locator('[class*="pagination"]'))
-      .or(
-        page.locator("button").filter({ hasText: /next|previous|›|»|‹|«/i }),
-      )
+      .or(page.locator("button").filter({ hasText: /next|previous|›|»|‹|«/i }))
       .or(page.getByRole("navigation", { name: /pagination/i }));
 
     // Pagination may not appear if there are fewer items than page size
@@ -108,9 +108,7 @@ test.describe("Employee — Leave Balances", () => {
     await expect(page.locator("body")).toContainText(/balance/i);
   });
 
-  test("balances page shows entitled, used, and remaining info", async ({
-    page,
-  }) => {
+  test("balances page shows entitled, used, and remaining info", async ({ page }) => {
     await page.goto("/dashboard/leave/balances");
     await page.waitForLoadState("networkidle");
 
@@ -123,9 +121,7 @@ test.describe("Employee — Leave Balances", () => {
     const hasRemaining = /remaining|available|left/i.test(body ?? "");
 
     // At least two of the three indicators should be present
-    const matchCount = [hasEntitled, hasUsed, hasRemaining].filter(
-      Boolean,
-    ).length;
+    const matchCount = [hasEntitled, hasUsed, hasRemaining].filter(Boolean).length;
     expect(matchCount).toBeGreaterThanOrEqual(2);
   });
 
@@ -135,13 +131,14 @@ test.describe("Employee — Leave Balances", () => {
 
     // Should render balance data in cards, table, or list format
     const table = page.locator("table");
-    const cards = page.locator(
-      '[class*="card"], [class*="balance"], [role="listitem"]',
-    );
+    const cards = page.locator('[class*="card"], [class*="balance"], [role="listitem"]');
     const hasTable = await table.isVisible().catch(() => false);
     const hasCards =
       (await cards.count().catch(() => 0)) > 0 &&
-      (await cards.first().isVisible().catch(() => false));
+      (await cards
+        .first()
+        .isVisible()
+        .catch(() => false));
 
     expect(hasTable || hasCards).toBeTruthy();
   });

@@ -50,14 +50,18 @@ export function DepartmentToggleButton({ departmentId, isActive, name }: Props) 
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>{isActive ? t("settings.deactivateDepartment") : t("settings.activateDepartment")}</AlertDialogTitle>
+          <AlertDialogTitle>
+            {isActive ? t("settings.deactivateDepartment") : t("settings.activateDepartment")}
+          </AlertDialogTitle>
           <AlertDialogDescription>
             {`${isActive ? t("common.deactivate") : t("common.activate")} ${name}?`}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
-          <AlertDialogAction onClick={handleToggle}>{isActive ? t("common.deactivate") : t("common.activate")}</AlertDialogAction>
+          <AlertDialogAction onClick={handleToggle}>
+            {isActive ? t("common.deactivate") : t("common.activate")}
+          </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

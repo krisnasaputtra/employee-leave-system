@@ -1,5 +1,6 @@
 import { z } from "zod";
 
+import { APPLICATION_ROLES, EMPLOYMENT_STATUSES } from "@/lib/permissions/roles";
 import { UUID_RE } from "@/lib/utils/constants";
 
 export const employeeCreateSchema = z.object({
@@ -13,12 +14,18 @@ export const employeeCreateSchema = z.object({
     .max(100, "Full name must be at most 100 characters."),
   work_email: z.string().email("Please enter a valid email address."),
   phone_number: z.string().max(20).optional().or(z.literal("")),
-  department_id: z.string().min(1, "Please select a department.").regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "Invalid department selected."),
+  department_id: z
+    .string()
+    .min(1, "Please select a department.")
+    .regex(
+      /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/,
+      "Invalid department selected.",
+    ),
   position: z.string().min(1, "Position is required.").max(100),
   manager_id: z.string().regex(UUID_RE).optional().or(z.literal("")),
   join_date: z.string().min(1, "Join date is required."),
-  role: z.enum(["ADMIN", "MANAGER", "EMPLOYEE"]),
-  status: z.enum(["ACTIVE", "INACTIVE", "TERMINATED"]),
+  role: z.enum(APPLICATION_ROLES),
+  status: z.enum(EMPLOYMENT_STATUSES),
   create_account: z.boolean(),
   temporary_password: z.string().optional(),
 });
@@ -33,8 +40,8 @@ export const employeeUpdateSchema = z.object({
   position: z.string().min(1).max(100).optional(),
   manager_id: z.string().regex(UUID_RE).optional().or(z.literal("")),
   join_date: z.string().optional(),
-  role: z.enum(["ADMIN", "MANAGER", "EMPLOYEE"]).optional(),
-  status: z.enum(["ACTIVE", "INACTIVE", "TERMINATED"]).optional(),
+  role: z.enum(APPLICATION_ROLES).optional(),
+  status: z.enum(EMPLOYMENT_STATUSES).optional(),
 });
 
 export type EmployeeUpdateInput = z.infer<typeof employeeUpdateSchema>;

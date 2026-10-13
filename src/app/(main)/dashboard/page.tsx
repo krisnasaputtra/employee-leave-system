@@ -16,6 +16,12 @@ import { LeaveBalanceChart } from "./_components/leave-balance-chart";
 import { MonthlyTrendChart } from "./_components/monthly-trend-chart";
 import { StatusDistributionChart } from "./_components/status-distribution-chart";
 
+type SupabaseServerClient = Awaited<ReturnType<typeof createClient>>;
+
+function mapRpcJson<T>(data: unknown): T {
+  return data as T;
+}
+
 /* ---------- Employee Dashboard Types ---------- */
 interface EmployeeDashboardData {
   remaining_leave: number;
@@ -141,11 +147,7 @@ function EmployeeDashboard({ data }: { data: EmployeeDashboardData }) {
           <CardDescription>Used vs Remaining vs Pending</CardDescription>
         </CardHeader>
         <CardContent>
-          <LeaveBalanceChart
-            used={data.used_days}
-            pending={data.pending_days}
-            remaining={data.remaining_leave}
-          />
+          <LeaveBalanceChart used={data.used_days} pending={data.pending_days} remaining={data.remaining_leave} />
         </CardContent>
       </Card>
 
@@ -200,7 +202,9 @@ function EmployeeDashboard({ data }: { data: EmployeeDashboardData }) {
                   </TableCell>
                   <TableCell className="text-right">{r.requested_days}</TableCell>
                   <TableCell>
-                    <Badge variant="outline" className={STATUS_BADGE_STYLES[r.status]?.className}>{STATUS_BADGE_STYLES[r.status]?.label ?? r.status}</Badge>
+                    <Badge variant="outline" className={STATUS_BADGE_STYLES[r.status]?.className}>
+                      {STATUS_BADGE_STYLES[r.status]?.label ?? r.status}
+                    </Badge>
                   </TableCell>
                 </TableRow>
               ))}
@@ -254,8 +258,8 @@ function ManagerDashboard({ empData, mgrData }: { empData: EmployeeDashboardData
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {mgrData.upcoming_leave.map((item, i) => (
-                  <TableRow key={`upcoming-${i}`}>
+                {mgrData.upcoming_leave.map((item) => (
+                  <TableRow key={`${item.employee_name}-${item.leave_type}-${item.start_date}-${item.end_date}`}>
                     <TableCell className="font-medium">{item.employee_name}</TableCell>
                     <TableCell>{item.leave_type}</TableCell>
                     <TableCell>
@@ -300,7 +304,9 @@ function ManagerDashboard({ empData, mgrData }: { empData: EmployeeDashboardData
                     <TableCell>{r.employee_name}</TableCell>
                     <TableCell>{r.leave_type}</TableCell>
                     <TableCell>
-                      <Badge variant="outline" className={STATUS_BADGE_STYLES[r.status]?.className}>{STATUS_BADGE_STYLES[r.status]?.label ?? r.status}</Badge>
+                      <Badge variant="outline" className={STATUS_BADGE_STYLES[r.status]?.className}>
+                        {STATUS_BADGE_STYLES[r.status]?.label ?? r.status}
+                      </Badge>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -388,15 +394,15 @@ function AdminDashboard({ data }: { data: AdminDashboardData }) {
               <TableBody>
                 {data.recent_requests.map((req) => (
                   <TableRow key={req.id}>
-                    <TableCell className="font-medium">
-                      {req.employees?.full_name ?? "—"}
-                    </TableCell>
+                    <TableCell className="font-medium">{req.employees?.full_name ?? "—"}</TableCell>
                     <TableCell>{req.leave_types?.name ?? "—"}</TableCell>
                     <TableCell>
                       {formatDate(req.start_date)} — {formatDate(req.end_date)}
                     </TableCell>
                     <TableCell>
-                      <Badge variant="outline" className={STATUS_BADGE_STYLES[req.status]?.className}>{STATUS_BADGE_STYLES[req.status]?.label ?? req.status}</Badge>
+                      <Badge variant="outline" className={STATUS_BADGE_STYLES[req.status]?.className}>
+                        {STATUS_BADGE_STYLES[req.status]?.label ?? req.status}
+                      </Badge>
                     </TableCell>
                     <TableCell className="text-muted-foreground">
                       {new Date(req.created_at).toLocaleString("en-US", {
@@ -428,11 +434,7 @@ export default async function DashboardPage() {
 
   return (
     <div className="@container/main flex flex-col gap-4 md:gap-6">
-      <DashboardHeader
-        fullName={employee.full_name}
-        role={employee.role}
-        position={employee.position}
-      />
+      <DashboardHeader fullName={employee.full_name} role={employee.role} position={employee.position} />
 
       {employee.role === "ADMIN" ? (
         <AdminDashboardSection supabase={supabase} />
@@ -446,28 +448,25 @@ export default async function DashboardPage() {
 }
 
 /* ---------- Async sub-sections ---------- */
-// biome-ignore lint/suspicious/noExplicitAny: Supabase client type
-async function EmployeeDashboardSection({ supabase }: { supabase: any }) {
+async function EmployeeDashboardSection({ supabase }: { supabase: SupabaseServerClient }) {
   const { data } = await supabase.rpc("get_employee_dashboard");
-  const empData = data as EmployeeDashboardData;
+  const empData = mapRpcJson<EmployeeDashboardData>(data);
 
   return <EmployeeDashboard data={empData} />;
 }
 
-// biome-ignore lint/suspicious/noExplicitAny: Supabase client type
-async function ManagerDashboardSection({ supabase }: { supabase: any }) {
+async function ManagerDashboardSection({ supabase }: { supabase: SupabaseServerClient }) {
   const [{ data: empRaw }, { data: mgrRaw }] = await Promise.all([
     supabase.rpc("get_employee_dashboard"),
     supabase.rpc("get_manager_dashboard"),
   ]);
-  const empData = empRaw as EmployeeDashboardData;
-  const mgrData = mgrRaw as ManagerDashboardData;
+  const empData = mapRpcJson<EmployeeDashboardData>(empRaw);
+  const mgrData = mapRpcJson<ManagerDashboardData>(mgrRaw);
 
   return <ManagerDashboard empData={empData} mgrData={mgrData} />;
 }
 
-// biome-ignore lint/suspicious/noExplicitAny: Supabase client type
-async function AdminDashboardSection({ supabase }: { supabase: any }) {
+async function AdminDashboardSection({ supabase }: { supabase: SupabaseServerClient }) {
   const MONTH_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
   interface AdminDashboardRpcResult {
@@ -502,11 +501,11 @@ async function AdminDashboardSection({ supabase }: { supabase: any }) {
       .limit(10),
   ]);
 
-  const rawData = data as AdminDashboardRpcResult;
+  const rawData = mapRpcJson<AdminDashboardRpcResult>(data);
 
   // Transform monthly_trend: RPC returns {month: 1, total_days: 5} → chart needs {month: "Jan", count: 5}
   const transformedTrend = (rawData.monthly_trend ?? []).map((item) => ({
-    month: MONTH_NAMES[(item.month - 1)] ?? String(item.month),
+    month: MONTH_NAMES[item.month - 1] ?? String(item.month),
     count: Number(item.total_days) || 0,
   }));
 
@@ -518,4 +517,3 @@ async function AdminDashboardSection({ supabase }: { supabase: any }) {
 
   return <AdminDashboard data={adminData} />;
 }
-

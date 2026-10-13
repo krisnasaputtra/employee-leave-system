@@ -10,7 +10,7 @@ export default function AuthLayout({ children }: Readonly<{ children: ReactNode 
       <div className="grid h-dvh justify-center p-2 lg:grid-cols-2">
         <div className="relative order-2 hidden h-full rounded-3xl bg-primary lg:flex">
           <div className="absolute top-10 space-y-1 px-10 text-primary-foreground">
-            <Image src="/lrm-logo.png" alt="LRM Logo" width={120} height={60} className="mb-4" />
+            <Image src="/lrm-logo.png" alt="LRM Logo" width={120} height={60} className="mb-4 h-auto w-auto" />
             <p className="font-medium text-2xl">{APP_CONFIG.name}</p>
             <p className="text-sm">Leave Request Management</p>
           </div>

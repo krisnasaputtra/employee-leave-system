@@ -8,7 +8,9 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { getAuditMetadataObject } from "@/lib/audit/metadata";
 import { getAuthenticatedUser } from "@/lib/auth/get-authenticated-user";
+import { canViewLeaveRequest } from "@/lib/leave-requests/access";
 import { canApproveLeaveRequest } from "@/lib/permissions";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { STATUS_BADGE_STYLES } from "@/lib/ui/badge-variants";
@@ -16,8 +18,8 @@ import { formatDate } from "@/lib/utils/format-date";
 
 import { AttachmentSection } from "./_components/attachment-section";
 import { CancelRequestButton } from "./_components/cancel-request-button";
-import { DownloadButton } from "./_components/download-button";
 import { CommentSection } from "./_components/comment-section";
+import { DownloadButton } from "./_components/download-button";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -30,7 +32,9 @@ export default async function LeaveRequestDetailPage({ params }: PageProps) {
 
   const { data: request, error } = await supabase
     .from("leave_requests")
-    .select("id, request_number, employee_id, status, start_date, end_date, requested_days, partial_day, reason, created_at, decided_at, rejection_reason, leave_types(name, color, code), employees!leave_requests_employee_id_fk(full_name, employee_code)")
+    .select(
+      "id, request_number, employee_id, status, start_date, end_date, requested_days, partial_day, reason, created_at, decided_at, rejection_reason, leave_types(name, color, code), employees!leave_requests_employee_id_fk(full_name, employee_code)",
+    )
     .eq("id", id)
     .single();
 
@@ -57,6 +61,7 @@ export default async function LeaveRequestDetailPage({ params }: PageProps) {
 
   const isOwner = request.employee_id === actor.id;
   const isPending = request.status === "PENDING";
+  let hasActiveApprovalDelegation = false;
   let canApprove = canApproveLeaveRequest(
     actor.role,
     actor.id,
@@ -77,11 +82,24 @@ export default async function LeaveRequestDetailPage({ params }: PageProps) {
       .gte("end_date", today)
       .limit(1);
     if (delegation && delegation.length > 0) {
+      hasActiveApprovalDelegation = true;
       canApprove = true;
     }
   }
 
-  // Fetch attachments (RLS-scoped: owner, manager, admin)
+  const canView = canViewLeaveRequest({
+    actorId: actor.id,
+    actorRole: actor.role,
+    requesterId: request.employee_id,
+    requesterManagerId: requesterEmployee?.manager_id ?? null,
+    hasActiveApprovalDelegation,
+  });
+
+  if (!canView) {
+    redirect("/dashboard/leave/requests");
+  }
+
+  // Access is guarded above before reading attachments or activity.
   const { data: attachments } = await supabase
     .from("leave_request_attachments")
     .select("id, original_name, mime_type, size_bytes, created_at")
@@ -97,22 +115,11 @@ export default async function LeaveRequestDetailPage({ params }: PageProps) {
     .order("created_at", { ascending: true });
 
   // Resolve actor names for the activity timeline
-  const actorIds = [
-    ...new Set(
-      (auditEvents ?? [])
-        .map((e) => e.actor_employee_id)
-        .filter(Boolean) as string[]
-    ),
-  ];
+  const actorIds = [...new Set((auditEvents ?? []).map((e) => e.actor_employee_id).filter(Boolean) as string[])];
   let actorNameMap: Record<string, string> = {};
   if (actorIds.length > 0) {
-    const { data: actors } = await supabase
-      .from("employees")
-      .select("id, full_name")
-      .in("id", actorIds);
-    actorNameMap = Object.fromEntries(
-      (actors ?? []).map((a) => [a.id, a.full_name])
-    );
+    const { data: actors } = await supabase.from("employees").select("id, full_name").in("id", actorIds);
+    actorNameMap = Object.fromEntries((actors ?? []).map((a) => [a.id, a.full_name]));
   }
 
   // Enrich events with actor names
@@ -122,9 +129,9 @@ export default async function LeaveRequestDetailPage({ params }: PageProps) {
     created_at: e.created_at,
     actor_employee_id: e.actor_employee_id,
     metadata: {
-      ...(e.metadata as Record<string, unknown> | null),
+      ...getAuditMetadataObject(e.metadata),
       actor_name:
-        (e.metadata as Record<string, unknown> | null)?.actor_name ??
+        getAuditMetadataObject(e.metadata).actor_name ??
         (e.actor_employee_id ? actorNameMap[e.actor_employee_id] : null) ??
         "System",
     },
@@ -148,7 +155,9 @@ export default async function LeaveRequestDetailPage({ params }: PageProps) {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <h1 className="font-semibold text-2xl tracking-tight">{request.request_number ?? "Leave Request"}</h1>
-          <Badge variant="outline" className={STATUS_BADGE_STYLES[request.status]?.className}>{STATUS_BADGE_STYLES[request.status]?.label ?? request.status}</Badge>
+          <Badge variant="outline" className={STATUS_BADGE_STYLES[request.status]?.className}>
+            {STATUS_BADGE_STYLES[request.status]?.label ?? request.status}
+          </Badge>
         </div>
 
         {isOwner && isPending && (
@@ -312,10 +321,7 @@ export default async function LeaveRequestDetailPage({ params }: PageProps) {
       )}
 
       {/* Comments & Activity */}
-      <CommentSection
-        requestId={id}
-        events={enrichedEvents}
-      />
+      <CommentSection requestId={id} events={enrichedEvents} />
     </div>
   );
 }

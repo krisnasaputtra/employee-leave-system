@@ -2,8 +2,6 @@
 
 import { useState, useTransition } from "react";
 
-import { useRouter } from "next/navigation";
-
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
@@ -23,7 +21,6 @@ const loginSchema = z.object({
 type LoginFormValues = z.infer<typeof loginSchema>;
 
 export function LoginForm() {
-  const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [serverError, setServerError] = useState<string | null>(null);
 
@@ -48,13 +45,23 @@ export function LoginForm() {
   return (
     <form noValidate onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4">
       {serverError && (
-        <div role="alert" className="rounded-md bg-destructive/10 p-3 text-center text-destructive text-sm">{serverError}</div>
+        <div role="alert" className="rounded-md bg-destructive/10 p-3 text-center text-destructive text-sm">
+          {serverError}
+        </div>
       )}
       <FieldGroup>
         <Field>
           <FieldLabel htmlFor="email">Email</FieldLabel>
           <FieldContent>
-            <Input id="email" type="email" placeholder="name@company.com" autoComplete="email" aria-required="true" aria-describedby="email-error" {...form.register("email")} />
+            <Input
+              id="email"
+              type="email"
+              placeholder="name@company.com"
+              autoComplete="email"
+              aria-required="true"
+              aria-describedby="email-error"
+              {...form.register("email")}
+            />
           </FieldContent>
           <FieldError id="email-error">{form.formState.errors.email?.message}</FieldError>
         </Field>

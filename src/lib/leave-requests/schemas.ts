@@ -14,13 +14,16 @@ export const leaveRequestCreateSchema = z
     partial_day: z.enum(["NONE", "FIRST_HALF", "SECOND_HALF"]),
     reason: z.string().max(1000, "Reason must be at most 1000 characters.").optional().or(z.literal("")),
   })
-  .refine((data) => {
-    const today = new Date().toISOString().split("T")[0];
-    return data.start_date >= today;
-  }, {
-    message: "Start date cannot be in the past.",
-    path: ["start_date"],
-  })
+  .refine(
+    (data) => {
+      const today = new Date().toISOString().split("T")[0];
+      return data.start_date >= today;
+    },
+    {
+      message: "Start date cannot be in the past.",
+      path: ["start_date"],
+    },
+  )
   .refine((data) => data.start_date <= data.end_date, {
     message: "End date cannot be before start date.",
     path: ["end_date"],
@@ -30,3 +33,6 @@ export type LeaveRequestCreateInput = z.infer<typeof leaveRequestCreateSchema>;
 
 export const leaveRequestUpdateSchema = leaveRequestCreateSchema;
 export type LeaveRequestUpdateInput = z.infer<typeof leaveRequestUpdateSchema>;
+
+export const leaveRequestIdSchema = z.string().regex(UUID_RE, "Invalid leave request selected.");
+export type LeaveRequestIdInput = z.infer<typeof leaveRequestIdSchema>;

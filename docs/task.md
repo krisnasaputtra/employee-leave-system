@@ -1455,3 +1455,391 @@
 - [x] TanStack Query Integration — QueryProvider, mutation hooks, refactored notifications + approvals (0dbe9e7)
 
 ## 🎉 ALL 18/18 PLANNED FEATURES COMPLETE
+
+---
+
+# Post-Phase 18 - Release/Stabilization Closure
+
+## 1. Linked Supabase Migration History
+- [x] Renamed duplicate-date migration files to unique timestamp versions
+- [x] Repaired linked Supabase migration history (`20240626` legacy entry reverted, `20240626000000` recorded as applied)
+- [x] Applied pending linked Supabase migrations through `20260702000300_phase2_pending_leave_policy_guard.sql`
+- [x] Verified `npx supabase db push --linked --dry-run` reports remote database is up to date
+- [ ] `npm run test:db` - skipped by request because Docker is not available in this environment
+- [x] Added SQL Editor mitigation guide at `docs/DB_SQL_EDITOR_VERIFICATION.md`
+- [x] Updated `supabase/tests/cloud_sql_editor.test.sql` to provide ASCII PASS/FAIL output for SQL Editor evidence
+
+## 2. Runtime Stabilization
+- [x] Fixed scoped approval/header RPC calls by binding `supabase.rpc` to the request-scoped server client
+- [x] Added dashboard sidebar navigation landmark for accessibility and E2E stability
+- [x] Stabilized E2E login helper by waiting for dashboard load and visible main content before follow-up navigation
+- [x] Updated smoke logout flow to open the user menu before selecting Log out
+- [x] Renamed Next.js entrypoint from `src/middleware.ts` to `src/proxy.ts` to remove the Next 16 middleware convention warning
+- [x] Fixed auth logo sizing classes so Next Image no longer warns during smoke tests
+- [x] Removed resolver `as any` escape hatches from policy and capacity settings forms
+
+## 3. Verification Evidence
+- [x] `npm run check` - passed with no diagnostics after warning cleanup
+- [x] `npm run test` - 7 files passed, 93 tests passed
+- [x] `npx tsc --noEmit` - passed
+- [x] `npm run build` - failed in sandbox due blocked Google Fonts network fetch, then passed with network escalation
+- [x] `npx playwright test e2e/smoke.spec.ts --reporter=list` - 23 passed
+- [x] `npx playwright test e2e/team-delegation.spec.ts --reporter=list` - 13 passed
+- [x] `npm run test:e2e -- --reporter=list` - 113 passed
+
+## 4. Warning Cleanup
+- [x] Replaced index-based React keys in loading skeletons with stable static keys
+- [x] Replaced index-based React keys in dashboard/code-review lists with stable domain/content keys
+- [x] Sorted Tailwind classes in the language switcher to satisfy Biome nursery lint
+
+---
+
+# Post-Phase 18 - Incremental Cleanup Pass
+
+## 1. Baseline
+- [x] `npm ci --dry-run --ignore-scripts` - passed
+- [x] `npm run lint` - passed
+- [ ] `npm run typecheck` - missing script in `package.json`
+- [x] `npx tsc --noEmit` - passed
+- [x] `npm run test` - 7 files passed, 93 tests passed
+- [x] `npm run build` - passed with network escalation for Google Fonts
+
+## 2. Low-Risk Cleanup
+- [x] Removed tracked backup file `src/proxy.disabled.ts` after verifying no imports or framework references
+- [x] Replaced dashboard server component Supabase `any` props with `Awaited<ReturnType<typeof createClient>>`
+- [x] Updated `docs/ENVIRONMENT.md` to reference `src/lib/client-env.ts` and `src/lib/server-env.ts`
+
+## 3. Final Validation
+- [x] `npm run lint` - passed
+- [x] `npx tsc --noEmit` - passed
+- [x] `npm run test` - 7 files passed, 93 tests passed
+- [x] `npm run build` - passed with network escalation for Google Fonts
+
+---
+
+# Post-Phase 18 - Phase 2 Unused Code Audit
+
+## 1. Reference-Verified Removals
+- [x] Removed unused shared `DateRangePicker` component after verifying no imports or dynamic references
+- [x] Removed unused `useIsLg` hook after verifying no imports or dynamic references
+- [x] Removed unused `useAddComment` hook after verifying comment flow uses direct action wiring
+- [x] Removed unused sidebar template components: `AccountSwitcher`, `NavSecondary`, and `NavDocuments`
+- [x] Removed unused `hasActiveDelegation` helper after verifying no runtime references
+- [x] Removed unused `getLocalStorageValue` export while keeping `setLocalStorageValue`, which is still used by preferences persistence
+
+## 2. Dependency Audit
+- [x] Reviewed dependency usage against app code, scripts, config, CSS imports, and shadcn/ui components
+- [x] No dependency removed; candidates are still required by current UI components, tooling, or config
+
+## 3. Validation
+- [x] `npm run lint` - passed
+- [x] `npx tsc --noEmit` - passed
+- [x] `npm run test` - 7 files passed, 93 tests passed
+- [x] `npm run check` - passed
+- [x] `git diff --check` - passed
+- [x] `npm run build` - passed with network escalation for Google Fonts
+
+---
+
+# Post-Phase 18 - Phase 3 Type and Constant Cleanup
+
+## 1. Domain Constant Consolidation
+- [x] Added typed application role and employment status constants in `src/lib/permissions/roles.ts`
+- [x] Added typed leave request status constants in `src/lib/leave-requests/status.ts`
+- [x] Reused leave request status constants in the admin all-requests filter options
+
+## 2. Type Safety Cleanup
+- [x] Replaced employee role/status filter casts with validated type guards
+- [x] Replaced leave request status filter cast with a validated type guard
+- [x] Updated employee schemas to reuse the same typed role/status constants
+
+## 3. Validation
+- [x] `npm run lint` - passed
+- [x] `npx tsc --noEmit` - passed
+- [x] `npm run test` - 7 files passed, 93 tests passed
+- [x] `npm run check` - passed after import ordering fix
+- [x] `npm run build` - passed with network escalation for Google Fonts
+
+---
+
+# Post-Phase 18 - Phase 4 Audit Metadata Type Cleanup
+
+## 1. Type Safety Cleanup
+- [x] Added `auditMetadata()` helper for audit log JSON metadata
+- [x] Removed repeated `as unknown as Record<string, string>` audit metadata casts from employee update actions
+- [x] Removed repeated audit metadata casts from department, leave type, holiday, policy, and capacity settings actions
+
+## 2. Validation
+- [x] `npm run lint` - passed
+- [x] `npx tsc --noEmit` - passed
+- [x] `npm run test` - 7 files passed, 93 tests passed
+- [x] `npm run check` - passed after import ordering fix
+- [x] `npm run build` - passed with network escalation for Google Fonts
+
+---
+
+# Post-Phase 18 - Phase 5 Form Action Input Cleanup
+
+## 1. Type Safety Cleanup
+- [x] Added `toActionInput()` helper for client form data passed to server actions
+- [x] Removed double casts from employee creation, balance adjustment, policy, and capacity form submits
+- [x] Verified no remaining `data as unknown as Record<string, unknown>` form-submit casts in `src`
+
+## 2. Validation
+- [x] `npm run lint` - passed
+- [x] `npx tsc --noEmit` - passed
+- [x] `npm run test` - 7 files passed, 93 tests passed
+- [x] `npm run check` - passed
+- [x] `npm run build` - passed with network escalation for Google Fonts
+
+---
+
+# Post-Phase 18 - Phase 6 Audit Metadata Read Cleanup
+
+## 1. Type Safety Cleanup
+- [x] Extended audit metadata helpers with safe object and string readers
+- [x] Removed direct metadata object casts from leave request activity enrichment
+- [x] Removed direct metadata string casts from the leave request activity timeline
+- [x] Removed direct metadata object cast from the audit log metadata renderer
+
+## 2. Validation
+- [x] `npm run lint` - passed
+- [x] `npx tsc --noEmit` - passed
+- [x] `npm run test` - 7 files passed, 93 tests passed
+- [x] `npm run check` - passed
+- [x] `npm run build` - passed with network escalation for Google Fonts
+
+---
+
+# Post-Phase 18 - Phase 7 Explicit Update Payload Cleanup
+
+## 1. Type Safety Cleanup
+- [x] Replaced dynamic employee update payload assignment with explicit typed fields
+- [x] Replaced dynamic department, leave type, and holiday update payload assignment with explicit typed fields
+- [x] Removed remaining `Object.entries(parsed.data)` update builders and indexed update payload casts
+
+## 2. Validation
+- [x] `npm run lint` - passed
+- [x] `npx tsc --noEmit` - passed
+- [x] `npm run test` - 7 files passed, 93 tests passed
+- [x] `npm run check` - passed after formatting fix
+- [x] `npm run build` - passed with network escalation for Google Fonts
+
+---
+
+# Post-Phase 18 - Phase 8 Fetch Row Mapping Cleanup
+
+## 1. Type Safety Cleanup
+- [x] Replaced broad fetched employee row array cast with explicit row mapping
+- [x] Replaced broad all leave requests row array cast with explicit row mapping
+- [x] Replaced broad personal leave requests row array cast with explicit row mapping
+- [x] Added local relationship normalization for Supabase relationship fields that may be returned as object or array
+
+## 2. Validation
+- [x] `npm run lint` - passed
+- [x] `npx tsc --noEmit` - passed
+- [x] `npm run test` - 7 files passed, 93 tests passed
+- [x] `npm run check` - passed
+- [x] `npm run build` - passed with network escalation for Google Fonts
+
+---
+
+# Post-Phase 18 - Phase 9 RPC Result Read Cleanup
+
+## 1. Type Safety Cleanup
+- [x] Added RPC result reader helpers for object, string, and number values
+- [x] Removed direct RPC result casts from approve and reject leave request actions
+- [x] Removed direct RPC result casts from create and update leave request actions
+
+## 2. Validation
+- [x] `npm run lint` - passed
+- [x] `npx tsc --noEmit` - passed
+- [x] `npm run test` - 7 files passed, 93 tests passed
+- [x] `npm run check` - passed
+- [x] `npm run build` - passed with network escalation for Google Fonts
+
+---
+
+# Post-Phase 18 - Phase 10 Locale Lookup Type Cleanup
+
+## 1. Type Safety Cleanup
+- [x] Added a local object type guard for nested locale message lookup
+- [x] Removed translation lookup casts from `LocaleProvider`
+- [x] Preserved existing fallback behavior for missing or non-string translation keys
+
+## 2. Validation
+- [x] `npm run lint` - passed
+- [x] `npx tsc --noEmit` - passed
+- [x] `npm run test` - 7 files passed, 93 tests passed
+- [x] `npm run check` - passed
+- [x] `npm run build` - passed with network escalation for Google Fonts
+
+---
+
+# Post-Phase 18 - Phase 11 Untyped RPC Boundary Cleanup
+
+## 1. Type Safety Cleanup
+- [x] Centralized untyped Supabase RPC binding in `getUntypedRpc()`
+- [x] Removed repeated untyped RPC binding casts from header counts and approvals fetches
+- [x] Added a boolean RPC result reader and reused existing string/number readers for header and capacity responses
+
+## 2. Validation
+- [x] `npm run lint` - passed
+- [x] `npx tsc --noEmit` - passed
+- [x] `npm run test` - 7 files passed, 93 tests passed
+- [x] `npm run check` - passed
+- [x] `npm run build` - passed with network escalation for Google Fonts
+
+---
+
+# Post-Phase 18 - Phase 12 Form Resolver Type Cleanup
+
+## 1. Type Safety Cleanup
+- [x] Replaced policy form resolver double cast with React Hook Form input/output generics
+- [x] Replaced capacity form resolver double cast with React Hook Form input/output generics
+- [x] Normalized capacity percentage display value after separating form input and parsed output types
+
+## 2. Validation
+- [x] `npm run lint` - passed
+- [x] `npx tsc --noEmit` - passed after capacity display narrowing
+- [x] `npm run test` - 7 files passed, 93 tests passed
+- [x] `npm run check` - passed
+- [x] `npm run build` - passed with network escalation for Google Fonts
+
+---
+
+# Post-Phase 18 - Phase 13 Supabase Relationship Helper Cleanup
+
+## 1. Duplicate Logic Cleanup
+- [x] Added shared `firstRelation()` helper for Supabase relationship fields that can be returned as object or array
+- [x] Removed duplicated local `firstRelation()` helpers from employee and leave request fetch modules
+- [x] Preserved explicit row mapping from the previous cleanup phase
+
+## 2. Validation
+- [x] `npm run lint` - passed
+- [x] `npx tsc --noEmit` - passed
+- [x] `npm run test` - 7 files passed, 93 tests passed
+- [x] `npm run check` - passed after import ordering fix
+- [x] `npm run build` - passed with network escalation for Google Fonts
+
+---
+
+# Post-Phase 18 - Phase 14 Shared UUID Regex Cleanup
+
+## 1. Duplicate Constant Cleanup
+- [x] Reused shared `UUID_RE` in delegation validation schema
+- [x] Reused shared `UUID_RE` in settings validation schemas
+- [x] Verified only one UUID regex definition remains in `src/lib/utils/constants.ts`
+
+## 2. Validation
+- [x] `npm run lint` - passed
+- [x] `npx tsc --noEmit` - passed
+- [x] `npm run test` - 7 files passed, 93 tests passed
+- [x] `npm run check` - passed
+- [x] `npm run build` - passed with network escalation for Google Fonts
+
+---
+
+# Post-Phase 18 - Phase 15 Approval RPC Row Mapping Cleanup
+
+## 1. Medium-Risk Type Cleanup
+- [x] Replaced broad approval RPC array cast with explicit row mapping
+- [x] Reused RPC result readers for approval request fields and nested employee/leave type objects
+- [x] Preserved existing empty-array fallback when the RPC result is not an array
+
+## 2. Validation
+- [x] `npm run lint` - passed
+- [x] `npx tsc --noEmit` - passed
+- [x] `npm run test` - 7 files passed, 93 tests passed
+- [x] `npm run check` - passed after import formatting fix
+- [x] `npm run build` - passed with network escalation for Google Fonts
+
+---
+
+# Post-Phase 18 - Phase 16 Shared RPC Reader Cleanup
+
+## 1. Medium-Risk Type Cleanup
+- [x] Added shared nullable string RPC reader
+- [x] Added shared RPC object field-presence helper
+- [x] Removed approval-specific nullable string helper in favor of shared RPC result readers
+
+## 2. Validation
+- [x] `npm run lint` - passed
+- [x] `npx tsc --noEmit` - passed
+- [x] `npm run test` - 7 files passed, 93 tests passed
+- [x] `npm run check` - passed after formatting fix
+- [x] `npm run build` - passed with network escalation for Google Fonts
+
+---
+
+# Post-Phase 18 - Phase 17 Balance Initialization Boundary Validation
+
+## 1. High-Risk Area Guardrail Cleanup
+- [x] Added shared balance employee ID validation schema
+- [x] Validated `initializeBalancesAction` employee ID before calling the admin balance initialization RPC
+- [x] Added unit tests for balance adjustment and employee ID validation schemas
+- [x] Preserved RPC, RLS, migration, leave balance calculation, and authorization behavior
+
+## 2. Validation
+- [x] `npx vitest run src/lib/balances/__tests__/schemas.test.ts` - 1 file passed, 5 tests passed
+- [x] `npm run check` - passed
+- [x] `npx tsc --noEmit` - passed
+- [x] `npm run lint` - passed
+- [x] `npm run test` - 8 files passed, 98 tests passed
+- [x] `git diff --check` - passed with existing LF-to-CRLF warnings
+- [x] `npm run build` - first sandbox run failed on Google Fonts network fetch; rerun with network escalation passed
+
+---
+
+# Post-Phase 18 - Phase 18 Leave Request Access Guard Hardening
+
+## 1. High-Risk Area Guardrail Cleanup
+- [x] Added shared leave request view/comment access helper
+- [x] Added explicit detail-page access guard before reading attachments or audit timeline through the admin client
+- [x] Added comment action authorization guard before writing audit-log comments through the admin client
+- [x] Added delegation ID validation before revoke queries
+- [x] Sanitized delegation mutation database errors before returning them to users
+- [x] Left delegated attachment download expansion unmodified pending product/security confirmation
+- [x] Preserved RPC, RLS, migration, approval workflow, cancellation workflow, and leave balance behavior
+
+## 2. Validation
+- [x] `npx vitest run src/lib/leave-requests/__tests__/access.test.ts src/lib/delegations/__tests__/schemas.test.ts` - 2 files passed, 10 tests passed
+- [x] `npm run check` - passed
+- [x] `npx tsc --noEmit` - passed
+- [x] `npm run lint` - passed
+- [x] `npm run test` - 10 files passed, 108 tests passed
+- [x] `git diff --check` - passed with existing LF-to-CRLF warnings
+- [x] `npm run build` - first sandbox run failed on Google Fonts network fetch; rerun with network escalation passed
+
+---
+
+# Post-Phase 18 - Phase 19 Delegated Attachment Download Guard
+
+## 1. High-Risk Area Guardrail Cleanup
+- [x] Allowed active delegated approvers to download attachments for requests within their delegation scope
+- [x] Kept attachment upload and removal permissions unchanged
+- [x] Kept signed download URLs short-lived at 60 seconds
+- [x] Added `delegate` audit metadata for delegated attachment access
+- [x] Reused the shared leave request access helper for view, comment, and attachment download authorization
+- [x] Preserved RPC, RLS, migration, approval workflow, cancellation workflow, and leave balance behavior
+
+## 2. Validation
+- [x] `npx vitest run src/lib/leave-requests/__tests__/access.test.ts src/lib/attachments/__tests__/schemas.test.ts` - 2 files passed, 9 tests passed
+- [x] `npm run check` - passed
+- [x] `npx tsc --noEmit` - passed
+- [x] `npm run lint` - passed
+- [x] `npm run test` - 10 files passed, 109 tests passed
+- [x] `git diff --check` - passed with existing LF-to-CRLF warnings
+- [x] `npm run build` - first sandbox run failed on Google Fonts network fetch; rerun with network escalation passed
+
+---
+
+# Post-Phase 18 - Phase 20 Final Cleanup Audit Report
+
+## 1. Documentation
+- [x] Added `docs/cleanup-final-audit-report.md`
+- [x] Summarized completed cleanup phases, validation, high-risk guardrails, remaining risks, and manual role smoke matrix
+- [x] Recorded that DB tests remain deferred because Docker is unavailable in this environment
+
+## 2. Validation
+- [x] Documentation-only change; no runtime behavior changed

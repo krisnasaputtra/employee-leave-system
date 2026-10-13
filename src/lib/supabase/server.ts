@@ -1,8 +1,10 @@
 import { cache } from "react";
+
 import { cookies } from "next/headers";
 
 import { createServerClient } from "@supabase/ssr";
 
+import { getClientEnv } from "@/lib/client-env";
 import type { Database } from "@/types/database.types";
 
 /**
@@ -19,27 +21,24 @@ import type { Database } from "@/types/database.types";
  */
 export const createClient = cache(async () => {
   const cookieStore = await cookies();
+  const env = getClientEnv();
 
-  return createServerClient<Database>(
-    process.env.NEXT_PUBLIC_SUPABASE_URL ?? "",
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "",
-    {
-      cookies: {
-        getAll() {
-          return cookieStore.getAll();
-        },
-        setAll(cookiesToSet) {
-          for (const { name, value, options } of cookiesToSet) {
-            try {
-              cookieStore.set(name, value, options);
-            } catch {
-              // The `setAll` method is called from a Server Component where
-              // cookies cannot be set. This can be safely ignored if middleware
-              // is refreshing user sessions.
-            }
+  return createServerClient<Database>(env.NEXT_PUBLIC_SUPABASE_URL, env.NEXT_PUBLIC_SUPABASE_ANON_KEY, {
+    cookies: {
+      getAll() {
+        return cookieStore.getAll();
+      },
+      setAll(cookiesToSet) {
+        for (const { name, value, options } of cookiesToSet) {
+          try {
+            cookieStore.set(name, value, options);
+          } catch {
+            // The `setAll` method is called from a Server Component where
+            // cookies cannot be set. This can be safely ignored if middleware
+            // is refreshing user sessions.
           }
-        },
+        }
       },
     },
-  );
+  });
 });

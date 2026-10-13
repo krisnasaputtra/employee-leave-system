@@ -1,14 +1,15 @@
 "use server";
 
 import { cookies } from "next/headers";
+
 import { createClient } from "@/lib/supabase/server";
 
 const ALLOWED_COOKIE_KEYS = new Set([
-  'sidebar_state',
-  'sidebar_variant',
-  'sidebar_collapsible',
-  'theme_preset',
-  'theme_mode',
+  "sidebar_state",
+  "sidebar_variant",
+  "sidebar_collapsible",
+  "theme_preset",
+  "theme_mode",
 ]);
 
 export async function getValueFromCookie(key: string): Promise<string | undefined> {
@@ -32,7 +33,9 @@ export async function setValueToCookie(
     }
     // Auth guard: only logged-in users can set cookies
     const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
     if (!user) return;
 
     const cookieStore = await cookies();

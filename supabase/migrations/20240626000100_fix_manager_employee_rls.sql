@@ -4,6 +4,7 @@
 
 -- Drop the old policy
 drop policy if exists "employees_select_manager_reports" on public.employees;
+drop policy if exists "employees_select_manager_department" on public.employees;
 
 -- Create new policy: Manager can read all employees in same department
 create policy "employees_select_manager_department"

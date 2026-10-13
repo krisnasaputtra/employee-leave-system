@@ -2,10 +2,10 @@
 
 import { revalidatePath } from "next/cache";
 
-import { isNextInternalError } from "@/lib/utils/server-action-utils";
 import { getAuthenticatedUser } from "@/lib/auth/get-authenticated-user";
 import { canManageEmployees } from "@/lib/permissions";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { isNextInternalError } from "@/lib/utils/server-action-utils";
 
 import { generateTempPassword } from "./password-utils";
 

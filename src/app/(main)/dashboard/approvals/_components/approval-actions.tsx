@@ -54,14 +54,18 @@ export function ApprovalActions({ requestId, requestNumber, employeeName }: Appr
   });
 
   function handleApprove() {
+    if (approveMutation.isPending) return;
+
     approveMutation.mutate(requestId, {
-      onSuccess: (result) => {
+      onSuccess: () => {
         router.refresh();
       },
     });
   }
 
   function handleReject(data: LeaveRejectionInput) {
+    if (rejectMutation.isPending) return;
+
     rejectMutation.mutate(
       { requestId, reason: data.rejection_reason },
       {
@@ -79,7 +83,7 @@ export function ApprovalActions({ requestId, requestNumber, employeeName }: Appr
       {/* Approve Button with AlertDialog */}
       <AlertDialog>
         <AlertDialogTrigger asChild>
-          <Button variant="default" size="sm">
+          <Button variant="default" size="sm" disabled={approveMutation.isPending || rejectMutation.isPending}>
             <CheckCircle className="mr-1 h-4 w-4" />
             {t("approval.approve")}
           </Button>
@@ -104,7 +108,7 @@ export function ApprovalActions({ requestId, requestNumber, employeeName }: Appr
       {/* Reject Button with Dialog + Form */}
       <Dialog open={rejectOpen} onOpenChange={setRejectOpen}>
         <DialogTrigger asChild>
-          <Button variant="destructive" size="sm">
+          <Button variant="destructive" size="sm" disabled={approveMutation.isPending || rejectMutation.isPending}>
             <XCircle className="mr-1 h-4 w-4" />
             {t("approval.reject")}
           </Button>
@@ -134,7 +138,12 @@ export function ApprovalActions({ requestId, requestNumber, employeeName }: Appr
               </Field>
             </FieldGroup>
             <div className="mt-4 flex justify-end gap-2">
-              <Button type="button" variant="outline" onClick={() => setRejectOpen(false)}>
+              <Button
+                type="button"
+                variant="outline"
+                disabled={rejectMutation.isPending}
+                onClick={() => setRejectOpen(false)}
+              >
                 {t("common.cancel")}
               </Button>
               <Button type="submit" variant="destructive" disabled={rejectMutation.isPending}>

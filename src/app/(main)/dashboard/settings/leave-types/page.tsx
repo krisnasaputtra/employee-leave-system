@@ -5,14 +5,7 @@ import { Pencil, Plus } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { getAuthenticatedUser } from "@/lib/auth/get-authenticated-user";
 import { canManageConfiguration } from "@/lib/permissions";
 import { createClient } from "@/lib/supabase/server";
@@ -26,7 +19,12 @@ export default async function LeaveTypesPage() {
 
   const supabase = await createClient();
 
-  const { data: leaveTypes } = await supabase.from("leave_types").select("id, code, name, description, default_entitlement, color, deducts_balance, allow_negative_balance, requires_attachment, show_type_on_calendar, is_active, created_at, updated_at").order("name");
+  const { data: leaveTypes } = await supabase
+    .from("leave_types")
+    .select(
+      "id, code, name, description, default_entitlement, color, deducts_balance, allow_negative_balance, requires_attachment, show_type_on_calendar, is_active, created_at, updated_at",
+    )
+    .order("name");
 
   return (
     <div className="@container/main flex flex-col gap-4 md:gap-6">
@@ -117,4 +115,3 @@ export default async function LeaveTypesPage() {
     </div>
   );
 }
-

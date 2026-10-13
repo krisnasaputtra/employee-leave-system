@@ -1,6 +1,9 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 
+const SUMMARY_CARD_SKELETON_KEYS = ["team-size-card", "on-leave-card", "pending-card"];
+const ROW_SKELETON_KEYS = ["team-row-1", "team-row-2", "team-row-3", "team-row-4", "team-row-5", "team-row-6"];
+
 export default function TeamLoading() {
   return (
     <div className="@container/main flex flex-col gap-4 md:gap-6">
@@ -19,8 +22,8 @@ export default function TeamLoading() {
 
       {/* Summary cards skeleton */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        {Array.from({ length: 3 }).map((_, i) => (
-          <Card key={i}>
+        {SUMMARY_CARD_SKELETON_KEYS.map((key) => (
+          <Card key={key}>
             <CardHeader className="pb-2">
               <Skeleton className="h-4 w-24" />
               <Skeleton className="h-8 w-20" />
@@ -53,8 +56,8 @@ export default function TeamLoading() {
               <Skeleton className="h-4 w-20" />
             </div>
             {/* Table rows */}
-            {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="flex items-center gap-4 py-2">
+            {ROW_SKELETON_KEYS.map((key) => (
+              <div key={key} className="flex items-center gap-4 py-2">
                 <div className="flex items-center gap-3">
                   <Skeleton className="h-8 w-8 rounded-full" />
                   <div className="space-y-1">

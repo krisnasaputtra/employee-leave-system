@@ -42,7 +42,7 @@ export function AppSidebar({ user, ...props }: React.ComponentProps<typeof Sideb
   const filteredItems = filterNavByRole(sidebarItems, user.role);
 
   return (
-    <Sidebar {...props} variant={variant} collapsible={collapsible}>
+    <Sidebar {...props} variant={variant} collapsible={collapsible} role="navigation" aria-label="Dashboard navigation">
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>

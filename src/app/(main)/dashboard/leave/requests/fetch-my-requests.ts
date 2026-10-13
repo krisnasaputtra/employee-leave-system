@@ -1,6 +1,8 @@
 "use server";
 
 import { getAuthenticatedUser } from "@/lib/auth/get-authenticated-user";
+import type { LeaveRequestStatus } from "@/lib/leave-requests/status";
+import { firstRelation } from "@/lib/supabase/relations";
 import { createClient } from "@/lib/supabase/server";
 
 // ---------------------------------------------------------------------------
@@ -15,7 +17,7 @@ export interface LeaveRequestRow {
   start_date: string;
   end_date: string;
   requested_days: number;
-  status: string;
+  status: LeaveRequestStatus;
   reason: string | null;
   created_at: string;
   leave_types: {
@@ -42,9 +44,7 @@ export interface FetchMyRequestsResult {
 // Server action
 // ---------------------------------------------------------------------------
 
-export async function fetchMyRequests(
-  params: FetchMyRequestsParams = {},
-): Promise<FetchMyRequestsResult> {
+export async function fetchMyRequests(params: FetchMyRequestsParams = {}): Promise<FetchMyRequestsResult> {
   const { employee: actor } = await getAuthenticatedUser();
   const supabase = await createClient();
 
@@ -54,7 +54,10 @@ export async function fetchMyRequests(
 
   const { data, count, error } = await supabase
     .from("leave_requests")
-    .select("id, request_number, employee_id, leave_type_id, start_date, end_date, requested_days, status, reason, created_at, leave_types(name, color, code)", { count: "exact" })
+    .select(
+      "id, request_number, employee_id, leave_type_id, start_date, end_date, requested_days, status, reason, created_at, leave_types(name, color, code)",
+      { count: "exact" },
+    )
     .eq("employee_id", actor.id)
     .order("created_at", { ascending: false })
     .range(offset, offset + pageSize - 1);
@@ -62,7 +65,19 @@ export async function fetchMyRequests(
   if (error) throw new Error(error.message);
 
   return {
-    requests: (data ?? []) as unknown as LeaveRequestRow[],
+    requests: (data ?? []).map((request) => ({
+      id: request.id,
+      request_number: request.request_number,
+      employee_id: request.employee_id,
+      leave_type_id: request.leave_type_id,
+      start_date: request.start_date,
+      end_date: request.end_date,
+      requested_days: request.requested_days,
+      status: request.status,
+      reason: request.reason,
+      created_at: request.created_at,
+      leave_types: firstRelation(request.leave_types),
+    })),
     totalCount: count ?? 0,
     page,
     pageSize,

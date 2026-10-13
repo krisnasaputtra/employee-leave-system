@@ -5,14 +5,7 @@ import { Pencil } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { getAuthenticatedUser } from "@/lib/auth/get-authenticated-user";
 import { canManageConfiguration } from "@/lib/permissions";
 import { createClient } from "@/lib/supabase/server";
@@ -32,10 +25,7 @@ export default async function CapacityPage() {
     .order("name");
 
   // Count employees per department
-  const { data: employeeCounts } = await supabase
-    .from("employees")
-    .select("department_id")
-    .eq("status", "ACTIVE");
+  const { data: employeeCounts } = await supabase.from("employees").select("department_id").eq("status", "ACTIVE");
 
   const countMap = new Map<string, number>();
   if (employeeCounts) {
@@ -75,8 +65,8 @@ export default async function CapacityPage() {
               <TableBody>
                 {departments.map((dept) => {
                   const rule = Array.isArray(dept.workforce_capacity_rules)
-                    ? dept.workforce_capacity_rules[0] ?? null
-                    : dept.workforce_capacity_rules ?? null;
+                    ? (dept.workforce_capacity_rules[0] ?? null)
+                    : (dept.workforce_capacity_rules ?? null);
                   const empCount = countMap.get(dept.id) ?? 0;
 
                   return (

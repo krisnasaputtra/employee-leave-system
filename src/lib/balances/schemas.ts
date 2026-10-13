@@ -15,3 +15,6 @@ export const balanceAdjustmentSchema = z.object({
 });
 
 export type BalanceAdjustmentInput = z.infer<typeof balanceAdjustmentSchema>;
+
+export const balanceEmployeeIdSchema = z.string().regex(UUID_RE, "Invalid employee selected.");
+export type BalanceEmployeeIdInput = z.infer<typeof balanceEmployeeIdSchema>;

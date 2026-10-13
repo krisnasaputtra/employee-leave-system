@@ -5,7 +5,27 @@
  * follow BNI's orange (#F05A28) accent color scheme.
  */
 
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+import "server-only";
+
+import { getServerEnv } from "@/lib/server-env";
+
+const APP_URL = getServerEnv().NEXT_PUBLIC_APP_URL;
+
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+function cleanSubject(value: string): string {
+  return value
+    .replace(/[\r\n\t]+/g, " ")
+    .replace(/\s{2,}/g, " ")
+    .trim();
+}
 
 function baseLayout(content: string): string {
   return `<!DOCTYPE html>
@@ -48,26 +68,26 @@ function baseLayout(content: string): string {
 </html>`;
 }
 
-function detailRow(label: string, value: string): string {
+function detailRow(label: string, value: string, trustedHtml = false): string {
   return `<tr>
-    <td style="padding:8px 12px;color:#71717a;font-size:14px;white-space:nowrap;vertical-align:top;">${label}</td>
-    <td style="padding:8px 12px;color:#18181b;font-size:14px;font-weight:500;">${value}</td>
+    <td style="padding:8px 12px;color:#71717a;font-size:14px;white-space:nowrap;vertical-align:top;">${escapeHtml(label)}</td>
+    <td style="padding:8px 12px;color:#18181b;font-size:14px;font-weight:500;">${trustedHtml ? value : escapeHtml(value)}</td>
   </tr>`;
 }
 
-function detailsTable(rows: { label: string; value: string }[]): string {
+function detailsTable(rows: { label: string; value: string; trustedHtml?: boolean }[]): string {
   return `<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color:#fafafa;border-radius:8px;border:1px solid #e4e4e7;margin:20px 0;">
-    ${rows.map((r) => detailRow(r.label, r.value)).join("")}
+    ${rows.map((r) => detailRow(r.label, r.value, r.trustedHtml)).join("")}
   </table>`;
 }
 
 function actionButton(requestId: string, text: string): string {
-  const url = `${APP_URL}/dashboard/leave/requests/${requestId}`;
+  const url = new URL(`/dashboard/leave/requests/${encodeURIComponent(requestId)}`, APP_URL).toString();
   return `<table role="presentation" cellspacing="0" cellpadding="0" style="margin:24px auto 8px auto;">
     <tr>
       <td style="background-color:#F05A28;border-radius:8px;">
-        <a href="${url}" target="_blank" style="display:inline-block;padding:12px 28px;color:#ffffff;text-decoration:none;font-size:14px;font-weight:600;letter-spacing:0.3px;">
-          ${text}
+        <a href="${escapeHtml(url)}" target="_blank" style="display:inline-block;padding:12px 28px;color:#ffffff;text-decoration:none;font-size:14px;font-weight:600;letter-spacing:0.3px;">
+          ${escapeHtml(text)}
         </a>
       </td>
     </tr>
@@ -87,12 +107,15 @@ export function leaveSubmittedTemplate(params: {
   requestNumber: string;
   requestId: string;
 }): { subject: string; html: string } {
-  const subject = `[Leave Request] ${params.employeeName} - ${params.leaveType} (${params.days} day${params.days !== 1 ? "s" : ""})`;
+  const employeeName = escapeHtml(params.employeeName);
+  const subject = cleanSubject(
+    `[Leave Request] ${params.employeeName} - ${params.leaveType} (${params.days} day${params.days !== 1 ? "s" : ""})`,
+  );
 
   const html = baseLayout(`
     <h2 style="margin:0 0 8px 0;color:#18181b;font-size:18px;font-weight:600;">New Leave Request Submitted</h2>
     <p style="margin:0 0 16px 0;color:#52525b;font-size:14px;line-height:1.6;">
-      <strong>${params.employeeName}</strong> has submitted a leave request that requires your approval.
+      <strong>${employeeName}</strong> has submitted a leave request that requires your approval.
     </p>
     ${detailsTable([
       { label: "Request No.", value: params.requestNumber },
@@ -124,7 +147,9 @@ export function leaveApprovedTemplate(params: {
   requestId: string;
   approverName: string;
 }): { subject: string; html: string } {
-  const subject = `[Approved] Leave Request ${params.requestNumber} - ${params.leaveType}`;
+  const employeeName = escapeHtml(params.employeeName);
+  const approverName = escapeHtml(params.approverName);
+  const subject = cleanSubject(`[Approved] Leave Request ${params.requestNumber} - ${params.leaveType}`);
 
   const html = baseLayout(`
     <div style="text-align:center;margin-bottom:20px;">
@@ -132,7 +157,7 @@ export function leaveApprovedTemplate(params: {
     </div>
     <h2 style="margin:0 0 8px 0;color:#18181b;font-size:18px;font-weight:600;text-align:center;">Leave Request Approved</h2>
     <p style="margin:0 0 16px 0;color:#52525b;font-size:14px;line-height:1.6;text-align:center;">
-      Hi <strong>${params.employeeName}</strong>, your leave request has been approved by <strong>${params.approverName}</strong>.
+      Hi <strong>${employeeName}</strong>, your leave request has been approved by <strong>${approverName}</strong>.
     </p>
     ${detailsTable([
       { label: "Request No.", value: params.requestNumber },
@@ -140,7 +165,7 @@ export function leaveApprovedTemplate(params: {
       { label: "Start Date", value: params.startDate },
       { label: "End Date", value: params.endDate },
       { label: "Duration", value: `${params.days} day${params.days !== 1 ? "s" : ""}` },
-      { label: "Status", value: '<span style="color:#16a34a;font-weight:600;">Approved</span>' },
+      { label: "Status", value: '<span style="color:#16a34a;font-weight:600;">Approved</span>', trustedHtml: true },
     ])}
     ${actionButton(params.requestId, "View Request")}
   `);
@@ -163,7 +188,9 @@ export function leaveRejectedTemplate(params: {
   approverName: string;
   rejectionReason: string;
 }): { subject: string; html: string } {
-  const subject = `[Rejected] Leave Request ${params.requestNumber} - ${params.leaveType}`;
+  const employeeName = escapeHtml(params.employeeName);
+  const approverName = escapeHtml(params.approverName);
+  const subject = cleanSubject(`[Rejected] Leave Request ${params.requestNumber} - ${params.leaveType}`);
 
   const html = baseLayout(`
     <div style="text-align:center;margin-bottom:20px;">
@@ -171,7 +198,7 @@ export function leaveRejectedTemplate(params: {
     </div>
     <h2 style="margin:0 0 8px 0;color:#18181b;font-size:18px;font-weight:600;text-align:center;">Leave Request Rejected</h2>
     <p style="margin:0 0 16px 0;color:#52525b;font-size:14px;line-height:1.6;text-align:center;">
-      Hi <strong>${params.employeeName}</strong>, your leave request has been rejected by <strong>${params.approverName}</strong>.
+      Hi <strong>${employeeName}</strong>, your leave request has been rejected by <strong>${approverName}</strong>.
     </p>
     ${detailsTable([
       { label: "Request No.", value: params.requestNumber },
@@ -179,11 +206,11 @@ export function leaveRejectedTemplate(params: {
       { label: "Start Date", value: params.startDate },
       { label: "End Date", value: params.endDate },
       { label: "Duration", value: `${params.days} day${params.days !== 1 ? "s" : ""}` },
-      { label: "Status", value: '<span style="color:#dc2626;font-weight:600;">Rejected</span>' },
+      { label: "Status", value: '<span style="color:#dc2626;font-weight:600;">Rejected</span>', trustedHtml: true },
     ])}
     <div style="margin:16px 0;padding:16px;background-color:#fef2f2;border-left:4px solid #dc2626;border-radius:4px;">
       <p style="margin:0 0 4px 0;color:#991b1b;font-size:13px;font-weight:600;">Reason for Rejection</p>
-      <p style="margin:0;color:#7f1d1d;font-size:14px;line-height:1.5;">${params.rejectionReason}</p>
+      <p style="margin:0;color:#7f1d1d;font-size:14px;line-height:1.5;">${escapeHtml(params.rejectionReason)}</p>
     </div>
     ${actionButton(params.requestId, "View Request")}
   `);
@@ -204,7 +231,10 @@ export function balanceAdjustedTemplate(params: {
 }): { subject: string; html: string } {
   const direction = params.adjustmentDays > 0 ? "increased" : "decreased";
   const absDays = Math.abs(params.adjustmentDays);
-  const subject = `[Balance Update] ${params.leaveType} balance ${direction} by ${absDays} day${absDays !== 1 ? "s" : ""}`;
+  const employeeName = escapeHtml(params.employeeName);
+  const subject = cleanSubject(
+    `[Balance Update] ${params.leaveType} balance ${direction} by ${absDays} day${absDays !== 1 ? "s" : ""}`,
+  );
 
   const badgeColor = params.adjustmentDays > 0 ? "#16a34a" : "#dc2626";
   const badgeBg = params.adjustmentDays > 0 ? "#dcfce7" : "#fee2e2";
@@ -213,11 +243,15 @@ export function balanceAdjustedTemplate(params: {
   const html = baseLayout(`
     <h2 style="margin:0 0 8px 0;color:#18181b;font-size:18px;font-weight:600;">Leave Balance Adjusted</h2>
     <p style="margin:0 0 16px 0;color:#52525b;font-size:14px;line-height:1.6;">
-      Hi <strong>${params.employeeName}</strong>, your leave balance has been updated.
+      Hi <strong>${employeeName}</strong>, your leave balance has been updated.
     </p>
     ${detailsTable([
       { label: "Leave Type", value: params.leaveType },
-      { label: "Adjustment", value: `<span style="display:inline-block;padding:2px 10px;background-color:${badgeBg};color:${badgeColor};border-radius:999px;font-weight:600;font-size:13px;">${sign}${params.adjustmentDays} day${absDays !== 1 ? "s" : ""}</span>` },
+      {
+        label: "Adjustment",
+        value: `<span style="display:inline-block;padding:2px 10px;background-color:${badgeBg};color:${badgeColor};border-radius:999px;font-weight:600;font-size:13px;">${sign}${params.adjustmentDays} day${absDays !== 1 ? "s" : ""}</span>`,
+        trustedHtml: true,
+      },
       { label: "Reason", value: params.reason },
     ])}
     <p style="margin:16px 0 0 0;color:#52525b;font-size:14px;line-height:1.6;">

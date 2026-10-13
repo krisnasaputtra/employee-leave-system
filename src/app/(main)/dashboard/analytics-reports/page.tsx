@@ -9,11 +9,11 @@ import { createClient } from "@/lib/supabase/server";
 import { generateCsv } from "@/lib/utils/export-csv";
 
 import { AnalyticsExportButton } from "./_components/analytics-export-button";
+import type { DepartmentChartItem } from "./_components/department-chart";
 import { DepartmentUtilizationChart } from "./_components/department-chart";
+import type { LeaveTypeChartItem } from "./_components/leave-type-chart";
 import { LeaveTypeDistributionChart } from "./_components/leave-type-chart";
 import { AnalyticsMonthlyTrendChart, type MonthlyTrendItem } from "./_components/monthly-trend-chart";
-import type { DepartmentChartItem } from "./_components/department-chart";
-import type { LeaveTypeChartItem } from "./_components/leave-type-chart";
 
 /* ---------- Metric Card ---------- */
 function MetricCard({
@@ -95,11 +95,7 @@ export default async function AnalyticsReportsPage() {
   const currentYear = new Date().getFullYear();
 
   /* ---------- Data Queries ---------- */
-  const [
-    { data: requests },
-    { data: balances },
-    { count: totalEmployees },
-  ] = await Promise.all([
+  const [{ data: requests }, { data: balances }, { count: totalEmployees }] = await Promise.all([
     // 1. All leave requests for the year
     supabase
       .from("leave_requests")
@@ -112,16 +108,11 @@ export default async function AnalyticsReportsPage() {
     // 2. All balances for the year
     supabase
       .from("leave_balances")
-      .select(
-        "employee_id, entitled_days, used_days, pending_days, leave_type_id, leave_types(name, color)",
-      )
+      .select("employee_id, entitled_days, used_days, pending_days, leave_type_id, leave_types(name, color)")
       .eq("balance_year", currentYear),
 
     // 3. All active employees count
-    supabase
-      .from("employees")
-      .select("id", { count: "exact", head: true })
-      .eq("status", "ACTIVE"),
+    supabase.from("employees").select("id", { count: "exact", head: true }).eq("status", "ACTIVE"),
   ]);
 
   const safeRequests = (requests ?? []) as LeaveRequestRow[];
@@ -265,9 +256,7 @@ export default async function AnalyticsReportsPage() {
             <BarChart3 className="h-6 w-6 text-primary" />
             <h1 className="font-semibold text-2xl tracking-tight">Leave Analytics &amp; Reports</h1>
           </div>
-          <p className="text-muted-foreground text-sm">
-            Comprehensive overview of leave trends for {currentYear}
-          </p>
+          <p className="text-muted-foreground text-sm">Comprehensive overview of leave trends for {currentYear}</p>
         </div>
         <div className="flex items-center gap-2">
           <AnalyticsExportButton
@@ -363,8 +352,8 @@ export default async function AnalyticsReportsPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {topLeaveTakers.map((t, idx) => (
-                    <TableRow key={`top-${idx}`}>
+                  {topLeaveTakers.map((t) => (
+                    <TableRow key={`${t.employeeName}-${t.department}`}>
                       <TableCell className="font-medium">{t.employeeName}</TableCell>
                       <TableCell>{t.department}</TableCell>
                       <TableCell className="text-right">{t.totalDays}</TableCell>
@@ -397,8 +386,8 @@ export default async function AnalyticsReportsPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {balanceOverview.map((b, idx) => (
-                    <TableRow key={`balance-${idx}`}>
+                  {balanceOverview.map((b) => (
+                    <TableRow key={b.leaveType}>
                       <TableCell className="font-medium">{b.leaveType}</TableCell>
                       <TableCell className="text-right">{b.totalEntitled}</TableCell>
                       <TableCell className="text-right">{b.totalUsed}</TableCell>

@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 
 test.describe("Authentication", () => {
   test.beforeEach(async ({ page }) => {
@@ -7,9 +7,7 @@ test.describe("Authentication", () => {
 
   test("shows login page", async ({ page }) => {
     await page.goto("/login");
-    await expect(
-      page.getByRole("heading", { name: /sign in/i }),
-    ).toBeVisible();
+    await expect(page.getByRole("heading", { name: /sign in/i })).toBeVisible();
     await expect(page.getByLabel("Email")).toBeVisible();
     await expect(page.getByLabel("Password")).toBeVisible();
   });

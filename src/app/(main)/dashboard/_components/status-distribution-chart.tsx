@@ -16,10 +16,10 @@ interface StatusDistributionChartProps {
 }
 
 const STATUS_COLORS: Record<string, string> = {
-  PENDING: "hsl(45, 93%, 47%)",    // amber
-  APPROVED: "hsl(142, 71%, 45%)",  // green
-  REJECTED: "hsl(0, 84%, 60%)",    // red
-  CANCELLED: "hsl(220, 9%, 46%)",  // gray
+  PENDING: "hsl(45, 93%, 47%)", // amber
+  APPROVED: "hsl(142, 71%, 45%)", // green
+  REJECTED: "hsl(0, 84%, 60%)", // red
+  CANCELLED: "hsl(220, 9%, 46%)", // gray
 };
 
 const chartConfig = {

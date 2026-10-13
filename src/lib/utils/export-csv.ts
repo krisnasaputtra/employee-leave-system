@@ -4,10 +4,7 @@
  * @param data - Array of data objects
  * @returns CSV string
  */
-export function generateCsv<T extends object>(
-  headers: { key: keyof T; label: string }[],
-  data: T[],
-): string {
+export function generateCsv<T extends object>(headers: { key: keyof T; label: string }[], data: T[]): string {
   const headerRow = headers.map((h) => `"${h.label}"`).join(",");
   const rows = data.map((row) =>
     headers

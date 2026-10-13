@@ -5,14 +5,7 @@ import { ArrowLeftRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { getAuthenticatedUser } from "@/lib/auth/get-authenticated-user";
 import { createClient } from "@/lib/supabase/server";
 import { formatDate } from "@/lib/utils/format-date";
@@ -32,7 +25,9 @@ export default async function DelegationsPage() {
   // Active delegations FROM me
   const { data: myDelegations } = await supabase
     .from("approval_delegations")
-    .select("id, start_date, end_date, reason, created_at, delegate:employees!approval_delegations_delegate_id_fkey(id, full_name, employee_code)")
+    .select(
+      "id, start_date, end_date, reason, created_at, delegate:employees!approval_delegations_delegate_id_fkey(id, full_name, employee_code)",
+    )
     .eq("delegator_id", actor.id)
     .eq("is_active", true)
     .order("created_at", { ascending: false });
@@ -40,7 +35,9 @@ export default async function DelegationsPage() {
   // Active delegations TO me
   const { data: delegationsToMe } = await supabase
     .from("approval_delegations")
-    .select("id, start_date, end_date, reason, created_at, delegator:employees!approval_delegations_delegator_id_fkey(id, full_name, employee_code)")
+    .select(
+      "id, start_date, end_date, reason, created_at, delegator:employees!approval_delegations_delegator_id_fkey(id, full_name, employee_code)",
+    )
     .eq("delegate_id", actor.id)
     .eq("is_active", true)
     .order("created_at", { ascending: false });
@@ -68,9 +65,7 @@ export default async function DelegationsPage() {
       <Card>
         <CardHeader>
           <CardTitle>Create Delegation</CardTitle>
-          <CardDescription>
-            Delegate your approval authority to another employee for a specific period.
-          </CardDescription>
+          <CardDescription>Delegate your approval authority to another employee for a specific period.</CardDescription>
         </CardHeader>
         <CardContent>
           <DelegationForm employees={safeEmployees} />
@@ -84,9 +79,7 @@ export default async function DelegationsPage() {
             My Active Delegations
             <Badge variant="secondary">{safeDelegations.length}</Badge>
           </CardTitle>
-          <CardDescription>
-            People who can approve leave requests on your behalf.
-          </CardDescription>
+          <CardDescription>People who can approve leave requests on your behalf.</CardDescription>
         </CardHeader>
         <CardContent>
           {safeDelegations.length === 0 ? (
@@ -113,21 +106,14 @@ export default async function DelegationsPage() {
                       <TableRow key={d.id}>
                         <TableCell>
                           <div className="font-medium">{delegate?.full_name ?? "Unknown"}</div>
-                          <div className="text-muted-foreground text-sm">
-                            {delegate?.employee_code ?? ""}
-                          </div>
+                          <div className="text-muted-foreground text-sm">{delegate?.employee_code ?? ""}</div>
                         </TableCell>
                         <TableCell>
                           {formatDate(d.start_date)} — {formatDate(d.end_date)}
                         </TableCell>
-                        <TableCell className="max-w-[200px] truncate">
-                          {d.reason || "—"}
-                        </TableCell>
+                        <TableCell className="max-w-[200px] truncate">{d.reason || "—"}</TableCell>
                         <TableCell className="text-right">
-                          <RevokeButton
-                            delegationId={d.id}
-                            delegateName={delegate?.full_name ?? "this delegate"}
-                          />
+                          <RevokeButton delegationId={d.id} delegateName={delegate?.full_name ?? "this delegate"} />
                         </TableCell>
                       </TableRow>
                     );
@@ -146,9 +132,7 @@ export default async function DelegationsPage() {
             Delegated to Me
             <Badge variant="secondary">{safeDelegationsToMe.length}</Badge>
           </CardTitle>
-          <CardDescription>
-            Managers who have delegated their approval authority to you.
-          </CardDescription>
+          <CardDescription>Managers who have delegated their approval authority to you.</CardDescription>
         </CardHeader>
         <CardContent>
           {safeDelegationsToMe.length === 0 ? (
@@ -174,16 +158,12 @@ export default async function DelegationsPage() {
                       <TableRow key={d.id}>
                         <TableCell>
                           <div className="font-medium">{delegator?.full_name ?? "Unknown"}</div>
-                          <div className="text-muted-foreground text-sm">
-                            {delegator?.employee_code ?? ""}
-                          </div>
+                          <div className="text-muted-foreground text-sm">{delegator?.employee_code ?? ""}</div>
                         </TableCell>
                         <TableCell>
                           {formatDate(d.start_date)} — {formatDate(d.end_date)}
                         </TableCell>
-                        <TableCell className="max-w-[200px] truncate">
-                          {d.reason || "—"}
-                        </TableCell>
+                        <TableCell className="max-w-[200px] truncate">{d.reason || "—"}</TableCell>
                       </TableRow>
                     );
                   })}

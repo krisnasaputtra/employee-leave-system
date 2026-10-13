@@ -5,14 +5,7 @@ import { Pencil, Plus } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { getAuthenticatedUser } from "@/lib/auth/get-authenticated-user";
 import { canManageConfiguration } from "@/lib/permissions";
 import { createClient } from "@/lib/supabase/server";
@@ -28,7 +21,9 @@ export default async function DepartmentsPage() {
 
   const { data: departments } = await supabase
     .from("departments")
-    .select("id, code, name, description, is_active, manager_employee_id, created_at, updated_at, employees!departments_manager_employee_id_fk(full_name)")
+    .select(
+      "id, code, name, description, is_active, manager_employee_id, created_at, updated_at, employees!departments_manager_employee_id_fk(full_name)",
+    )
     .order("name");
 
   const { data: employees } = await supabase
@@ -122,4 +117,3 @@ export default async function DepartmentsPage() {
     </div>
   );
 }
-

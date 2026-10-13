@@ -4,14 +4,11 @@ import { useMemo, useState } from "react";
 
 import { useRouter } from "next/navigation";
 
-import { useQueryClient } from "@tanstack/react-query";
-
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useQueryClient } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-
-import { useTranslation } from "@/providers/locale-provider";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -22,6 +19,7 @@ import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { calculateLeaveDaysPreview } from "@/lib/leave-requests/calculate-leave-days";
 import { type LeaveRequestCreateInput, leaveRequestCreateSchema } from "@/lib/leave-requests/schemas";
+import { useTranslation } from "@/providers/locale-provider";
 
 import { createLeaveRequestAction, updateLeaveRequestAction } from "../actions";
 
@@ -233,7 +231,9 @@ export function LeaveRequestForm({
 
             {/* Server Error */}
             {serverError && (
-              <div role="alert" className="mt-4 rounded-md bg-destructive/10 p-3 text-destructive text-sm">{serverError}</div>
+              <div role="alert" className="mt-4 rounded-md bg-destructive/10 p-3 text-destructive text-sm">
+                {serverError}
+              </div>
             )}
 
             {/* Submit */}
@@ -304,9 +304,7 @@ export function LeaveRequestForm({
                 </>
               )}
 
-              {!watchedLeaveTypeId && (
-                <p className="text-muted-foreground text-xs">{t("leave.selectLeaveTypeHint")}</p>
-              )}
+              {!watchedLeaveTypeId && <p className="text-muted-foreground text-xs">{t("leave.selectLeaveTypeHint")}</p>}
             </div>
           </CardContent>
         </Card>

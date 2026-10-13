@@ -1,4 +1,5 @@
-import { test, expect } from "@playwright/test";
+import { expect, test } from "@playwright/test";
+
 import { loginAsAdmin, loginAsEmployee } from "./helpers/auth";
 
 /**
@@ -31,8 +32,7 @@ test.describe("Admin — Profile", () => {
 
     // Should contain user-related fields (name, email, role, etc.)
     const body = await page.locator("body").textContent();
-    const hasUserInfo =
-      /email|name|role|department|phone|personal|account/i.test(body ?? "");
+    const hasUserInfo = /email|name|role|department|phone|personal|account/i.test(body ?? "");
     expect(hasUserInfo).toBeTruthy();
   });
 });
@@ -54,9 +54,7 @@ test.describe("Admin — Notifications", () => {
     await expect(page.locator("body")).toContainText(/notification/i);
 
     // Should render a list of notifications — or an empty state message
-    const list = page.locator(
-      '[role="list"], [role="listitem"], [class*="notification"], table',
-    );
+    const list = page.locator('[role="list"], [role="listitem"], [class*="notification"], table');
     const emptyState = page.locator("body").filter({
       hasText: /no notification|empty|nothing|all caught up/i,
     });
@@ -87,9 +85,7 @@ test.describe("Admin — Analytics Reports", () => {
 
     // Should display analytics/reports content
     const body = await page.locator("body").textContent();
-    const hasAnalytics = /analytics|report|chart|statistic|overview/i.test(
-      body ?? "",
-    );
+    const hasAnalytics = /analytics|report|chart|statistic|overview/i.test(body ?? "");
     expect(hasAnalytics).toBeTruthy();
 
     // Should render chart elements — canvas (Chart.js), svg (D3/Recharts), or chart containers
@@ -130,7 +126,6 @@ test.describe("Admin — Audit Logs", () => {
 
     // Should render a table of log entries
     const table = page.locator("table");
-    const rows = page.locator("table tbody tr, table tr");
     const hasTable = await table.isVisible().catch(() => false);
 
     if (hasTable) {
@@ -165,8 +160,7 @@ test.describe("Employee — Profile", () => {
 
     // Should contain user-related fields
     const body = await page.locator("body").textContent();
-    const hasUserInfo =
-      /email|name|role|department|phone|personal|account/i.test(body ?? "");
+    const hasUserInfo = /email|name|role|department|phone|personal|account/i.test(body ?? "");
     expect(hasUserInfo).toBeTruthy();
   });
 });
@@ -203,9 +197,7 @@ test.describe("Employee — Calendar", () => {
       // Fallback: at least verify the page loaded and has date-related content
       const body = await page.locator("body").textContent();
       const hasDateContent =
-        /january|february|march|april|may|june|july|august|september|october|november|december|\d{4}/i.test(
-          body ?? "",
-        );
+        /january|february|march|april|may|june|july|august|september|october|november|december|\d{4}/i.test(body ?? "");
       expect(hasDateContent).toBeTruthy();
     }
   });

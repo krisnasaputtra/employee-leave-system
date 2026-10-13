@@ -1,43 +1,16 @@
 import Link from "next/link";
 
-import {
-  Briefcase,
-  Building2,
-  Calendar,
-  CheckCircle2,
-  CircleDot,
-  Clock,
-  Eye,
-  Hash,
-  TreePalm,
-  Users,
-  UserX,
-} from "lucide-react";
+import { Building2, CheckCircle2, Clock, Eye, Hash, TreePalm, Users, UserX } from "lucide-react";
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { getAuthenticatedUser } from "@/lib/auth/get-authenticated-user";
 import { createClient } from "@/lib/supabase/server";
-import { EMPLOYMENT_STATUS_STYLES, ROLE_BADGE_STYLES } from "@/lib/ui/badge-variants";
-import { formatDate } from "@/lib/utils/format-date";
+import { EMPLOYMENT_STATUS_STYLES } from "@/lib/ui/badge-variants";
 
 function getInitials(name: string): string {
   return name
@@ -72,15 +45,10 @@ export default async function TeamPage() {
     query = query.neq("id", actor.id);
   } else if (isManager) {
     // Show all employees in the same department
-    query = query
-      .eq("department_id", actor.department_id)
-      .neq("id", actor.id);
+    query = query.eq("department_id", actor.department_id).neq("id", actor.id);
   } else {
     // EMPLOYEE: see colleagues in same department
-    query = query
-      .eq("department_id", actor.department_id)
-      .eq("status", "ACTIVE")
-      .neq("id", actor.id);
+    query = query.eq("department_id", actor.department_id).eq("status", "ACTIVE").neq("id", actor.id);
   }
 
   const { data: teamMembers, error } = await query;
@@ -94,9 +62,7 @@ export default async function TeamPage() {
           </h1>
         </div>
         <div className="flex flex-col items-center justify-center gap-2 py-20">
-          <p className="text-destructive text-sm">
-            Failed to load team members.
-          </p>
+          <p className="text-destructive text-sm">Failed to load team members.</p>
           <p className="text-muted-foreground text-xs">
             Something went wrong while loading data. Please try again later.
           </p>
@@ -141,18 +107,12 @@ export default async function TeamPage() {
       );
 
     for (const r of pendingRequests ?? []) {
-      pendingCountMap.set(
-        r.employee_id,
-        (pendingCountMap.get(r.employee_id) ?? 0) + 1,
-      );
+      pendingCountMap.set(r.employee_id, (pendingCountMap.get(r.employee_id) ?? 0) + 1);
     }
   }
 
   // Get leave balance summary per employee for current year
-  const leaveBalanceMap = new Map<
-    string,
-    { entitled: number; used: number; remaining: number }
-  >();
+  const leaveBalanceMap = new Map<string, { entitled: number; used: number; remaining: number }>();
   if (members.length > 0) {
     const { data: balances } = await supabase
       .from("leave_balances")
@@ -178,10 +138,7 @@ export default async function TeamPage() {
 
   const activeCount = members.filter((m) => m.status === "ACTIVE").length;
   const onLeaveCount = onLeaveSet.size;
-  const totalPending = Array.from(pendingCountMap.values()).reduce(
-    (sum, c) => sum + c,
-    0,
-  );
+  const totalPending = Array.from(pendingCountMap.values()).reduce((sum, c) => sum + c, 0);
 
   return (
     <div className="@container/main flex flex-col gap-4 md:gap-6">
@@ -203,19 +160,13 @@ export default async function TeamPage() {
               {activeCount} Active
             </Badge>
             {onLeaveCount > 0 && (
-              <Badge
-                variant="secondary"
-                className="gap-1.5 bg-amber-500/10 text-amber-700 dark:text-amber-400"
-              >
+              <Badge variant="secondary" className="gap-1.5 bg-amber-500/10 text-amber-700 dark:text-amber-400">
                 <TreePalm className="h-3 w-3" />
                 {onLeaveCount} On Leave
               </Badge>
             )}
             {!isEmployee && totalPending > 0 && (
-              <Badge
-                variant="secondary"
-                className="gap-1.5 bg-orange-500/10 text-orange-700 dark:text-orange-400"
-              >
+              <Badge variant="secondary" className="gap-1.5 bg-orange-500/10 text-orange-700 dark:text-orange-400">
                 <Clock className="h-3 w-3" />
                 {totalPending} Pending
               </Badge>
@@ -231,51 +182,36 @@ export default async function TeamPage() {
             <CardHeader className="pb-2">
               <CardDescription>Total Entitled</CardDescription>
               <CardTitle className="text-2xl">
-                {Array.from(leaveBalanceMap.values()).reduce(
-                  (sum, b) => sum + b.entitled,
-                  0,
-                )}{" "}
+                {Array.from(leaveBalanceMap.values()).reduce((sum, b) => sum + b.entitled, 0)}{" "}
                 <span className="font-normal text-muted-foreground text-sm">days</span>
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-muted-foreground text-xs">
-                Across all team members for {currentYear}
-              </p>
+              <p className="text-muted-foreground text-xs">Across all team members for {currentYear}</p>
             </CardContent>
           </Card>
           <Card>
             <CardHeader className="pb-2">
               <CardDescription>Total Used</CardDescription>
               <CardTitle className="text-2xl">
-                {Array.from(leaveBalanceMap.values()).reduce(
-                  (sum, b) => sum + b.used,
-                  0,
-                )}{" "}
+                {Array.from(leaveBalanceMap.values()).reduce((sum, b) => sum + b.used, 0)}{" "}
                 <span className="font-normal text-muted-foreground text-sm">days</span>
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-muted-foreground text-xs">
-                Leave days consumed this year
-              </p>
+              <p className="text-muted-foreground text-xs">Leave days consumed this year</p>
             </CardContent>
           </Card>
           <Card>
             <CardHeader className="pb-2">
               <CardDescription>Total Remaining</CardDescription>
               <CardTitle className="text-2xl">
-                {Array.from(leaveBalanceMap.values()).reduce(
-                  (sum, b) => sum + b.remaining,
-                  0,
-                )}{" "}
+                {Array.from(leaveBalanceMap.values()).reduce((sum, b) => sum + b.remaining, 0)}{" "}
                 <span className="font-normal text-muted-foreground text-sm">days</span>
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-muted-foreground text-xs">
-                Available leave balance remaining
-              </p>
+              <p className="text-muted-foreground text-xs">Available leave balance remaining</p>
             </CardContent>
           </Card>
         </div>
@@ -342,8 +278,7 @@ export default async function TeamPage() {
                     used: 0,
                     remaining: 0,
                   };
-                  const statusStyle =
-                    EMPLOYMENT_STATUS_STYLES[member.status] ?? EMPLOYMENT_STATUS_STYLES.ACTIVE;
+                  const statusStyle = EMPLOYMENT_STATUS_STYLES[member.status] ?? EMPLOYMENT_STATUS_STYLES.ACTIVE;
 
                   return (
                     <TableRow key={member.id}>
@@ -361,9 +296,7 @@ export default async function TeamPage() {
                             </AvatarFallback>
                           </Avatar>
                           <div className="min-w-0">
-                            <p className="truncate font-medium text-sm">
-                              {member.full_name}
-                            </p>
+                            <p className="truncate font-medium text-sm">{member.full_name}</p>
                             <p className="flex items-center gap-1 text-muted-foreground text-xs">
                               <Hash className="h-3 w-3" />
                               {member.employee_code}
@@ -387,24 +320,17 @@ export default async function TeamPage() {
                         </div>
                       </TableCell>
                       <TableCell>
-                        <span className="text-sm">
-                          {member.position || "\u2014"}
-                        </span>
+                        <span className="text-sm">{member.position || "\u2014"}</span>
                       </TableCell>
                       <TableCell>
-                        <Badge
-                          variant="outline"
-                          className={statusStyle.className}
-                        >
+                        <Badge variant="outline" className={statusStyle.className}>
                           {member.status}
                         </Badge>
                       </TableCell>
                       {!isEmployee && (
                         <>
                           <TableCell className="text-center">
-                            <span className="font-medium text-sm">
-                              {balance.entitled}
-                            </span>
+                            <span className="font-medium text-sm">{balance.entitled}</span>
                           </TableCell>
                           <TableCell className="text-center">
                             <span className="text-sm">{balance.used}</span>
@@ -429,9 +355,7 @@ export default async function TeamPage() {
                                 {pendingCount}
                               </Badge>
                             ) : (
-                              <span className="text-muted-foreground text-sm">
-                                0
-                              </span>
+                              <span className="text-muted-foreground text-sm">0</span>
                             )}
                           </TableCell>
                         </>
@@ -439,24 +363,14 @@ export default async function TeamPage() {
                       {!isEmployee && (
                         <TableCell className="text-right">
                           <div className="flex items-center justify-end gap-1">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              asChild
-                            >
-                              <Link
-                                href={`/dashboard/employees/${member.id}`}
-                              >
+                            <Button variant="ghost" size="sm" asChild>
+                              <Link href={`/dashboard/employees/${member.id}`}>
                                 <Eye className="mr-1 h-3.5 w-3.5" />
                                 View
                               </Link>
                             </Button>
                             {pendingCount > 0 && (
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                asChild
-                              >
+                              <Button variant="outline" size="sm" asChild>
                                 <Link href="/dashboard/approvals">
                                   <CheckCircle2 className="mr-1 h-3.5 w-3.5" />
                                   Approve

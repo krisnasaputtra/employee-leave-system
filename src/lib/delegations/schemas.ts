@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-const UUID_RE = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
+import { UUID_RE } from "@/lib/utils/constants";
 
 export const delegationCreateSchema = z
   .object({
@@ -15,3 +15,6 @@ export const delegationCreateSchema = z
   });
 
 export type DelegationCreateInput = z.infer<typeof delegationCreateSchema>;
+
+export const delegationIdSchema = z.string().regex(UUID_RE, "Invalid delegation selected.");
+export type DelegationIdInput = z.infer<typeof delegationIdSchema>;

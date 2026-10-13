@@ -2,10 +2,9 @@
 
 import { Download } from "lucide-react";
 
-import { useTranslation } from "@/providers/locale-provider";
-
 import { Button } from "@/components/ui/button";
 import { downloadCsv } from "@/lib/utils/export-csv";
+import { useTranslation } from "@/providers/locale-provider";
 
 interface AnalyticsExportButtonProps {
   topLeaveTakersCsv: string;

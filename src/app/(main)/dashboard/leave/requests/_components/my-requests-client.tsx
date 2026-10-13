@@ -1,30 +1,21 @@
 "use client";
 
 import { useState } from "react";
+
 import Link from "next/link";
+
 import { useQuery } from "@tanstack/react-query";
 import { Eye, FileText, Loader2, Plus } from "lucide-react";
-
-import { useTranslation } from "@/providers/locale-provider";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { STATUS_BADGE_STYLES } from "@/lib/ui/badge-variants";
 import { formatDate } from "@/lib/utils/format-date";
+import { useTranslation } from "@/providers/locale-provider";
 
-import {
-  fetchMyRequests,
-  type FetchMyRequestsResult,
-} from "../fetch-my-requests";
+import { type FetchMyRequestsResult, fetchMyRequests } from "../fetch-my-requests";
 
 // ---------------------------------------------------------------------------
 // Props
@@ -61,14 +52,10 @@ export function MyRequestsClient({ initialData }: MyRequestsClientProps) {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <h1 className="font-semibold text-2xl tracking-tight">
-            {t("leave.myTitle")}
-          </h1>
+          <h1 className="font-semibold text-2xl tracking-tight">{t("leave.myTitle")}</h1>
           <Badge variant="secondary">{totalCount}</Badge>
           {/* Fetching indicator */}
-          {isFetching && (
-            <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
-          )}
+          {isFetching && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
         </div>
         <Button size="sm" asChild>
           <Link href="/dashboard/leave/requests/new">
@@ -80,11 +67,7 @@ export function MyRequestsClient({ initialData }: MyRequestsClientProps) {
 
       {/* Content */}
       {requests.length === 0 && !isFetching ? (
-        <EmptyState
-          icon={FileText}
-          title={t("leave.noRequests")}
-          description={t("leave.noRequestsDescription")}
-        >
+        <EmptyState icon={FileText} title={t("leave.noRequests")} description={t("leave.noRequestsDescription")}>
           <Button size="sm" asChild>
             <Link href="/dashboard/leave/requests/new">
               <Plus className="mr-2 h-4 w-4" />
@@ -116,9 +99,7 @@ export function MyRequestsClient({ initialData }: MyRequestsClientProps) {
 
                 return (
                   <TableRow key={r.id}>
-                    <TableCell className="font-medium">
-                      {r.request_number ?? "—"}
-                    </TableCell>
+                    <TableCell className="font-medium">{r.request_number ?? "—"}</TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
                         <div
@@ -133,16 +114,9 @@ export function MyRequestsClient({ initialData }: MyRequestsClientProps) {
                     <TableCell>
                       {formatDate(r.start_date)} — {formatDate(r.end_date)}
                     </TableCell>
-                    <TableCell className="text-right">
-                      {r.requested_days}
-                    </TableCell>
+                    <TableCell className="text-right">{r.requested_days}</TableCell>
                     <TableCell>
-                      <Badge
-                        variant="outline"
-                        className={
-                          STATUS_BADGE_STYLES[r.status]?.className
-                        }
-                      >
+                      <Badge variant="outline" className={STATUS_BADGE_STYLES[r.status]?.className}>
                         {STATUS_BADGE_STYLES[r.status]?.label ?? r.status}
                       </Badge>
                     </TableCell>
@@ -174,20 +148,12 @@ export function MyRequestsClient({ initialData }: MyRequestsClientProps) {
               </p>
               <div className="flex gap-1">
                 {page > 1 && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setPage((p) => p - 1)}
-                  >
+                  <Button variant="outline" size="sm" onClick={() => setPage((p) => p - 1)}>
                     {t("common.previous")}
                   </Button>
                 )}
                 {page < totalPages && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setPage((p) => p + 1)}
-                  >
+                  <Button variant="outline" size="sm" onClick={() => setPage((p) => p + 1)}>
                     {t("common.next")}
                   </Button>
                 )}

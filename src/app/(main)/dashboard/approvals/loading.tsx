@@ -1,5 +1,16 @@
 import { Skeleton } from "@/components/ui/skeleton";
 
+const ROW_SKELETON_KEYS = [
+  "approval-row-1",
+  "approval-row-2",
+  "approval-row-3",
+  "approval-row-4",
+  "approval-row-5",
+  "approval-row-6",
+  "approval-row-7",
+  "approval-row-8",
+];
+
 export default function ApprovalsLoading() {
   return (
     <div className="flex flex-1 flex-col gap-4 p-4">
@@ -13,8 +24,8 @@ export default function ApprovalsLoading() {
         <Skeleton className="h-9 w-32" />
       </div>
       <div className="space-y-2">
-        {Array.from({ length: 8 }).map((_, i) => (
-          <Skeleton key={i} className="h-12 w-full" />
+        {ROW_SKELETON_KEYS.map((key) => (
+          <Skeleton key={key} className="h-12 w-full" />
         ))}
       </div>
       <div className="flex justify-end">

@@ -1,7 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+
 import Link from "next/link";
+
 import { useQuery } from "@tanstack/react-query";
 import { Loader2, Search, Settings, Wallet, X } from "lucide-react";
 
@@ -9,24 +11,11 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Input } from "@/components/ui/input";
-import {
-  NativeSelect,
-  NativeSelectOption,
-} from "@/components/ui/native-select";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useDebounce } from "@/hooks/use-debounce";
 
-import {
-  fetchBalances,
-  type FetchBalancesResult,
-} from "../fetch-balances";
+import { type FetchBalancesResult, fetchBalances } from "../fetch-balances";
 
 // ---------------------------------------------------------------------------
 // Helpers (keep existing colour logic)
@@ -54,11 +43,7 @@ interface ManageBalancesClientProps {
 // Component
 // ---------------------------------------------------------------------------
 
-export function ManageBalancesClient({
-  initialData,
-  departments,
-  currentYear,
-}: ManageBalancesClientProps) {
+export function ManageBalancesClient({ initialData, departments, currentYear }: ManageBalancesClientProps) {
   // ------ local filter / pagination state ------
   const [search, setSearch] = useState("");
   const [department, setDepartment] = useState("");
@@ -68,6 +53,8 @@ export function ManageBalancesClient({
 
   // Reset to page 1 whenever any filter changes
   useEffect(() => {
+    void debouncedSearch;
+    void department;
     setPage(1);
   }, [debouncedSearch, department]);
 
@@ -106,9 +93,7 @@ export function ManageBalancesClient({
       <div className="flex items-center justify-between">
         <div>
           <div className="flex items-center gap-3">
-            <h1 className="font-semibold text-2xl tracking-tight">
-              Manage Balances
-            </h1>
+            <h1 className="font-semibold text-2xl tracking-tight">Manage Balances</h1>
             <Badge variant="secondary">{currentYear}</Badge>
           </div>
           <p className="text-muted-foreground text-sm">
@@ -120,8 +105,8 @@ export function ManageBalancesClient({
       {/* Search & Filters bar */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-2">
         {/* Search input */}
-        <div className="relative flex-1 max-w-sm">
-          <Search className="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+        <div className="relative max-w-sm flex-1">
+          <Search className="pointer-events-none absolute top-1/2 left-2.5 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             placeholder="Search by name or code…"
             value={search}
@@ -131,11 +116,7 @@ export function ManageBalancesClient({
         </div>
 
         {/* Department filter */}
-        <NativeSelect
-          value={department}
-          onChange={(e) => setDepartment(e.target.value)}
-          className="w-full sm:w-auto"
-        >
+        <NativeSelect value={department} onChange={(e) => setDepartment(e.target.value)} className="w-full sm:w-auto">
           <NativeSelectOption value="">All Teams</NativeSelectOption>
           {departments.map((d) => (
             <NativeSelectOption key={d.id} value={d.id}>
@@ -146,21 +127,14 @@ export function ManageBalancesClient({
 
         {/* Clear filters */}
         {hasActiveFilters && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={clearFilters}
-            className="text-muted-foreground"
-          >
+          <Button variant="ghost" size="sm" onClick={clearFilters} className="text-muted-foreground">
             <X className="mr-1 h-3.5 w-3.5" />
             Clear filters
           </Button>
         )}
 
         {/* Fetching indicator */}
-        {isFetching && (
-          <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
-        )}
+        {isFetching && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
       </div>
 
       {/* Table or Empty state */}
@@ -185,9 +159,7 @@ export function ManageBalancesClient({
                   <TableHead className="hidden md:table-cell">Team</TableHead>
                   <TableHead className="text-right">Entitled</TableHead>
                   <TableHead className="text-right">Used</TableHead>
-                  <TableHead className="text-right hidden sm:table-cell">
-                    Pending
-                  </TableHead>
+                  <TableHead className="hidden text-right sm:table-cell">Pending</TableHead>
                   <TableHead className="text-right">Remaining</TableHead>
                   <TableHead>Actions</TableHead>
                 </TableRow>
@@ -195,31 +167,16 @@ export function ManageBalancesClient({
               <TableBody>
                 {employees.map((emp) => (
                   <TableRow key={emp.id}>
-                    <TableCell className="font-medium">
-                      {emp.full_name}
-                    </TableCell>
-                    <TableCell className="font-mono text-xs">
-                      {emp.employee_code}
-                    </TableCell>
-                    <TableCell className="hidden md:table-cell">
-                      {emp.departments?.name ?? "—"}
-                    </TableCell>
-                    <TableCell className="text-right tabular-nums">
-                      {emp.balance.entitled}
-                    </TableCell>
-                    <TableCell className="text-right tabular-nums">
-                      {emp.balance.used}
-                    </TableCell>
-                    <TableCell className="text-right tabular-nums hidden sm:table-cell">
+                    <TableCell className="font-medium">{emp.full_name}</TableCell>
+                    <TableCell className="font-mono text-xs">{emp.employee_code}</TableCell>
+                    <TableCell className="hidden md:table-cell">{emp.departments?.name ?? "—"}</TableCell>
+                    <TableCell className="text-right tabular-nums">{emp.balance.entitled}</TableCell>
+                    <TableCell className="text-right tabular-nums">{emp.balance.used}</TableCell>
+                    <TableCell className="hidden text-right tabular-nums sm:table-cell">
                       {emp.balance.pending}
                     </TableCell>
                     <TableCell className="text-right">
-                      <Badge
-                        variant="outline"
-                        className={getRemainingBadgeClass(
-                          emp.balance.remaining,
-                        )}
-                      >
+                      <Badge variant="outline" className={getRemainingBadgeClass(emp.balance.remaining)}>
                         {emp.balance.remaining}
                       </Badge>
                     </TableCell>
@@ -245,20 +202,12 @@ export function ManageBalancesClient({
               </p>
               <div className="flex gap-1">
                 {page > 1 && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setPage((p) => p - 1)}
-                  >
+                  <Button variant="outline" size="sm" onClick={() => setPage((p) => p - 1)}>
                     Previous
                   </Button>
                 )}
                 {page < totalPages && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setPage((p) => p + 1)}
-                  >
+                  <Button variant="outline" size="sm" onClick={() => setPage((p) => p + 1)}>
                     Next
                   </Button>
                 )}

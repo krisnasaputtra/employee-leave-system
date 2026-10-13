@@ -1,9 +1,6 @@
 import { expect, test } from "@playwright/test";
-import {
-  loginAsAdmin,
-  loginAsEmployee,
-  loginAsManager,
-} from "./helpers/auth";
+
+import { loginAsAdmin, loginAsEmployee, loginAsManager } from "./helpers/auth";
 
 /**
  * Approval Flow E2E Tests
@@ -38,9 +35,7 @@ test.describe("Approval Flow — Manager", () => {
     });
   });
 
-  test("manager approvals page shows pending requests table or empty state", async ({
-    page,
-  }) => {
+  test("manager approvals page shows pending requests table or empty state", async ({ page }) => {
     try {
       await loginAsManager(page);
     } catch {
@@ -53,9 +48,7 @@ test.describe("Approval Flow — Manager", () => {
 
     // Should show either a table of pending requests or an empty state
     const table = page.locator("table, [role='grid']");
-    const emptyState = page.locator(
-      'text=/no.*pending|no.*approval|no.*request|empty|nothing/i',
-    );
+    const emptyState = page.locator("text=/no.*pending|no.*approval|no.*request|empty|nothing/i");
 
     const hasTable = await table
       .first()
@@ -69,9 +62,7 @@ test.describe("Approval Flow — Manager", () => {
     expect(hasTable || hasEmptyState).toBeTruthy();
   });
 
-  test("manager approvals page has action buttons when requests exist", async ({
-    page,
-  }) => {
+  test("manager approvals page has action buttons when requests exist", async ({ page }) => {
     try {
       await loginAsManager(page);
     } catch {
@@ -127,17 +118,13 @@ test.describe("Approval Flow — Admin", () => {
     });
   });
 
-  test("admin approvals page shows all pending requests", async ({
-    page,
-  }) => {
+  test("admin approvals page shows all pending requests", async ({ page }) => {
     await page.goto("/dashboard/approvals");
     await page.waitForLoadState("networkidle");
 
     // Should show either a table of all pending requests or an empty state
     const table = page.locator("table, [role='grid']");
-    const emptyState = page.locator(
-      'text=/no.*pending|no.*approval|no.*request|empty|nothing/i',
-    );
+    const emptyState = page.locator("text=/no.*pending|no.*approval|no.*request|empty|nothing/i");
 
     const hasTable = await table
       .first()
@@ -162,9 +149,7 @@ test.describe("Approval Flow — Admin", () => {
     expect(body).not.toContain("PostgrestError");
   });
 
-  test("admin can see requester information in approvals", async ({
-    page,
-  }) => {
+  test("admin can see requester information in approvals", async ({ page }) => {
     await page.goto("/dashboard/approvals");
     await page.waitForLoadState("networkidle");
 
@@ -210,9 +195,7 @@ test.describe("Approval Flow — Employee (delegation)", () => {
     expect(isOnApprovals || isOnDashboard).toBeTruthy();
   });
 
-  test("employee approvals page shows appropriate content", async ({
-    page,
-  }) => {
+  test("employee approvals page shows appropriate content", async ({ page }) => {
     await page.goto("/dashboard/approvals");
     await page.waitForLoadState("networkidle");
 
@@ -233,9 +216,7 @@ test.describe("Approval Flow — Employee (delegation)", () => {
     }
   });
 
-  test("employee approvals page does not expose admin-only controls", async ({
-    page,
-  }) => {
+  test("employee approvals page does not expose admin-only controls", async ({ page }) => {
     await page.goto("/dashboard/approvals");
     await page.waitForLoadState("networkidle");
 

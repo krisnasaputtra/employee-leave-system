@@ -18,6 +18,8 @@ export function DownloadButton({ attachmentId, fileName }: DownloadButtonProps) 
   const [isPending, startTransition] = useTransition();
 
   function handleDownload() {
+    if (isPending) return;
+
     startTransition(async () => {
       const result = await getAttachmentDownloadUrlAction(attachmentId);
       if (result.success && result.url) {
@@ -30,7 +32,14 @@ export function DownloadButton({ attachmentId, fileName }: DownloadButtonProps) 
   }
 
   return (
-    <Button variant="ghost" size="sm" disabled={isPending} onClick={handleDownload} title={`Download ${fileName}`}>
+    <Button
+      variant="ghost"
+      size="sm"
+      disabled={isPending}
+      onClick={handleDownload}
+      title={`Download ${fileName}`}
+      aria-label={`Download attachment ${fileName}`}
+    >
       {isPending ? <Loader2 className="mr-1 h-3 w-3 animate-spin" /> : <Download className="mr-1 h-3 w-3" />}
       Download
     </Button>

@@ -3,6 +3,9 @@ import type { Database } from "@/types/database.types";
 export type ApplicationRole = Database["public"]["Enums"]["application_role"];
 export type EmploymentStatus = Database["public"]["Enums"]["employment_status"];
 
+export const APPLICATION_ROLES = ["ADMIN", "MANAGER", "EMPLOYEE"] as const satisfies readonly ApplicationRole[];
+export const EMPLOYMENT_STATUSES = ["ACTIVE", "INACTIVE", "TERMINATED"] as const satisfies readonly EmploymentStatus[];
+
 export interface AuthEmployee {
   id: string;
   auth_user_id: string | null;
@@ -14,6 +17,14 @@ export interface AuthEmployee {
   must_change_password: boolean;
   department_id: string;
   position: string;
+}
+
+export function isApplicationRole(value: string): value is ApplicationRole {
+  return APPLICATION_ROLES.includes(value as ApplicationRole);
+}
+
+export function isEmploymentStatus(value: string): value is EmploymentStatus {
+  return EMPLOYMENT_STATUSES.includes(value as EmploymentStatus);
 }
 
 export function canManageEmployees(role: ApplicationRole): boolean {

@@ -1,17 +1,19 @@
 import "server-only";
 import { Resend } from "resend";
 
+import { getServerEnv } from "@/lib/server-env";
+
 let resendClient: Resend | null = null;
 
 export function getEmailClient(): Resend | null {
-  const apiKey = process.env.RESEND_API_KEY;
-  if (!apiKey) return null;
+  const { RESEND_API_KEY } = getServerEnv();
+  if (!RESEND_API_KEY) return null;
   if (!resendClient) {
-    resendClient = new Resend(apiKey);
+    resendClient = new Resend(RESEND_API_KEY);
   }
   return resendClient;
 }
 
 export function getEmailFrom(): string {
-  return process.env.EMAIL_FROM || "BNI Leave System <noreply@bni.co.id>";
+  return getServerEnv().EMAIL_FROM;
 }

@@ -21,28 +21,15 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { leaveRejectionSchema } from "@/lib/approvals/schemas";
 import { formatDate } from "@/lib/utils/format-date";
 import { useTranslation } from "@/providers/locale-provider";
 
 import { bulkApproveAction, bulkRejectAction } from "../actions";
-
 import { ApprovalActions } from "./approval-actions";
 
 interface ApprovalRequest {
@@ -69,6 +56,7 @@ export function ApprovalsTable({ requests, capacityWarnings = {} }: ApprovalsTab
   const [isRejecting, startRejecting] = useTransition();
   const [rejectDialogOpen, setRejectDialogOpen] = useState(false);
   const [rejectionReason, setRejectionReason] = useState("");
+  const [rejectionError, setRejectionError] = useState("");
 
   const allSelected = requests.length > 0 && selectedIds.size === requests.length;
   const someSelected = selectedIds.size > 0 && selectedIds.size < requests.length;
@@ -114,12 +102,16 @@ export function ApprovalsTable({ requests, capacityWarnings = {} }: ApprovalsTab
   }
 
   function handleBulkReject() {
-    if (!rejectionReason.trim()) {
-      toast.error("Please provide a rejection reason.");
+    const parsed = leaveRejectionSchema.safeParse({ rejection_reason: rejectionReason });
+    if (!parsed.success) {
+      const message = parsed.error.issues[0]?.message ?? "Please provide a valid rejection reason.";
+      setRejectionError(message);
+      toast.error(message);
       return;
     }
     const ids = Array.from(selectedIds);
-    const reason = rejectionReason.trim();
+    const reason = parsed.data.rejection_reason;
+    setRejectionError("");
     startRejecting(async () => {
       const result = await bulkRejectAction(ids, reason);
       if (!result.success) {
@@ -136,6 +128,7 @@ export function ApprovalsTable({ requests, capacityWarnings = {} }: ApprovalsTab
       setSelectedIds(new Set());
       setRejectDialogOpen(false);
       setRejectionReason("");
+      setRejectionError("");
       router.refresh();
     });
   }
@@ -179,9 +172,7 @@ export function ApprovalsTable({ requests, capacityWarnings = {} }: ApprovalsTab
                     <div className="flex items-center gap-2">
                       <div>
                         <div className="font-medium">{employee?.full_name ?? "Unknown"}</div>
-                        <div className="text-muted-foreground text-sm">
-                          {employee?.employee_code ?? ""}
-                        </div>
+                        <div className="text-muted-foreground text-sm">{employee?.employee_code ?? ""}</div>
                       </div>
                       {capacityWarnings[r.id] && (
                         <TooltipProvider>
@@ -243,7 +234,9 @@ export function ApprovalsTable({ requests, capacityWarnings = {} }: ApprovalsTab
       {selectedIds.size > 0 && (
         <div className="fixed bottom-6 left-1/2 z-50 -translate-x-1/2 rounded-lg border bg-card p-4 shadow-lg">
           <div className="flex items-center gap-4">
-            <span className="text-sm font-medium">{selectedIds.size} {t("approval.selected")}</span>
+            <span className="font-medium text-sm">
+              {selectedIds.size} {t("approval.selected")}
+            </span>
 
             {/* Bulk Approve */}
             <AlertDialog>
@@ -271,12 +264,7 @@ export function ApprovalsTable({ requests, capacityWarnings = {} }: ApprovalsTab
             </AlertDialog>
 
             {/* Bulk Reject */}
-            <Button
-              variant="destructive"
-              size="sm"
-              disabled={isRejecting}
-              onClick={() => setRejectDialogOpen(true)}
-            >
+            <Button variant="destructive" size="sm" disabled={isRejecting} onClick={() => setRejectDialogOpen(true)}>
               <XCircle className="mr-1 h-4 w-4" />
               {t("approval.bulkReject")} ({selectedIds.size})
             </Button>
@@ -289,17 +277,27 @@ export function ApprovalsTable({ requests, capacityWarnings = {} }: ApprovalsTab
         <DialogContent>
           <DialogHeader>
             <DialogTitle>{t("approval.bulkRejectTitle")}</DialogTitle>
-            <DialogDescription>
-              {`${t("approval.bulkRejectDescription")} (${selectedIds.size})`}
-            </DialogDescription>
+            <DialogDescription>{`${t("approval.bulkRejectDescription")} (${selectedIds.size})`}</DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <Textarea
+              id="bulk_rejection_reason"
               placeholder={t("approval.rejectionReasonPlaceholder")}
               rows={3}
               value={rejectionReason}
-              onChange={(e) => setRejectionReason(e.target.value)}
+              aria-label={t("approval.rejectionReason")}
+              aria-invalid={rejectionError ? "true" : "false"}
+              aria-describedby={rejectionError ? "bulk_rejection_reason-error" : undefined}
+              onChange={(e) => {
+                setRejectionReason(e.target.value);
+                if (rejectionError) setRejectionError("");
+              }}
             />
+            {rejectionError && (
+              <p id="bulk_rejection_reason-error" className="text-destructive text-sm">
+                {rejectionError}
+              </p>
+            )}
             <div className="flex justify-end gap-2">
               <Button
                 type="button"
@@ -307,15 +305,12 @@ export function ApprovalsTable({ requests, capacityWarnings = {} }: ApprovalsTab
                 onClick={() => {
                   setRejectDialogOpen(false);
                   setRejectionReason("");
+                  setRejectionError("");
                 }}
               >
                 {t("common.cancel")}
               </Button>
-              <Button
-                variant="destructive"
-                disabled={isRejecting}
-                onClick={handleBulkReject}
-              >
+              <Button variant="destructive" disabled={isRejecting} onClick={handleBulkReject}>
                 {isRejecting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 {`${t("approval.rejectCount")} (${selectedIds.size})`}
               </Button>

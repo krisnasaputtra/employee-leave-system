@@ -1,7 +1,5 @@
 "use client";
 
-import { useTranslation } from "@/providers/locale-provider";
-
 import { useState, useTransition } from "react";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -22,6 +20,8 @@ import {
 import { Field, FieldContent, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
+import { toActionInput } from "@/lib/forms/to-action-input";
+import { useTranslation } from "@/providers/locale-provider";
 
 import { upsertPolicyAction } from "../actions";
 
@@ -42,6 +42,7 @@ const policyFormSchema = z.object({
   requires_attachment: z.boolean().default(false),
 });
 
+type PolicyFormValues = z.input<typeof policyFormSchema>;
 type PolicyFormInput = z.output<typeof policyFormSchema>;
 
 // =============================================================
@@ -73,21 +74,20 @@ export function PolicyFormDialog({ leaveTypeId, leaveTypeName, policy, trigger }
   const [isPending, startTransition] = useTransition();
   const [serverError, setServerError] = useState<string | null>(null);
 
-  const form = useForm<PolicyFormInput>({
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    resolver: zodResolver(policyFormSchema) as any,
+  const form = useForm<PolicyFormValues, undefined, PolicyFormInput>({
+    resolver: zodResolver(policyFormSchema),
     defaultValues: {
       leave_type_id: leaveTypeId,
-      notice_period_days: policy?.notice_period_days ?? 0,
-      max_consecutive_days: policy?.max_consecutive_days ?? undefined,
-      requires_attachment: policy?.requires_attachment ?? false,
+      notice_period_days: policy ? policy.notice_period_days : 0,
+      max_consecutive_days: policy ? policy.max_consecutive_days : undefined,
+      requires_attachment: policy ? policy.requires_attachment : false,
     },
   });
 
   const onSubmit = (data: PolicyFormInput) => {
     setServerError(null);
     startTransition(async () => {
-      const result = await upsertPolicyAction(data as unknown as Record<string, unknown>);
+      const result = await upsertPolicyAction(toActionInput(data));
       if (!result.success) {
         setServerError(result.error ?? "Operation failed.");
       } else {
@@ -104,13 +104,17 @@ export function PolicyFormDialog({ leaveTypeId, leaveTypeName, policy, trigger }
         <DialogHeader>
           <DialogTitle>{policy ? t("settings.editPolicy") : t("settings.configurePolicy")}</DialogTitle>
           <DialogDescription>
-            {policy ? `${t("settings.editPolicyDesc")} — ${leaveTypeName}` : `${t("settings.configurePolicyDesc")} — ${leaveTypeName}`}
+            {policy
+              ? `${t("settings.editPolicyDesc")} — ${leaveTypeName}`
+              : `${t("settings.configurePolicyDesc")} — ${leaveTypeName}`}
           </DialogDescription>
         </DialogHeader>
 
         <form noValidate onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           {serverError && (
-            <div role="alert" className="rounded-md bg-destructive/10 p-3 text-center text-destructive text-sm">{serverError}</div>
+            <div role="alert" className="rounded-md bg-destructive/10 p-3 text-center text-destructive text-sm">
+              {serverError}
+            </div>
           )}
 
           <FieldGroup>

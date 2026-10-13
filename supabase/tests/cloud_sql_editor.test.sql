@@ -1,9 +1,9 @@
 -- =============================================================
--- Database Integration Tests — Plain SQL (No pgTAP needed)
+-- Database Integration Tests - Plain SQL (No pgTAP needed)
 -- =============================================================
--- INSTRUCTIONS: Paste & run di Supabase SQL Editor
+-- INSTRUCTIONS: Paste and run in Supabase SQL Editor
 -- Output: Tabel dengan kolom test_name, passed, detail
--- ROLLBACK di akhir — tidak ada data tersisa
+-- ROLLBACK di akhir - tidak ada data tersisa
 -- =============================================================
 
 begin;
@@ -425,7 +425,7 @@ $$;
 select
   test_num as "#",
   test_name,
-  case when passed then '✅ PASS' else '❌ FAIL' end as result,
+  case when passed then 'PASS' else 'FAIL' end as result,
   coalesce(detail, '') as detail
 from test_results
 
@@ -436,7 +436,7 @@ select
   '=== SUMMARY: ' || count(*) filter (where passed) || ' passed, '
     || count(*) filter (where not passed) || ' failed, '
     || count(*) || ' total ===' as test_name,
-  case when count(*) filter (where not passed) = 0 then '✅ ALL PASS' else '❌ HAS FAILURES' end as result,
+  case when count(*) filter (where not passed) = 0 then 'ALL PASS' else 'HAS FAILURES' end as result,
   '' as detail
 from test_results
 
