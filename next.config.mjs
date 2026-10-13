@@ -2,10 +2,6 @@
 const consentAgreementUrl = process.env.CONSENT_AGREEMENT_URL;
 const consentAgreementOrigin = consentAgreementUrl ? new URL(consentAgreementUrl).origin : undefined;
 
-if (process.env.NODE_ENV === "production" && consentAgreementOrigin && !consentAgreementOrigin.startsWith("https://")) {
-  throw new Error("CONSENT_AGREEMENT_URL must use HTTPS in production.");
-}
-
 const frameSources = consentAgreementOrigin ? `'self' ${consentAgreementOrigin}` : "'self'";
 
 const nextConfig = {
